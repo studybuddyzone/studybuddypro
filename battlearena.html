@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Buddy Premium Pro</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg: #05070f;
+            --surface: rgba(13, 20, 38, 0.6);
+            --border: rgba(34, 47, 71, 0.6);
+            --primary: #3b82f6; 
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --danger: #ef4444;
+            --text: #f1f5f9;
+            --text-muted: #475569;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        
+        body { 
+            background: radial-gradient(circle at top right, #0b1329, #05070f);
+            color: var(--text); 
+            padding: 30px 15px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-bottom: 35px;
+            width: 100%;
+        }
+
+        .university-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
+            margin-bottom: 10px;
+        }
+
+        /* GLOWING TITLE */
+        .main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fff 30%, #3b82f6 70%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.6));
+            animation: titlePulse 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes titlePulse {
+            0% { filter: drop-shadow(0 2px 5px rgba(59, 130, 246, 0.4)); }
+            100% { filter: drop-shadow(0 2px 20px rgba(0, 242, 254, 0.8)); }
+        }
+
+        /* Centered Verification Panel */
+        .security-gate-panel {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px; /* मोबाइल पर एकदम सेट बैठता है */
+            margin-bottom: 35px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            text-align: center; /* लेबल और इनपुट दोनों सेंटर */
+        }
+
+        .input-group label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 1px;
+        }
+
+        .prn-box-style {
+            background: #070b14;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            outline: none;
+            transition: all 0.3s ease;
+            text-align: center; /* कर्सर और टेक्स्ट बिल्कुल सेंटर */
+            letter-spacing: 1.5px;
+            width: 100%;
+        }
+        
+        .prn-box-style:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .prn-box-style.shrunk-lock {
+            background: rgba(16, 185, 129, 0.04);
+            border-color: var(--success);
+            color: var(--success);
+            box-shadow: 0 0 12px var(--success-glow);
+            font-weight: 800;
+            cursor: not-allowed;
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .btn-verify {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: #fff;
+            padding: 15px;
+            border-radius: 14px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        .btn-verify:hover { opacity: 0.95; transform: translateY(-1px); }
+
+        /* HEADINGS & GRID SETUP */
+        .subjects-section-heading {
+            width: 100%;
+            max-width: 950px;
+            margin-bottom: 15px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5px;
+        }
+
+        .subjects-main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* मोबाइल स्क्रीन पर सुंदर 2-कॉलम लेआउट */
+            gap: 15px;
+            width: 100%;
+            max-width: 950px;
+        }
+
+        @media (max-width: 400px) {
+            .subjects-main-grid {
+                grid-template-columns: repeat(2, 1fr); /* बहुत छोटे फोन पर भी 2 कार्ड्स बराबर दिखेंगे */
+            }
+        }
+
+        .subject-card {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 25px 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            opacity: 0.25;
+            cursor: not-allowed;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .subject-card.unlocked {
+            opacity: 1;
+            cursor: pointer;
+        }
+        .subject-card.unlocked:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            background: rgba(19, 28, 46, 0.9);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 10px rgba(59, 130, 246, 0.15);
+        }
+
+        .sc-icon-box {
+            width: 46px; height: 46px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 15px; font-size: 20px;
+        }
+
+        /* Subject Colors */
+        .c-maths { background: rgba(59, 130, 246, 0.08); color: #3b82f6; }
+        .c-physics { background: rgba(168, 85, 247, 0.08); color: #a855f7; }
+        .c-chemistry { background: rgba(236, 72, 153, 0.08); color: #ec4899; }
+        .c-mechanics { background: rgba(245, 158, 11, 0.08); color: #f59e0b; }
+        .c-graphics { background: rgba(20, 184, 166, 0.08); color: #14b8a6; }
+        .c-bcme { background: rgba(239, 68, 68, 0.08); color: #ef4444; }
+        .c-prog { background: rgba(16, 185, 129, 0.08); color: #10b981; }
+        .c-cs { background: rgba(99, 102, 241, 0.08); color: #6366f1; }
+        .c-electrical { background: rgba(234, 179, 8, 0.08); color: #eab308; }
+        .c-environment { background: rgba(34, 197, 94, 0.08); color: #22c55e; }
+
+        .subject-card h4 { font-size: 13px; font-weight: 700; color: #fff; line-height: 1.4; text-align: center; }
+        .lock-indicator { font-size: 11px; color: #475569; margin-top: 8px; font-weight: 600; text-align: center; }
+
+        /* NOTIFICATION POPUP */
+        .custom-alert-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 7, 15, 0.85); backdrop-filter: blur(10px);
+            z-index: 100000; justify-content: center; align-items: center; padding: 20px;
+        }
+        .custom-alert-card {
+            background: #0d1426; border: 1px solid #222f47; border-radius: 24px;
+            width: 100%; max-width: 340px; padding: 30px 20px; text-align: center;
+        }
+        .alert-circle { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; }
+        .alert-circle.danger { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+        .alert-circle.success { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+        .btn-alert-close { width: 100%; padding: 12px; border: none; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer; margin-top: 20px; background: var(--danger); font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="university-title">Dr. Babasaheb Ambedkar Technological University</div>
+        <div class="main-title">Study Buddy Premium Pro</div>
+    </div>
+
+    <div class="security-gate-panel">
+        <div class="input-group">
+            <label id="hostPrnLabel"><i class="fa-solid fa-circle-user"></i> Host PRN Number</label>
+            <input type="text" id="hostPrnField" class="prn-box-style" placeholder="Enter Host PRN" maxlength="16">
+        </div>
+
+        <div class="input-group">
+            <label id="friendPrnLabel"><i class="fa-solid fa-user-plus"></i> Invited Friend PRN</label>
+            <input type="text" id="friendPrnField" class="prn-box-style" placeholder="Enter Friend PRN" maxlength="16">
+        </div>
+
+        <button id="verifyActionBtn" onclick="executeStrictFirebaseValidation()" class="btn-verify">
+            <i class="fa-solid fa-key"></i> Verify to Unlock
+        </button>
+    </div>
+
+    <div class="subjects-section-heading">
+        <span>Select Arena</span>
+        <span id="globalLockStatus" style="color:var(--danger); font-size:11px; font-weight: 900;"><i class="fa-solid fa-lock"></i> Locked</span>
+    </div>
+    
+    <div class="subjects-main-grid">
+        <div class="subject-card" onclick="triggerNavigation('maths.html')">
+            <div class="sc-icon-box c-maths"><i class="fa-solid fa-calculator"></i></div>
+            <h4>Engineering Mathematics</h4>
+            <div class="lock-indicator"><i class="fa-solid fa-lock"></i> Locked</div>
+        </div>
+        <div class="subject-card" onclick="triggerNavigation('physics.html')">
+            <div class="sc-icon-box c-physics"><i class="fa-solid fa-atom"></i></div>
+            <h4>Engineering Physics</h4>
+            <div class="lock-indicator"><i class="fa-solid fa-lock"></i> Locked</div>
+        </div>
+        <div class="subject-card" onclick="triggerNavigation('chemistry.html')">
+            <div class="sc-icon-box c-chemistry"><i class="fa-solid fa-flask"></i></div>
+            <h4>Engineering Chemistry</h4>
+            <div class="lock-indicator"><i class="fa-solid fa-lock"></i> Locked</div>
+        </div>
+        <div class="subject-card" onclick="triggerNavigation('mechanics.html')">
+            <div class="sc-icon-box c-mechanics"><i class="fa-solid fa-gears"></i></div>
+            <h4>Engineering Mechanics</h4>
+            <div class="lock-indicator"><i class="fa-solid fa-lock"></i> Locked</div>
+        </div>
+        <div class="subject-card" onclick="triggerNavigation('graphics.html')">
+            <div class="sc-icon-box c-graphics"><i class="fa-solid fa-compass-drafting"></i></div>
+            <h4>Engineering Graphics</h4>
+            <div class="lock-indicator"><i class="fa-solid fa-lock"></i> Locked</div>
+        </div>
+        <div class="subject-card" onclick="triggerNavigation('bcme.html')">
+            <div class="sc-icon-box c-bcme"><i class="fa-solid fa-building"></i></div>
+            <h4>Basic Civil & Mech</h4>
+            <div class="lock-indicator"><i class="fa-solid fa-lock"></i> Locked</div>
+        </div>
+        <div class="subject-card" onclick="triggerNavigation('pps.html')">
+            <div class="sc-icon-box c-prog"><i class="fa-solid fa-code"></i></div>
+            <h4>Computer Programming</h4>
+            <div class="lock-indicator"><i class="fa-solid fa-lock"></i> Locked</div>
+        </div>
+        <div class="subject-card" onclick="triggerNavigation('communication_skills.html')">
+            <div class="sc-icon-box c-cs"><i class="fa-solid fa-comments"></i></div>
+            <h4>Communication Skills</h4>
+            <div class="lock-indicator"><i class="fa-solid fa-lock"></i> Locked</div>
+        </div>
+        <div class="subject-card" onclick="triggerNavigation('electrical.html')">
+            <div class="sc-icon-box c-electrical"><i class="fa-solid fa-charging-station"></i></div>
+            <h4>Basic Electrical Engg</h4>
+            <div class="lock-indicator"><i class="fa-solid fa-lock"></i> Locked</div>
+        </div>
+        <div class="subject-card" onclick="triggerNavigation('environmental.html')">
+            <div class="sc-icon-box c-environment"><i class="fa-solid fa-leaf"></i></div>
+            <h4>Mathematics 2 Engg</h4>
+            <div class="lock-indicator"><i class="fa-solid fa-lock"></i> Locked</div>
+        </div>
+    </div>
+
+    <div id="customAlertOverlay" class="custom-alert-overlay">
+        <div class="custom-alert-card">
+            <div id="alertIconBox" class="alert-circle danger"><i id="alertIcon" class="fa-solid fa-circle-xmark fa-xl"></i></div>
+            <h3 id="alertTitle" style="color:#fff; font-family:'Orbitron',sans-serif; font-size:15px;">ALERT</h3>
+            <p id="alertBody" style="color:#94a3b8; font-size:12px; margin-top:10px; line-height:1.5;"></p>
+            <button onclick="document.getElementById('customAlertOverlay').style.display='none'" class="btn-alert-close">CONTINUE</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc", authDomain: "students-e5183.firebaseapp.com", databaseURL: "https://students-e5183-default-rtdb.firebaseio.com", projectId: "students-e5183", storageBucket: "students-e5183.firebasestorage.app", messagingSenderId: "473442117683", appId: "1:473442117683:web:f39adc0665317aa95e9b46" };
+        firebase.initializeApp(firebaseConfig);
+        const firestore = firebase.firestore();
+
+        let verifiedHostPRN = "";
+        let verifiedFriendPRN = "";
+        let isDashboardFullyUnlocked = false;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const syncedHost = localStorage.getItem('user_verified_prn');
+            if(syncedHost && syncedHost.length === 16) {
+                applyShrinkLockState('hostPrnField', syncedHost);
+                verifiedHostPRN = syncedHost;
+                document.getElementById('hostPrnLabel').innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--success)"></i> Host Synced`;
+            }
+        });
+
+        function fireAlert(title, text, isSuccess) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertBody').innerText = text;
+            const iconBox = document.getElementById('alertIconBox');
+            const icon = document.getElementById('alertIcon');
+            if(isSuccess) {
+                iconBox.className = "alert-circle success"; icon.className = "fa-solid fa-circle-check fa-xl";
+            } else {
+                iconBox.className = "alert-circle danger"; icon.className = "fa-solid fa-circle-xmark fa-xl";
+            }
+            document.getElementById('customAlertOverlay').style.display = "flex";
+        }
+
+        function applyShrinkLockState(fieldId, value) {
+            const field = document.getElementById(fieldId);
+            field.value = value;
+            field.classList.add('shrunk-lock');
+            field.readOnly = true;
+        }
+
+        function executeStrictFirebaseValidation() {
+            const hostInp = document.getElementById('hostPrnField').value.trim();
+            const friendInp = document.getElementById('friendPrnField').value.trim();
+
+            if(hostInp.length !== 16 || friendInp.length !== 16) {
+                fireAlert("ERROR", "दोनों PRN नंबर पूरे 16 अंकों के होने चाहिए।", false);
+                return;
+            }
+
+            if(hostInp === friendInp) {
+                fireAlert("COLLISION ERROR", "Host और Friend का PRN समान नहीं हो सकता!", false);
+                return;
+            }
+
+            firestore.collection("users").where("prn", "==", hostInp).get().then(hostSnap => {
+                if(hostSnap.empty) {
+                    fireAlert("INVALID HOST", "यह Host PRN रजिस्टर नहीं है।", false);
+                    return;
+                }
+
+                firestore.collection("users").where("prn", "==", friendInp).get().then(friendSnap => {
+                    if(friendSnap.empty) {
+                        fireAlert("INVALID FRIEND", "यह Friend PRN रजिस्टर नहीं है।", false);
+                        return;
+                    }
+
+                    verifiedHostPRN = hostInp;
+                    verifiedFriendPRN = friendInp;
+
+                    applyShrinkLockState('hostPrnField', hostInp);
+                    applyShrinkLockState('friendPrnField', friendInp);
+                    
+                    document.getElementById('verifyActionBtn').style.display = "none"; 
+                    
+                    fireAlert("SUCCESS", "क्रेडेंशियल्स वेरिफाइड! डैशबोर्ड अनलॉक हो गया है।", true);
+                    initiateMatrixActivation();
+                });
+            }).catch(() => {
+                fireAlert("SERVER ERROR", "डेटाबेस कनेक्शन फ़ेल हो गया।", false);
+            });
+        }
+
+        // TEXT UPDATED TO: Unlocked
+        function initiateMatrixActivation() {
+            isDashboardFullyUnlocked = true;
+            document.getElementById('globalLockStatus').innerHTML = `<i class="fa-solid fa-lock-open" style="color:var(--success)"></i> Unlocked`;
+            document.getElementById('globalLockStatus').style.color = "var(--success)";
+            
+            document.querySelectorAll('.subject-card').forEach(card => {
+                card.classList.add('unlocked');
+                card.querySelector('.lock-indicator').innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--success)"></i> Unlocked`;
+                card.querySelector('.lock-indicator').style.color = "var(--success)";
+            });
+        }
+
+        function triggerNavigation(routeUrl) {
+            if(!isDashboardFullyUnlocked || verifiedHostPRN.length !== 16 || verifiedFriendPRN.length !== 16) {
+                fireAlert("LOCKED", "एक्सेस लॉक है! कृपया पहले वेरिफिकेशन पूरा करें।", false);
+                return;
+            }
+            
+            localStorage.setItem('user_verified_prn', verifiedHostPRN);
+            localStorage.setItem('invited_friend_prn', verifiedFriendPRN);
+            window.location.href = routeUrl;
+        }
+    </script>
+</body>
+</html>
