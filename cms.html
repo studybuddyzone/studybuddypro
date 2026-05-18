@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication Arena | Study Buddy Premium</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --surface: #131c2e;
+            --border: #222f47;
+            --primary: #06b6d4; /* Communication Color: Cyan */
+            --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #f1f5f9;
+            --text-muted: #64748b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #fff;
+            margin-bottom: 25px;
+            text-align: center;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Compact Dashboard Card */
+        .subject-box-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* PRN Setup Box For Dashboard */
+        .prn-setup-box {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .prn-setup-box input {
+            flex: 1; background: #0b0f19; border: 1px solid var(--border);
+            border-radius: 8px; color: #fff; padding: 8px 12px; font-size: 14px; 
+            font-weight: 600; text-align: center; outline: none; letter-spacing: 0.5px;
+        }
+
+        .card-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: left;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(34, 47, 71, 0.6);
+        }
+
+        .card-icon-wrapper {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-icon-wrapper i { font-size: 22px; color: var(--primary); }
+        .card-text h4 { font-size: 16px; font-weight: 700; color: #fff; }
+        .card-text p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        .mode-buttons-wrapper { display: flex; gap: 10px; }
+
+        .btn-action {
+            flex: 1; padding: 12px; border-radius: 12px; border: none; font-size: 13px;
+            font-weight: 700; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; gap: 8px; transition: all 0.2s ease; color: #fff;
+        }
+
+        .btn-solo { background: #1e293b; border: 1px solid #334155; }
+        .btn-solo:hover { background: #334155; }
+        .btn-battle { background: var(--primary-gradient); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3); }
+
+        /* Overlays */
+        .game-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #0b0f19; z-index: 9999; overflow-y: auto; padding: 20px;
+        }
+
+        .game-header {
+            max-width: 750px; margin: 0 auto 20px; display: flex; 
+            justify-content: space-between; align-items: center;
+            padding-bottom: 15px; border-bottom: 1px solid var(--border);
+        }
+
+        .lobby-panel {
+            max-width: 500px; margin: 40px auto; background: #131c2e; 
+            border: 1px solid var(--border); border-radius: 20px; padding: 25px; 
+            text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .share-box { margin-top: 20px; background: #0b0f19; padding: 15px; border-radius: 14px; border: 1px solid var(--border); }
+        .share-input-row { display: flex; gap: 8px; margin-top: 10px; }
+        .share-input-row input {
+            flex: 1; padding: 12px; border-radius: 10px; background: #131c2e;
+            border: 1px solid var(--border); color: #fff; text-align: center; font-size: 13px; outline: none;
+        }
+        .btn-copy { background: var(--primary-gradient); color: white; border: none; padding: 0 15px; border-radius: 10px; cursor: pointer; }
+
+        /* Quiz Components */
+        .quiz-container { max-width: 750px; margin: 0 auto; display: none; }
+        .scoreboard {
+            display: flex; justify-content: space-between; align-items: center; background: #131c2e; 
+            border: 1px solid var(--border); padding: 15px 20px; border-radius: 16px; margin-bottom: 25px;
+        }
+
+        .option-label {
+            display: block; margin: 12px 0; background: #131c2e; padding: 15px; 
+            border-radius: 12px; cursor: pointer; border: 1px solid var(--border); font-size: 15px;
+        }
+        .option-label:hover { background: #1c283f; border-color: var(--primary); }
+        .btn-submit {
+            display: block; width: 100%; max-width: 300px; margin: 40px auto 0;
+            background: var(--primary-gradient); color: #fff; padding: 16px;
+            border-radius: 14px; font-size: 16px; font-weight: 700; border: none; cursor: pointer;
+        }
+
+        /* PRN Verification Gatekeeper Modal (For Player 2) */
+        .auth-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(11, 15, 25, 0.97); z-index: 20000; justify-content: center; align-items: center; padding: 20px;
+        }
+        .auth-card {
+            background: var(--surface); border: 1px solid var(--border); padding: 35px;
+            border-radius: 24px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+        .auth-input {
+            width: 100%; padding: 14px; margin: 15px 0; border-radius: 12px;
+            background: #0b0f19; border: 1px solid var(--border); color: #fff; text-align: center; font-size: 16px; font-weight: 600; letter-spacing: 1px; outline: none;
+        }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(11, 15, 25, 0.95); z-index: 10000; justify-content: center; align-items: center;
+        }
+        .modal-content { background: var(--surface); border: 1px solid var(--border); padding: 35px; border-radius: 24px; text-align: center; width: 90%; max-width: 420px; }
+
+        /* CUSTOM ALERT MODAL UI */
+        .custom-alert-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(8px);
+            z-index: 99999; justify-content: center; align-items: center; padding: 20px;
+            animation: fadeIn 0.3s ease forwards;
+        }
+        .custom-alert-card {
+            background: #131c2e; border: 1px solid var(--border); border-radius: 24px;
+            width: 100%; max-width: 360px; padding: 30px 24px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            transform: scale(0.9); animation: popUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .alert-icon-circle {
+            width: 65px; height: 65px; border-radius: 50%; display: flex; 
+            align-items: center; justify-content: center; margin: 0 auto 20px;
+        }
+        .alert-icon-circle.danger { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .alert-icon-circle.warning { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); color: var(--warning); }
+        
+        .alert-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .alert-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
+        
+        .btn-alert-close {
+            width: 100%; padding: 13px; border-radius: 12px; border: none; font-size: 14px;
+            font-weight: 700; cursor: pointer; color: #fff; transition: background 0.2s;
+        }
+        .btn-alert-close.danger { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+        .btn-alert-close.warning { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="section-title">Practice Zone</div>
+    
+    <div class="subject-box-container">
+        <div class="prn-setup-box">
+            <i class="fa-solid fa-id-card" style="color:var(--primary);"></i>
+            <input type="text" id="myDashboardPRN" placeholder="Enter 16-Digit PRN" maxlength="16">
+        </div>
+
+        <div class="card-info">
+            <div class="card-icon-wrapper"><i class="fa-solid fa-comments" style="color:var(--primary);"></i></div>
+            <div class="card-text">
+                <h4>Communication Skills</h4>
+                <p>50 Questions • 10 Minutes</p>
+            </div>
+        </div>
+        
+        <div class="mode-buttons-wrapper">
+            <button onclick="startSoloGame()" class="btn-action btn-solo"><i class="fa-solid fa-user"></i> Solo Test</button>
+            <button onclick="createMultiplayerRoom()" class="btn-action btn-battle"><i class="fa-solid fa-gamepad"></i> 1v1 Battle</button>
+        </div>
+    </div>
+
+
+    <div id="gameOverlay" class="game-overlay">
+        <div class="game-header">
+            <h3 id="arenaTitle" style="font-size:16px;">Communication Arena</h3>
+            <div id="liveTimer" style="background:var(--danger); padding:5px 14px; border-radius:20px; font-weight:700; font-size:13px;">00:00</div>
+            <button onclick="leaveGame()" style="background:none; border:none; color:var(--danger); font-weight:700; cursor:pointer;">LEAVE ×</button>
+        </div>
+
+        <div id="lobbyPanel" class="lobby-panel" style="display:none;">
+            <h3 style="font-size:18px;"><i class="fa-solid fa-spinner fa-spin" style="color:var(--primary)"></i> Creating Room...</h3>
+            
+            <div id="shareBox" class="share-box" style="display:none;">
+                <p style="font-size:13px; color:var(--text-muted); text-align:left;">चैलेंज लिंक तैयार है! अपने दोस्त को भेजें:</p>
+                <div class="share-input-row">
+                    <input type="text" id="inviteUrlInput" readonly>
+                    <button onclick="copyInviteLink()" class="btn-copy"><i class="fa-solid fa-copy"></i></button>
+                </div>
+                <p style="font-size:11px; color:#22d3ee; margin-top:12px;">जैसे ही आपका दोस्त लिंक से 16-अंकीय PRN वेरीफाई करेगा, मैच शुरू हो जाएगा।</p>
+            </div>
+        </div>
+
+        <div id="quizContainer" class="quiz-container">
+            <div id="scoreboard" class="scoreboard" style="display:none;">
+                <div style="font-weight:700; color:var(--success); font-size:12px;">You (<span id="myPrnDisplay">--</span>): <span id="myLiveScoreLabel">0</span> pts</div>
+                <div style="font-weight:500; color:var(--text-muted); font-size:11px;">VS</div>
+                <div style="font-weight:700; color:var(--danger); font-size:12px;">Opp (<span id="oppPrnDisplay">--</span>): <span id="oppLiveScoreLabel">Waiting..</span></div>
+            </div>
+
+            <div id="dynamicQuizArea"></div>
+            <button onclick="submitGameAnswers()" class="btn-submit">Submit Answers</button>
+        </div>
+    </div>
+
+
+    <div id="prnGatekeeperModal" class="auth-modal">
+        <div class="auth-card">
+            <div style="background:rgba(6, 182, 212, 0.1); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
+                <i class="fa-solid fa-shield-halved" style="color:var(--primary); font-size:24px;"></i>
+            </div>
+            <h3 style="margin-bottom:5px;">Enter PRN to Join</h3>
+            <p style="font-size:13px; color:var(--text-muted);">मैच में शामिल होने के लिए अपना 16-अंकीय PRN दर्ज करें।</p>
+            
+            <input type="text" id="gatekeeperPrnInput" class="auth-input" placeholder="16-Digit PRN" maxlength="16">
+            
+            <button onclick="verifyPlayer2PRN()" class="btn-action btn-battle" style="width:100%; margin-top:10px; padding:14px;">
+                Verify & Enter Match <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <h2 id="resultHeaderTitle" style="font-size:20px; color:var(--primary); margin-bottom:5px;">RESULT</h2>
+            <div id="finalScorePercent" style="font-size:50px; font-weight:900; margin:15px 0;">0%</div>
+            <div id="matchOutcomeMessage" style="font-weight:700; font-size:16px; margin-bottom:20px; display:none;"></div>
+
+            <div style="text-align: left; font-size: 14px; line-height: 2; border-top:1px solid var(--border); padding-top:15px; color: #94a3b8;">
+                <div>✅ Correct: <span id="lblCorrectCount" style="float:right; color:var(--success)">0</span></div>
+                <div>❌ Wrong: <span id="lblWrongCount" style="float:right; color:var(--danger)">0</span></div>
+                <div>⏩ Skipped: <span id="lblSkippedCount" style="float:right; color:#eab308">0</span></div>
+            </div>
+            <button onclick="leaveGame()" class="btn-action btn-solo" style="width:100%; margin-top:25px; padding:14px;">Back to Dashboard</button>
+        </div>
+    </div>
+
+
+    <div id="customAlertOverlay" class="custom-alert-overlay">
+        <div class="custom-alert-card">
+            <div id="alertIconContainer" class="alert-icon-circle danger">
+                <i id="alertIcon" class="fa-solid fa-triangle-exclamation fa-xl"></i>
+            </div>
+            <h4 id="alertTitleLabel" class="alert-title">ACCESS DENIED</h4>
+            <p id="alertDescriptionLabel" class="alert-desc">Without a valid 16-digit PRN number, you are not allowed to enter or create rooms.</p>
+            <button id="alertCloseBtn" onclick="closeCustomAlert()" class="btn-alert-close danger">Acknowledge</button>
+        </div>
+    </div>
+
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+          authDomain: "students-e5183.firebaseapp.com",
+          databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+          projectId: "students-e5183",
+          storageBucket: "students-e5183.firebasestorage.app",
+          messagingSenderId: "473442117683",
+          appId: "1:473442117683:web:f39adc0665317aa95e9b46",
+          measurementId: "G-DT4XQLZJW3"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const firestore = firebase.firestore();
+
+        // 50 Communication Skills Dataset
+        const commsDataset = [
+            {q: "Communication is a ______ process of exchanging information, ideas, and feelings.", a: "One-way", b: "Two-way", c: "Three-way", d: "Static", ans: "b"},
+            {q: "The person who converts a thought into a message and initiates communication is called the ______.", a: "Receiver", b: "Sender", c: "Decoder", d: "Channel", ans: "b"},
+            {q: "Transforming internal ideas and thoughts into a symbolic language or code is known as ______.", a: "Decoding", b: "Encoding", c: "Feedback", d: "Filtering", ans: "b"},
+            {q: "The response or reaction given by the receiver back to the sender is termed as ______.", a: "Noise", b: "Feedback", c: "Context", d: "Channel", ans: "b"},
+            {q: "Any disturbance or barrier that degrades or interferes with the transmission of a message is called ______.", a: "Medium", b: "Noise", c: "Decoder", d: "Protocol", ans: "b"},
+            {q: "Which type of communication involves using spoken or written words to share information?", a: "Non-verbal", b: "Verbal", c: "Visual", d: "Paralinguistic", ans: "b"},
+            {q: "Body movements, facial expressions, eye contact, and gestures fall under ______ communication.", a: "Verbal", b: "Non-verbal", c: "Written", d: "Formal", ans: "b"},
+            {q: "The study of body language, postures, gestures, and facial expressions is technically called ______.", a: "Proxemics", b: "Kinesics", c: "Chronemics", d: "Haptics", ans: "b"},
+            {q: "The study of how space and distance between people affect communication is known as ______.", a: "Kinesics", b: "Proxemics", c: "Haptics", d: "Chronemics", ans: "b"},
+            {q: "Communication through touch (e.g., handshakes, pats on the back) is studied under ______.", a: "Proxemics", b: "Haptics", c: "Chronemics", d: "Vocalics", ans: "b"},
+            {q: "The study of how time is used and perceived in non-verbal communication is called ______.", a: "Kinesics", b: "Chronemics", c: "Haptics", d: "Proxemics", ans: "b"},
+            {q: "Tone of voice, pitch, speed of speaking, and volume are elements of ______.", a: "Verbal Text", b: "Paralanguage / Vocalics", c: "Kinesics", d: "Chronemics", ans: "b"},
+            {q: "Which of the following is considered an official, documented channel of communication in companies?", a: "Grapevine", b: "Formal Communication", c: "Informal chat", d: "Rumor mill", ans: "b"},
+            {q: "Informal, unstructured communication inside an organization is popularly known as ______.", a: "Vertical channel", b: "Grapevine", c: "Horizontal matrix", d: "Statutory flow", ans: "b"},
+            {q: "When a manager issues an instruction or policy guidelines to subordinates, it is ______ communication.", a: "Upward", b: "Downward", c: "Horizontal", d: "External", ans: "b"},
+            {q: "When an employee submits a progress report or grievance to higher management, it is ______ communication.", a: "Downward", b: "Upward", c: "Horizontal", d: "Lateral", ans: "b"},
+            {q: "Communication taking place between peers or employees working at the same hierarchy level is ______.", a: "Downward", b: "Horizontal / Lateral", c: "Upward", d: "Diagonal", ans: "b"},
+            {q: "Communication that crosses both functional sections and organizational hierarchies is called ______.", a: "Vertical", b: "Diagonal / Cross-functional", c: "Horizontal", d: "Linear", ans: "b"},
+            {q: "Physical barriers to communication include which of the following?", a: "Emotional stress", b: "Distance and loud background noise", c: "Language differences", d: "Cultural bias", ans: "b"},
+            {q: "An individual's personal biases, stereotypes, or emotional state create ______ barriers.", a: "Physical", b: "Psychological / Emotional", c: "Technical", d: "Environmental", ans: "b"},
+            {q: "Barriers caused due to differences in vocabulary, grammar, languages, or jargon are called ______.", a: "Psychological", b: "Semantic / Linguistic", c: "Socio-cultural", d: "Organizational", ans: "b"},
+            {q: "Using overly complex words or industry-specific technical jargon can act as a ______ barrier.", a: "Physical", b: "Semantic", c: "Mechanical", d: "Chronemic", ans: "b"},
+            {q: "Which of the following is an effective way to minimize or overcome communication barriers?", a: "Using ambiguous text", b: "Active listening and seeking clarification", c: "Ignoring feedback", d: "Speaking rapidly", ans: "b"},
+            {q: "Hearing is a passive physical process, whereas Listening is an ______ mental process.", a: "Involuntary", b: "Active and cognitive", c: "Accidental", d: "Subconscious", ans: "b"},
+            {q: "An active listener does which of the following?", a: "Interrupts frequently", b: "Maintains eye contact and nods appropriately", c: "Formulates counter-arguments while listening", d: "Looks around the room constantly", ans: "b"},
+            {q: "Listening to a speech or pitch specifically to evaluate, judge, and analyze the logic is ______ listening.", a: "Appreciative", b: "Critical / Evaluative", c: "Empathetic", d: "Passive", ans: "b"},
+            {q: "Listening with the intent to deeply understand and share the speaker's emotions and feelings is ______.", a: "Informational", b: "Empathetic", c: "Critical", d: "Superficial", ans: "b"},
+            {q: "The acronym used to describe the 7 fundamental principles of effective communication is the ______.", a: "5Ws", b: "7 Cs of Communication", c: "SMART rules", d: "PDCA cycle", ans: "b"},
+            {q: "In the 7 Cs, 'Concision' or being 'Concise' means ______.", a: "Providing lengthy details", b: "Expressing ideas in the fewest words possible without losing impact", c: "Using abstract symbols", d: "Repeating data for clarity", ans: "b"},
+            {q: "Which 'C' states that all facts, figures, and grammar in the message must be accurate?", a: "Clarity", b: "Correctness", c: "Completeness", d: "Consideration", ans: "b"},
+            {q: "The principle of 'Consideration' emphasizes adopting a ______ approach towards the audience.", a: "Self-centered", b: "You-attitude", c: "Neutral-attitude", d: "Critical-attitude", ans: "b"},
+            {q: "A professional business email should always contain a clear, relevant ______ line.", a: "Signature", b: "Subject", c: "Salutation", d: "Disclaimer", ans: "b"},
+            {q: "What does the abbreviation 'Bcc' stand for in corporate email clients?", a: "Business Carbon Copy", b: "Blind Carbon Copy", c: "Brief Core Communication", d: "Backup Carbon Copy", ans: "b"},
+            {q: "Writing an entire email or chat message in ALL CAPITAL LETTERS is considered ______ in digital etiquette.", a: "Highly professional", b: "Rude or equivalent to shouting", c: "Urgent", d: "Creative", ans: "b"},
+            {q: "A short text appended at the end of an email containing contact info and designation is called a ______.", a: "Header", b: "Signature Block", c: "Salutation", d: "Enclosure", ans: "b"},
+            {q: "Which of the following is considered an appropriate formal salutation for a business letter?", a: "Hey dude,", b: "Dear Sir/Madam,", c: "Yo,", d: "What's up,", ans: "b"},
+            {q: "During a professional presentation, the slide content should ideally consist of ______.", a: "Full paragraphs copied directly", b: "Key bullet points and visual aids", c: "No text at all", d: "Random decorative images", ans: "b"},
+            {q: "What is the primary purpose of a Group Discussion (GD) in professional recruitment?", a: "To prove oneself as the loudest speaker", b: "To evaluate interpersonal, leadership, and team skills", c: "To argue and defeat others", d: "To test individual spelling memory", ans: "b"},
+            {q: "If you disagree with another participant in a Group Discussion, you should say ______.", a: "You are completely wrong.", b: "I see your point, but I respectfully look at it differently because...", c: "Shut up and listen to me.", d: "Your data makes no sense.", ans: "b"},
+            {q: "Before a job interview, conducting thorough research about the company is an example of ______.", a: "Wasting time", b: "Proactive interview preparation", c: "Over-confidence", d: "Informal networking", ans: "b"},
+            {q: "During an interview, your posture should ideally be ______.", a: "Slouched back comfortably", b: "Straight up but relaxed, leaning slightly forward", c: "Stiff with crossed arms", d: "Constantly moving", ans: "b"},
+            {q: "Which type of report is prepared at fixed, regular intervals (e.g., weekly, monthly)?", a: "Special Report", b: "Periodic / Routine Report", c: "Informal Memo", d: "Ad-hoc Report", ans: "b"},
+            {q: "The list of topics or items to be discussed systematically in an upcoming meeting is called the ______.", a: "Minutes", b: "Agenda", c: "Circular", d: "Notice", ans: "b"},
+            {q: "The official written record of discussions, decisions, and resolutions passed in a meeting is called ______.", a: "Memorandum", b: "Minutes of the Meeting", c: "Agenda sheet", d: "Prospectus", ans: "b"},
+            {q: "A brief, informal internal written message shared within the same office building is a ______.", a: "Business Letter", b: "Memorandum (Memo)", c: "Press Release", d: "Tender Notice", ans: "b"},
+            {q: "Proxemics states that the 'Intimate Zone' typically ranges from ______.", a: "4 feet to 12 feet", b: "0 to 18 inches", c: "12 feet to 25 feet", d: "4 inches to 4 feet", ans: "b"},
+            {q: "Interpersonal communication involves communication between ______.", a: "An individual and a mass audience", b: "Two or more individuals face-to-face", c: "An individual with themselves", d: "Computers via routers", ans: "b"},
+            {q: "Intrapersonal communication refers to communication with ______.", a: "External clients", b: "Oneself (internal thinking/journaling)", c: "Board of Directors", d: "Media reporters", ans: "b"},
+            {q: "Which of the following describes high-quality feedback?", a: "Vague and delayed", b: "Specific, constructive, and timely", c: "Negative and destructive", d: "One-word evaluations", ans: "b"},
+            {q: "The final step in the communication loop or process that completes the circuit is ______.", a: "Transmission", b: "Feedback verification", c: "Decoding symbols", d: "Media selection", ans: "b"}
+        ];
+
+        // Global Engine State
+        let gameMode = "solo";
+        let currentRoomId = null;
+        let myRole = "host"; 
+        let myPrnNumber = "";
+        let matchTimerInterval = null;
+        let roomUnsubscribeFunc = null;
+        let pendingRoomIdToJoin = null;
+
+        // Auto Joining URL Detector
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const room = urlParams.get('room');
+            const sub = urlParams.get('subject');
+            
+            if(room && sub === 'communication') {
+                pendingRoomIdToJoin = room;
+                document.getElementById('prnGatekeeperModal').style.display = 'flex';
+            }
+        });
+
+        // APP-WIDE CUSTOM MODERN DYNAMIC ALERT CALLER
+        function triggerCustomAlert(title, text, styleType) {
+            const overlay = document.getElementById('customAlertOverlay');
+            const iconBox = document.getElementById('alertIconContainer');
+            const icon = document.getElementById('alertIcon');
+            const titleLbl = document.getElementById('alertTitleLabel');
+            const descLbl = document.getElementById('alertDescriptionLabel');
+            const closeBtn = document.getElementById('alertCloseBtn');
+
+            titleLbl.innerText = title;
+            descLbl.innerText = text;
+
+            if(styleType === "warning") {
+                iconBox.className = "alert-icon-circle warning";
+                icon.className = "fa-solid fa-circle-exclamation fa-xl";
+                closeBtn.className = "btn-alert-close warning";
+            } else {
+                iconBox.className = "alert-icon-circle danger";
+                icon.className = "fa-solid fa-triangle-exclamation fa-xl";
+                closeBtn.className = "btn-alert-close danger";
+            }
+
+            overlay.style.display = "flex";
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('customAlertOverlay').style.opacity = "0";
+            setTimeout(() => {
+                document.getElementById('customAlertOverlay').style.display = "none";
+                document.getElementById('customAlertOverlay').style.opacity = "1";
+            }, 200);
+        }
+
+        // DATABASE PRN STRICT VERIFIER WITH APP ALERT INTEGRATION
+        function checkValidPRNInDatabase(prnStr) {
+            if (!prnStr) {
+                triggerCustomAlert("PRN REQUIRED", "आगे बढ़ने के लिए कृपया अपना PRN नंबर दर्ज करें!", "warning");
+                return Promise.resolve(false);
+            }
+            if (prnStr.length !== 16) {
+                triggerCustomAlert("INVALID LENGTH", "अमान्य PRN! आपका PRN नंबर पूरे 16 अंकों का होना चाहिए, न कम न ज्यादा।", "danger");
+                return Promise.resolve(false);
+            }
+            
+            return firestore.collection("users").where("prn", "==", prnStr).get()
+                .then((querySnapshot) => {
+                    if (!querySnapshot.empty) {
+                        return true; 
+                    } else {
+                        triggerCustomAlert("NOT REGISTERED", "यह 16-अंकीय PRN डेटाबेस में मौजूद नहीं है। कृपया सही नंबर डालें!", "danger");
+                        return false;
+                    }
+                })
+                .catch((err) => {
+                    triggerCustomAlert("DATABASE ERROR", err.message, "danger");
+                    return false;
+                });
+        }
+
+        // PLAYER-2 VERIFY
+        function verifyPlayer2PRN() {
+            const prnInput = document.getElementById('gatekeeperPrnInput').value.trim();
+            
+            checkValidPRNInDatabase(prnInput).then((isValid) => {
+                if (isValid) {
+                    myPrnNumber = prnInput;
+                    document.getElementById('prnGatekeeperModal').style.display = 'none';
+                    if (pendingRoomIdToJoin) {
+                        joinMultiplayerRoom(pendingRoomIdToJoin);
+                        pendingRoomIdToJoin = null;
+                    }
+                }
+            });
+        }
+
+        // SOLO GAME RUNNER WITH LIVE FIREBASE AUTH CHECK
+        function startSoloGame() {
+            const dashPrn = document.getElementById('myDashboardPRN').value.trim();
+            
+            checkValidPRNInDatabase(dashPrn).then((isValid) => {
+                if (isValid) {
+                    myPrnNumber = dashPrn;
+                    gameMode = "solo";
+                    document.getElementById('arenaTitle').innerText = "Communication Solo Mode";
+                    document.getElementById('lobbyPanel').style.display = "none";
+                    document.getElementById('scoreboard').style.display = "none";
+                    document.getElementById('gameOverlay').style.display = "block";
+                    
+                    startLiveCountdown(600);
+                    renderQuizQuestions();
+                    document.getElementById('quizContainer').style.display = "block";
+                    document.body.style.overflow = "hidden";
+                }
+            });
+        }
+
+        // MULTIPLAYER ROOM (HOST)
+        function createMultiplayerRoom() {
+            const dashPrn = document.getElementById('myDashboardPRN').value.trim();
+            
+            checkValidPRNInDatabase(dashPrn).then((isValid) => {
+                if (!isValid) return; 
+
+                myPrnNumber = dashPrn;
+                gameMode = "multiplayer";
+                myRole = "host";
+                currentRoomId = "ROOM_" + Math.floor(100000 + Math.random() * 900000);
+                
+                document.getElementById('arenaTitle').innerText = "1v1 Matchmaking Lobby";
+                document.getElementById('quizContainer').style.display = "none";
+                document.getElementById('shareBox').style.display = "none";
+                document.getElementById('lobbyPanel').style.display = "block";
+                document.getElementById('gameOverlay').style.display = "block";
+                document.body.style.overflow = "hidden";
+
+                const inviteUrl = window.location.origin + window.location.pathname + "?room=" + currentRoomId + "&subject=communication";
+                
+                firestore.collection("rooms").doc(currentRoomId).set({
+                    roomId: currentRoomId,
+                    subject: "communication",
+                    status: "waiting",
+                    hostPrn: myPrnNumber,
+                    player2Prn: "", 
+                    hostScore: 0,
+                    player2Score: 0,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    document.getElementById('inviteUrlInput').value = inviteUrl;
+                    document.getElementById('shareBox').style.display = "block";
+                    listenToRoomChanges();
+                }).catch(err => triggerCustomAlert("ERROR", err.message, "danger"));
+            });
+        }
+
+        function copyInviteLink() {
+            const inputEl = document.getElementById('inviteUrlInput');
+            inputEl.select();
+            document.execCommand('copy');
+            triggerCustomAlert("LINK COPIED", "चैलेंज लिंक क्लिपबोर्ड पर कॉपी हो गया है! इसे शेयर करें।", "warning");
+        }
+
+        // JOIN MULTIPLAYER ROOM
+        function joinMultiplayerRoom(roomId) {
+            gameMode = "multiplayer";
+            myRole = "player2";
+            currentRoomId = roomId;
+
+            firestore.collection("rooms").doc(roomId).get().then((doc) => {
+                if (doc.exists && doc.data().status === "waiting") {
+                    document.getElementById('arenaTitle').innerText = "Communication Live 1v1 Arena";
+                    document.getElementById('lobbyPanel').style.display = "none";
+                    document.getElementById('gameOverlay').style.display = "block";
+                    document.body.style.overflow = "hidden";
+                    
+                    return firestore.collection("rooms").doc(roomId).update({ 
+                        status: "active",
+                        player2Prn: myPrnNumber
+                    });
+                } else {
+                    triggerCustomAlert("EXPIRED ROOM", "यह रूम कोड अमान्य है या मैच खत्म हो चुका है!", "danger");
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }).then(() => {
+                if(currentRoomId) listenToRoomChanges();
+            }).catch(err => console.log(err));
+        }
+
+        // Realtime Synchronizer
+        function listenToRoomChanges() {
+            roomUnsubscribeFunc = firestore.collection("rooms").doc(currentRoomId).onSnapshot((doc) => {
+                if(!doc.exists) return;
+                const roomData = doc.data();
+
+                if(roomData.status === "active") {
+                    document.getElementById('lobbyPanel').style.display = "none";
+                    document.getElementById('scoreboard').style.display = "flex";
+                    document.getElementById('quizContainer').style.display = "block";
+                    
+                    document.getElementById('myPrnDisplay').innerText = myRole === "host" ? roomData.hostPrn : roomData.player2Prn;
+                    document.getElementById('oppPrnDisplay').innerText = myRole === "host" ? (roomData.player2Prn || "Wait..") : roomData.hostPrn;
+
+                    if(!matchTimerInterval) {
+                        startLiveCountdown(600);
+                        renderQuizQuestions();
+                    }
+                }
+
+                if(myRole === "host") {
+                    document.getElementById('myLiveScoreLabel').innerText = roomData.hostScore || 0;
+                    document.getElementById('oppLiveScoreLabel').innerText = roomData.player2Score !== undefined ? roomData.player2Score + " pts" : "Joining..";
+                } else {
+                    document.getElementById('myLiveScoreLabel').innerText = roomData.player2Score || 0;
+                    document.getElementById('oppLiveScoreLabel').innerText = (roomData.hostScore || 0) + " pts";
+                }
+
+                if(roomData.status === "finished") {
+                    clearInterval(matchTimerInterval);
+                    evaluateFinalResults(roomData);
+                }
+            });
+        }
+
+        function renderQuizQuestions() {
+            const area = document.getElementById('dynamicQuizArea');
+            area.innerHTML = "";
+            
+            commsDataset.forEach((data, index) => {
+                const card = document.createElement('div');
+                card.style = "background:var(--surface); border-radius:16px; padding:20px; margin-bottom:20px; border:1px solid var(--border);";
+                
+                card.innerHTML = `
+                    <div style="background:rgba(6, 182, 212, 0.1); padding:4px 12px; border-radius:8px; display:inline-block; margin-bottom:12px; font-size:11px; font-weight:700; color:var(--primary);">Question ${index+1} / 50</div>
+                    <p style="font-weight:600; font-size:15px; margin-bottom:15px; line-height:1.5;">${data.q}</p>
+                    <label class="option-label"><input type="radio" name="commQ_${index}" value="a" onclick="transmitRealtimeScore()"> A) ${data.a}</label>
+                    <label class="option-label"><input type="radio" name="commQ_${index}" value="b" onclick="transmitRealtimeScore()"> B) ${data.b}</label>
+                    <label class="option-label"><input type="radio" name="commQ_${index}" value="c" onclick="transmitRealtimeScore()"> C) ${data.c}</label>
+                    <label class="option-label"><input type="radio" name="commQ_${index}" value="d" onclick="transmitRealtimeScore()"> D) ${data.d}</label>
+                `;
+                area.appendChild(card);
+            });
+        }
+
+        function transmitRealtimeScore() {
+            if(gameMode !== "multiplayer") return;
+            
+            let tempCorrect = 0;
+            commsDataset.forEach((item, index) => {
+                const checked = document.querySelector(`input[name="commQ_${index}"]:checked`);
+                if(checked && checked.value === item.ans) {
+                    tempCorrect += 2;
+                }
+            });
+
+            const payload = {};
+            if(myRole === "host") payload.hostScore = tempCorrect;
+            else payload.player2Score = tempCorrect;
+            
+            firestore.collection("rooms").doc(currentRoomId).update(payload);
+        }
+
+        function startLiveCountdown(secondsLeft) {
+            clearInterval(matchTimerInterval);
+            matchTimerInterval = setInterval(() => {
+                secondsLeft--;
+                let mins = Math.floor(secondsLeft / 60);
+                let secs = secondsLeft % 60;
+                document.getElementById('liveTimer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+                if(secondsLeft <= 0) {
+                    clearInterval(matchTimerInterval);
+                    submitGameAnswers();
+                }
+            }, 1000);
+        }
+
+        function submitGameAnswers() {
+            let corr = 0, wrng = 0, skip = 0;
+            commsDataset.forEach((item, index) => {
+                const sel = document.querySelector(`input[name="commQ_${index}"]:checked`);
+                if (!sel) skip++;
+                else if (sel.value === item.ans) corr++;
+                else wrng++;
+            });
+
+            const finalPercent = Math.round((corr / commsDataset.length) * 100);
+            document.getElementById('lblCorrectCount').innerText = corr;
+            document.getElementById('lblWrongCount').innerText = wrng;
+            document.getElementById('lblSkippedCount').innerText = skip;
+            document.getElementById('finalScorePercent').innerText = finalPercent + "%";
+
+            if(gameMode === "multiplayer") {
+                firestore.collection("rooms").doc(currentRoomId).update({ status: "finished" });
+            } else {
+                document.getElementById('resultHeaderTitle').innerText = "SOLO TEST RESULT";
+                document.getElementById('matchOutcomeMessage').style.display = "none";
+                document.getElementById('resultModal').style.display = 'flex';
+            }
+        }
+
+        function evaluateFinalResults(roomData) {
+            document.getElementById('resultHeaderTitle').innerText = "1v1 BATTLE RESULT";
+            const msgBox = document.getElementById('matchOutcomeMessage');
+            msgBox.style.display = "block";
+
+            const hScore = roomData.hostScore || 0;
+            const p2Score = roomData.player2Score || 0;
+
+            if(myRole === "host") {
+                if(hScore > p2Score) { msgBox.innerText = `🏆 WINNER! (${hScore} vs ${p2Score})`; msgBox.style.color = "var(--success)"; }
+                else if(hScore < p2Score) { msgBox.innerText = `😭 DEFEAT! (${hScore} vs ${p2Score})`; msgBox.style.color = "var(--danger)"; }
+                else { msgBox.innerText = `👔 DRAW MATCH! (${hScore} vs ${p2Score})`; msgBox.style.color = "orange"; }
+            } else {
+                if(p2Score > hScore) { msgBox.innerText = `🏆 WINNER! (${p2Score} vs ${hScore})`; msgBox.style.color = "var(--success)"; }
+                else if(p2Score < hScore) { msgBox.innerText = `😭 DEFEAT! (${p2Score} vs ${hScore})`; msgBox.style.color = "var(--danger)"; }
+                else { msgBox.innerText = `👔 DRAW MATCH! (${p2Score} vs ${hScore})`; msgBox.style.color = "orange"; }
+            }
+            document.getElementById('resultModal').style.display = 'flex';
+        }
+
+        function leaveGame() {
+            clearInterval(matchTimerInterval);
+            matchTimerInterval = null;
+            if(roomUnsubscribeFunc) { roomUnsubscribeFunc(); roomUnsubscribeFunc = null; }
+            document.getElementById('gameOverlay').style.display = 'none';
+            document.getElementById('resultModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    </script>
+</body>
+</html>
