@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Academic Portal | Practical Zone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.15);
+            --accent: #4f46e5;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: rgba(0, 0, 0, 0.08);
+            --input-bg: rgba(241, 245, 249, 0.9);
+            --notice-color: #e11d48;
+        }
+
+        [data-theme="dark"] {
+            --bg-dark: #0b0f19;
+            --card-bg: rgba(20, 27, 45, 0.7);
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.3);
+            --accent: #818cf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --notice-color: #fb7185;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            width: 100%;
+            height: 100%;
+        }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box !important;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px 80px 20px; 
+            position: relative;
+        }
+
+        .bg-glow-1, .bg-glow-2 {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            filter: blur(130px);
+            opacity: 0.1;
+            z-index: -1;
+            pointer-events: none;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+        .bg-glow-1 { top: -5%; left: -5%; background: radial-gradient(circle, var(--primary) 0%, transparent 70%); }
+        .bg-glow-2 { bottom: 10%; right: -5%; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); }
+
+        .theme-toggle-container { position: absolute; top: 20px; right: 20px; z-index: 10; }
+        .theme-btn { font-size: 18px; color: var(--text-muted); cursor: pointer; width: 42px; height: 42px; background: rgba(0, 0, 0, 0.02); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        [data-theme="dark"] .theme-btn { background: rgba(255, 255, 255, 0.03); }
+
+        .portal-container {
+            width: 100%;
+            max-width: 460px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 40px 30px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.04);
+            margin: auto 0; 
+            transform: translateZ(0);
+            will-change: transform;
+            animation: cardEntrance 0.4s ease-out;
+        }
+        [data-theme="dark"] .portal-container { box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+
+        @keyframes cardEntrance {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .portal-header { text-align: center; margin-bottom: 25px; }
+        .portal-header h2 { font-size: 26px; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, var(--text-main) 0%, var(--text-muted) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .portal-header p { font-size: 13px; color: var(--text-muted); }
+
+        .form-group { margin-bottom: 18px; position: relative; width: 100%; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); padding-left: 4px; }
+        .input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+        .input-wrapper i { position: absolute; left: 16px; color: var(--text-muted); font-size: 15px; pointer-events: none; }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 13px 16px 13px 45px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        .form-input:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
+
+        .form-select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+        }
+
+        .form-notice { display: block; margin-top: 6px; font-size: 11px; font-weight: 500; line-height: 1.4; color: var(--notice-color); padding-left: 4px; }
+        .forgot-row { display: flex; justify-content: flex-end; margin-top: -10px; margin-bottom: 18px; width: 100%; }
+        .forgot-btn { font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; background: none; border: none; outline: none; }
+        .forgot-btn:hover { text-decoration: underline; }
+
+        .submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--accent)); border: none; border-radius: 14px; color: white; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px var(--primary-glow); margin-top: 5px; position: relative; overflow: hidden; transform: translateZ(0); }
+        .submit-btn:hover { transform: translateY(-1px) translateZ(0); }
+
+        .switch-mode-link { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); width: 100%; }
+        .switch-mode-link span { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
+        .switch-mode-link span:hover { text-decoration: underline; }
+
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(15, 23, 42, 0.3); 
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); 
+            z-index: 100; display: flex; justify-content: center; align-items: center; 
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease; 
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .modal-card { 
+            width: 88%; max-width: 350px; 
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; 
+            padding: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); 
+            transform: scale(0.95) translateY(10px) translateZ(0); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+            will-change: transform;
+        }
+        .modal-overlay.active .modal-card { transform: scale(1) translateY(0) translateZ(0); }
+        .modal-header h3 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+        .modal-header p { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 5px; }
+        .modal-btn { flex: 1; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+        .btn-cancel { background: rgba(0,0,0,0.05); color: var(--text-main); }
+        [data-theme="dark"] .btn-cancel { background: rgba(255,255,255,0.05); }
+        .btn-submit { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="theme-toggle-container">
+        <div id="themeToggleBtn" class="theme-btn" onclick="toggleTheme()">
+            <i class="fa-solid fa-moon"></i>
+        </div>
+    </div>
+
+    <div class="portal-container">
+        <div class="portal-header">
+            <h2 id="portalTitle">Create Account</h2>
+            <p id="portalSubtitle">Join Practical Zone Academic Portal</p>
+        </div>
+
+        <form id="portalForm" onsubmit="handleFormSubmit(event)">
+            <div class="form-group" id="nameGroup">
+                <label>Full Name</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="userName" class="form-input" placeholder="Enter full name">
+                </div>
+            </div>
+
+            <div class="form-group" id="prnGroup">
+                <label>PRN Number (16 Digits)</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" id="userPRN" class="form-input" placeholder="Enter 16-digit PRN" maxlength="16" pattern="\d{16}" title="PRN number exactly 16 digits long required.">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="identityLabel">Email Address</label>
+                <div class="input-wrapper">
+                    <i id="identityIcon" class="fa-solid fa-envelope"></i>
+                    <input type="text" id="userIdentity" class="form-input" placeholder="Enter your email" required>
+                </div>
+            </div>
+
+            <div class="form-group" id="userMobileGroup">
+                <label>Mobile Number</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="tel" id="userMobile" class="form-input" placeholder="10-digit number" pattern="[0-9]{10}">
+                </div>
+            </div>
+
+            <div class="form-group" id="roleGroup">
+                <label>Account Role</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <select id="userRole" class="form-select">
+                        <option value="student" selected>Student (Default)</option>
+                        <option value="moderator" disabled>Moderator (Locked)</option>
+                        <option value="admin" disabled>Admin (Locked)</option>
+                        <option value="superadmin" disabled>Super Admin (Locked)</option>
+                        <option value="teacher" disabled>Teacher (Locked)</option>
+                        <option value="editor" disabled>Editor (Locked)</option>
+                        <option value="guest" disabled>Guest (Locked)</option>
+                        <option value="master" disabled>Master (Locked)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" id="yearGroup">
+                <label>Academic Year / Scope</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <select id="userYear" class="form-select">
+                        <option value="" disabled selected>Select Current Scope</option>
+                        <option value="1">First Year (FY)</option>
+                        <option value="2">Second Year (SY)</option>
+                        <option value="3">Third Year (TY)</option>
+                        <option value="4">Fourth Year (B.Tech/BE)</option>
+                        <option value="omni_master" id="omniMasterOption" disabled>Master & Omni Control (Locked)</option>
+                    </select>
+                </div>
+                <small class="form-notice">
+                    <i class="fa-solid fa-circle-info"></i> 
+                    नोट: 'Master & Omni Control' केवल मास्टर या सुपर एडमिन के लॉगिन ऑथेंटिकेशन के बाद ही एक्टिवेट होगा।
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="userPassword" class="form-input" placeholder="Enter password" minlength="6" required>
+                </div>
+            </div>
+
+            <div class="form-group" id="confirmPasswordGroup">
+                <label>Confirm Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <input type="password" id="userConfirmPassword" class="form-input" placeholder="Retype password" minlength="6">
+                </div>
+            </div>
+
+            <div class="forgot-row" id="forgotRow" style="display: none;">
+                <button type="button" class="forgot-btn" onclick="openForgotModal()">Forgot Password?</button>
+            </div>
+
+            <button type="submit" id="mainSubmitBtn" class="submit-btn">Create Account</button>
+        </form>
+
+        <div class="switch-mode-link">
+            <span id="switchPrompt">Already have an account?</span> 
+            <span id="switchAction" onclick="toggleMode()">Login here</span>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="forgotModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Reset Password</h3>
+                <p>Enter email for secure link.</p>
+            </div>
+            <form onsubmit="handleForgotPassword(event)">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <div class="input-wrapper">
+                        <input type="email" id="forgotEmail" class="form-input" placeholder="Enter email" required>
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn btn-cancel" onclick="closeForgotModal()">Cancel</button>
+                    <button type="submit" class="modal-btn btn-submit">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Real-Time Firebase Mapped Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+            authDomain: "students-e5183.firebaseapp.com",
+            databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+            projectId: "students-e5183",
+            storageBucket: "students-e5183.firebasestorage.app",
+            messagingSenderId: "473442117683",
+            appId: "1:473442117683:web:f39adc0665317aa95e9b46",
+            measurementId: "G-DT4XQLZJW3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        
+        const auth = firebase.auth();
+        const db = firebase.firestore();       
+        const rtdb = firebase.database();    
+
+        let currentMode = 'signup'; 
+
+        function toggleMode() {
+            const nameGrp = document.getElementById('nameGroup');
+            const prnGrp = document.getElementById('prnGroup');
+            const mobileGrp = document.getElementById('userMobileGroup');
+            const roleGrp = document.getElementById('roleGroup');
+            const yearGrp = document.getElementById('yearGroup');
+            const confirmPassGrp = document.getElementById('confirmPasswordGroup');
+            const forgotRw = document.getElementById('forgotRow');
+            
+            const title = document.getElementById('portalTitle');
+            const subtitle = document.getElementById('portalSubtitle');
+            const submitBtn = document.getElementById('mainSubmitBtn');
+            const prompt = document.getElementById('switchPrompt');
+            const action = document.getElementById('switchAction');
+
+            const identityLabel = document.getElementById('identityLabel');
+            const identityIcon = document.getElementById('identityIcon');
+            const userIdentity = document.getElementById('userIdentity');
+            
+            const omniMasterOpt = document.getElementById('omniMasterOption');
+
+            if (currentMode === 'signup') {
+                currentMode = 'login';
+                nameGrp.style.display = 'none';
+                prnGrp.style.display = 'none'; 
+                mobileGrp.style.display = 'none';
+                roleGrp.style.display = 'none';
+                yearGrp.style.display = 'none';
+                confirmPassGrp.style.display = 'none';
+                forgotRw.style.display = 'flex';
+
+                title.innerText = 'Welcome Back';
+                subtitle.innerText = 'Login via email or PRN number code structure';
+                submitBtn.innerText = 'Login'; // लॉगिन मोड पर सिर्फ 'Login' टेक्स्ट
+                prompt.innerText = "Don't have an account?";
+                action.innerText = 'Create an account';
+
+                identityLabel.innerText = 'Email Address or PRN Number';
+                identityIcon.className = 'fa-solid fa-user-check';
+                userIdentity.placeholder = 'Enter email or 16-digit PRN';
+
+                document.getElementById('userName').required = false;
+                document.getElementById('userPRN').required = false;
+                document.getElementById('userYear').required = false;
+                document.getElementById('userConfirmPassword').required = false;
+            } else {
+                currentMode = 'signup';
+                nameGrp.style.display = 'block';
+                prnGrp.style.display = 'block';
+                mobileGrp.style.display = 'block';
+                roleGrp.style.display = 'block';
+                yearGrp.style.display = 'block';
+                confirmPassGrp.style.display = 'block';
+                forgotRw.style.display = 'none';
+
+                title.innerText = 'Create Account';
+                subtitle.innerText = 'Join Practical Zone Academic Portal';
+                submitBtn.innerText = 'Create Account'; // साइनअप मोड पर सिर्फ 'Create Account' टेक्स्ट
+                prompt.innerText = 'Already have an account?';
+                action.innerText = 'Login here';
+
+                identityLabel.innerText = 'Email Address';
+                identityIcon.className = 'fa-solid fa-envelope';
+                userIdentity.placeholder = 'Enter your email';
+
+                omniMasterOpt.disabled = true;
+
+                document.getElementById('userName').required = true;
+                document.getElementById('userPRN').required = true;
+                document.getElementById('userYear').required = true;
+                document.getElementById('userConfirmPassword').required = true;
+            }
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // डिफ़ॉल्ट रूप से साइनअप फील्ड्स रिक्वायर्ड
+        document.getElementById('userName').required = true;
+        document.getElementById('userPRN').required = true;
+        document.getElementById('userYear').required = true;
+        document.getElementById('userConfirmPassword').required = true;
+
+        document.documentElement.setAttribute('data-theme', 'light');
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            const themeIcon = document.querySelector('#themeToggleBtn i');
+            themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        function openForgotModal() { document.getElementById('forgotModal').classList.add('active'); }
+        function closeForgotModal() { document.getElementById('forgotModal').classList.remove('active'); }
+
+        function handleForgotPassword(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value.trim();
+            auth.sendPasswordResetEmail(email)
+            .then(() => {
+                alert("Password reset email sent successfully! Check your inbox.");
+                closeForgotModal();
+            }).catch(err => alert("Error: " + err.message));
+        }
+
+        // मुख्य फॉर्म सबमिशन हैंडलर
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('mainSubmitBtn');
+            const inputVal = document.getElementById('userIdentity').value.trim();
+            const password = document.getElementById('userPassword').value;
+
+            if (currentMode === 'signup') {
+                const name = document.getElementById('userName').value.trim();
+                const prn = document.getElementById('userPRN').value.trim();
+                const mobile = document.getElementById('userMobile').value.trim();
+                const role = document.getElementById('userRole').value;
+                const year = document.getElementById('userYear').value;
+                const confirmPassword = document.getElementById('userConfirmPassword').value;
+
+                if (prn.length !== 16) {
+                    alert("PRN Number must be exactly 16 digits long!");
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    alert("Passwords do not match! Please check again.");
+                    return;
+                }
+
+                // 🔄 क्रिएट अकाउंट पर: "Creating Account..." या "Synchronizing Nodes..."
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Account...';
+
+                // 1. Firebase Auth सिंकिंग
+                auth.createUserWithEmailAndPassword(inputVal, password)
+                .then((userCredential) => {
+                    const uid = userCredential.user.uid;
+                    
+                    const coreUserObject = {
+                        uid: uid,
+                        name: name,
+                        prn: prn,
+                        email: inputVal,
+                        mobile: mobile,
+                        role: role,
+                        year: year,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synchronizing Nodes...';
+
+                    // 2. Firestore Document सिंकिंग
+                    db.collection("users").doc(prn).set(coreUserObject)
+                    .then(() => {
+                        
+                        const rtdbObject = { ...coreUserObject, createdAt: Date.now() };
+
+                        // 3. Realtime Database Node सिंकिंग
+                        rtdb.ref('users/' + prn).set(rtdbObject)
+                        .then(() => {
+                            alert("Account successfully created and mapped across all security layers!");
+                            localStorage.setItem('userLogin', name);
+                            localStorage.setItem('userRole', role);
+                            localStorage.setItem('userYear', year);
+                            localStorage.setItem('userPRN', prn);
+                            redirectUser(role, year);
+                        })
+                        .catch(err => { alert("Realtime DB Sync Error: " + err.message); btn.innerText = 'Create Account'; });
+
+                    }).catch(err => { alert("Firestore Sync Error: " + err.message); btn.innerText = 'Create Account'; });
+                }).catch(err => { alert("Authentication Creation Failed: " + err.message); btn.innerText = 'Create Account'; });
+
+            } else {
+                // 🔄 लॉगिन बटन पर क्लिक करने पर: "Logging in..." या "Verifying Credentials..."
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
+                const isEmail = inputVal.includes('@');
+
+                if (isEmail) {
+                    executeFirebaseLogin(inputVal, password, btn);
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying Credentials...';
+                    // PRN से पहले संबंधित ईमेल को फेच करें
+                    db.collection("users").doc(inputVal).get()
+                    .then((docSnapshot) => {
+                        if (docSnapshot.exists) {
+                            const fetchedEmail = docSnapshot.data().email;
+                            executeFirebaseLogin(fetchedEmail, password, btn);
+                        } else {
+                            alert("No account linked with this PRN Node!");
+                            btn.innerText = 'Login';
+                        }
+                    })
+                    .catch((err) => {
+                        alert("PRN Node Fetch Failed: " + err.message);
+                        btn.innerText = 'Login';
+                    });
+                }
+            }
+        }
+
+        // 🔥 3-Way रियल-टाइम ऑथेंटिकेशन और रीडायरेक्शन इंजन
+        function executeFirebaseLogin(email, password, btn) {
+            auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+
+                // रियल-टाइम डेटाबेस से लाइव डेटा फिचिंग और सिंकिंग
+                rtdb.ref('users').orderByChild('uid').equalTo(user.uid).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const key = Object.keys(snapshot.val())[0];
+                        const userData = snapshot.val()[key];
+                        
+                        const userRole = userData.role ? userData.role.trim().toLowerCase() : 'student';
+                        const userYear = userData.year ? userData.year.toString().trim() : '1';
+                        const userName = userData.name || 'User';
+                        const userPRN = userData.prn || '';
+
+                        if (userRole === 'master' || userRole === 'superadmin' || userRole === 'admin') {
+                            const omniMasterOpt = document.getElementById('omniMasterOption');
+                            if (omniMasterOpt) {
+                                omniMasterOpt.disabled = false;
+                                omniMasterOpt.selected = true;
+                            }
+                            localStorage.setItem('userYear', 'omni_master');
+                        } else {
+                            localStorage.setItem('userYear', userYear);
+                        }
+
+                        localStorage.setItem('userLogin', userName);
+                        localStorage.setItem('userRole', userRole);
+                        localStorage.setItem('userPRN', userPRN);
+
+                        // लाइव सिंक्रोनाइजेशन पूरा होते ही सीधे रीडायरेक्ट करें
+                        redirectUser(userRole, localStorage.getItem('userYear'));
+
+                    } else {
+                        // बैकअप ईमेल मैपिंग चेक
+                        rtdb.ref('users').orderByChild('email').equalTo(email).once('value').then((subSnapshot) => {
+                            if (subSnapshot.exists()) {
+                                const subKey = Object.keys(subSnapshot.val())[0];
+                                const subData = subSnapshot.val()[subKey];
+                                
+                                const userRole = subData.role ? subData.role.trim().toLowerCase() : 'student';
+                                const userYear = subData.year ? subData.year.toString().trim() : '1';
+                                
+                                localStorage.setItem('userYear', userRole === 'master' ? 'omni_master' : userYear);
+                                localStorage.setItem('userLogin', subData.name || 'User');
+                                localStorage.setItem('userRole', userRole);
+                                localStorage.setItem('userPRN', subData.prn || '');
+                                
+                                redirectUser(userRole, localStorage.getItem('userYear'));
+                            } else {
+                                alert("Sync Warning: User profile not indexed in Realtime Database.");
+                                btn.innerText = 'Login';
+                            }
+                        });
+                    }
+                }).catch(err => { 
+                    alert("Realtime Database Sync Error: " + err.message); 
+                    btn.innerText = 'Login'; 
+                });
+            }).catch(err => { 
+                alert("Authentication Failed: " + err.message); 
+                btn.innerText = 'Login'; 
+            });
+        }
+
+        // 👑 रूटिंग इंजन (फाइल पाथ रिस्पॉन्स)
+        function redirectUser(role, year) {
+            if (role === 'master' || role === 'superadmin' || role === 'admin' || year === 'omni_master') {
+                window.location.href = "master-dashboard.html";
+            } else {
+                if (year === '1') {
+                    window.location.href = "fy.html";
+                } else if (year === '2') {
+                    window.location.href = "second-year.html";
+                } else if (year === '3') {
+                    window.location.href = "third-year.html";
+                } else if (year === '4') {
+                    window.location.href = "fourth-year.html";
+                } else {
+                    window.location.href = "first-year.html";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
