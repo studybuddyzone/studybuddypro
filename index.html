@@ -237,15 +237,15 @@
                 <label>Account Role</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-user-shield"></i>
-                    <select id="userRole" class="form-select">
+                    <select id="userRole" class="form-select" onchange="handleRoleSelectionChange()">
                         <option value="student" selected>Student (Default)</option>
-                        <option value="moderator" disabled>Moderator (Locked)</option>
-                        <option value="admin" disabled>Admin (Locked)</option>
-                        <option value="superadmin" disabled>Super Admin (Locked)</option>
-                        <option value="teacher" disabled>Teacher (Locked)</option>
-                        <option value="editor" disabled>Editor (Locked)</option>
-                        <option value="guest" disabled>Guest (Locked)</option>
-                        <option value="master" disabled>Master (Locked)</option>
+                        <option value="moderator">Moderator</option>
+                        <option value="admin">Admin</option>
+                        <option value="superadmin">Super Admin</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="editor">Editor</option>
+                        <option value="guest">Guest</option>
+                        <option value="master">Master</option>
                     </select>
                 </div>
             </div>
@@ -260,12 +260,11 @@
                         <option value="2">Second Year (SY)</option>
                         <option value="3">Third Year (TY)</option>
                         <option value="4">Fourth Year (B.Tech/BE)</option>
-                        <option value="omni_master" id="omniMasterOption" disabled>Master & Omni Control (Locked)</option>
                     </select>
                 </div>
                 <small class="form-notice">
                     <i class="fa-solid fa-circle-info"></i> 
-                    नोट: 'Master & Omni Control' केवल मास्टर या सुपर एडमिन के लॉगिन ऑथेंटिकेशन के बाद ही एक्टिवेट होगा।
+                    नोट: मास्टर या एडमिन हायररकीज भी अपना नियत वर्किंग 'Academic Year' चुनें, लॉगिन पर सीधे वही फ़ाइल लोड होगी।
                 </small>
             </div>
 
@@ -339,6 +338,11 @@
 
         let currentMode = 'signup'; 
 
+        // रोल्स को अनलॉक रखना ताकि आप मास्टर आईडी भी बना सकें
+        function handleRoleSelectionChange() {
+            // आवश्यकतानुसार यहाँ अतिरिक्त फ्रंटएंड लॉजिक लगाया जा सकता है
+        }
+
         function toggleMode() {
             const nameGrp = document.getElementById('nameGroup');
             const prnGrp = document.getElementById('prnGroup');
@@ -357,8 +361,6 @@
             const identityLabel = document.getElementById('identityLabel');
             const identityIcon = document.getElementById('identityIcon');
             const userIdentity = document.getElementById('userIdentity');
-            
-            const omniMasterOpt = document.getElementById('omniMasterOption');
 
             if (currentMode === 'signup') {
                 currentMode = 'login';
@@ -372,7 +374,7 @@
 
                 title.innerText = 'Welcome Back';
                 subtitle.innerText = 'Login via email or PRN number code structure';
-                submitBtn.innerText = 'Login'; // लॉगिन मोड पर सिर्फ 'Login' टेक्स्ट
+                submitBtn.innerText = 'Login'; 
                 prompt.innerText = "Don't have an account?";
                 action.innerText = 'Create an account';
 
@@ -396,15 +398,13 @@
 
                 title.innerText = 'Create Account';
                 subtitle.innerText = 'Join Practical Zone Academic Portal';
-                submitBtn.innerText = 'Create Account'; // साइनअप मोड पर सिर्फ 'Create Account' टेक्स्ट
+                submitBtn.innerText = 'Create Account'; 
                 prompt.innerText = 'Already have an account?';
                 action.innerText = 'Login here';
 
                 identityLabel.innerText = 'Email Address';
                 identityIcon.className = 'fa-solid fa-envelope';
                 userIdentity.placeholder = 'Enter your email';
-
-                omniMasterOpt.disabled = true;
 
                 document.getElementById('userName').required = true;
                 document.getElementById('userPRN').required = true;
@@ -414,7 +414,6 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        // डिफ़ॉल्ट रूप से साइनअप फील्ड्स रिक्वायर्ड
         document.getElementById('userName').required = true;
         document.getElementById('userPRN').required = true;
         document.getElementById('userYear').required = true;
@@ -442,7 +441,6 @@
             }).catch(err => alert("Error: " + err.message));
         }
 
-        // मुख्य फॉर्म सबमिशन हैंडलर
         function handleFormSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('mainSubmitBtn');
@@ -467,10 +465,8 @@
                     return;
                 }
 
-                // 🔄 क्रिएट अकाउंट पर: "Creating Account..." या "Synchronizing Nodes..."
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Account...';
 
-                // 1. Firebase Auth सिंकिंग
                 auth.createUserWithEmailAndPassword(inputVal, password)
                 .then((userCredential) => {
                     const uid = userCredential.user.uid;
@@ -488,13 +484,10 @@
 
                     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synchronizing Nodes...';
 
-                    // 2. Firestore Document सिंकिंग
                     db.collection("users").doc(prn).set(coreUserObject)
                     .then(() => {
-                        
                         const rtdbObject = { ...coreUserObject, createdAt: Date.now() };
 
-                        // 3. Realtime Database Node सिंकिंग
                         rtdb.ref('users/' + prn).set(rtdbObject)
                         .then(() => {
                             alert("Account successfully created and mapped across all security layers!");
@@ -510,7 +503,6 @@
                 }).catch(err => { alert("Authentication Creation Failed: " + err.message); btn.innerText = 'Create Account'; });
 
             } else {
-                // 🔄 लॉगिन बटन पर क्लिक करने पर: "Logging in..." या "Verifying Credentials..."
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
                 const isEmail = inputVal.includes('@');
 
@@ -518,7 +510,6 @@
                     executeFirebaseLogin(inputVal, password, btn);
                 } else {
                     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying Credentials...';
-                    // PRN से पहले संबंधित ईमेल को फेच करें
                     db.collection("users").doc(inputVal).get()
                     .then((docSnapshot) => {
                         if (docSnapshot.exists) {
@@ -537,13 +528,11 @@
             }
         }
 
-        // 🔥 3-Way रियल-टाइम ऑथेंटिकेशन और रीडायरेक्शन इंजन
         function executeFirebaseLogin(email, password, btn) {
             auth.signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
 
-                // रियल-टाइम डेटाबेस से लाइव डेटा फिचिंग और सिंकिंग
                 rtdb.ref('users').orderByChild('uid').equalTo(user.uid).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
@@ -555,23 +544,12 @@
                         const userName = userData.name || 'User';
                         const userPRN = userData.prn || '';
 
-                        if (userRole === 'master' || userRole === 'superadmin' || userRole === 'admin') {
-                            const omniMasterOpt = document.getElementById('omniMasterOption');
-                            if (omniMasterOpt) {
-                                omniMasterOpt.disabled = false;
-                                omniMasterOpt.selected = true;
-                            }
-                            localStorage.setItem('userYear', 'omni_master');
-                        } else {
-                            localStorage.setItem('userYear', userYear);
-                        }
-
                         localStorage.setItem('userLogin', userName);
                         localStorage.setItem('userRole', userRole);
+                        localStorage.setItem('userYear', userYear);
                         localStorage.setItem('userPRN', userPRN);
 
-                        // लाइव सिंक्रोनाइजेशन पूरा होते ही सीधे रीडायरेक्ट करें
-                        redirectUser(userRole, localStorage.getItem('userYear'));
+                        redirectUser(userRole, userYear);
 
                     } else {
                         // बैकअप ईमेल मैपिंग चेक
@@ -583,12 +561,12 @@
                                 const userRole = subData.role ? subData.role.trim().toLowerCase() : 'student';
                                 const userYear = subData.year ? subData.year.toString().trim() : '1';
                                 
-                                localStorage.setItem('userYear', userRole === 'master' ? 'omni_master' : userYear);
                                 localStorage.setItem('userLogin', subData.name || 'User');
                                 localStorage.setItem('userRole', userRole);
+                                localStorage.setItem('userYear', userYear);
                                 localStorage.setItem('userPRN', subData.prn || '');
                                 
-                                redirectUser(userRole, localStorage.getItem('userYear'));
+                                redirectUser(userRole, userYear);
                             } else {
                                 alert("Sync Warning: User profile not indexed in Realtime Database.");
                                 btn.innerText = 'Login';
@@ -605,22 +583,20 @@
             });
         }
 
-        // 👑 रूटिंग इंजन (फाइल पाथ रिस्पॉन्स)
+        // 👑 न्यू कस्टमाइज्ड रूटिंग इंजन (ईयर सिलेक्शन के अनुसार रिडायरेक्शन)
         function redirectUser(role, year) {
-            if (role === 'master' || role === 'superadmin' || role === 'admin' || year === 'omni_master') {
-                window.location.href = "master-dashboard.html";
+            // चाहे रोल master, superadmin, admin हो या कोई अन्य हायररकी, 
+            // ये सभी सीधे अपने सेलेक्ट किए हुए 'Academic Year' वाले पेज पर ही रीडायरेक्ट होंगे
+            if (year === '1') {
+                window.location.href = "fy.html";
+            } else if (year === '2') {
+                window.location.href = "second-year.html";
+            } else if (year === '3') {
+                window.location.href = "third-year.html";
+            } else if (year === '4') {
+                window.location.href = "fourth-year.html";
             } else {
-                if (year === '1') {
-                    window.location.href = "fy.html";
-                } else if (year === '2') {
-                    window.location.href = "second-year.html";
-                } else if (year === '3') {
-                    window.location.href = "third-year.html";
-                } else if (year === '4') {
-                    window.location.href = "fourth-year.html";
-                } else {
-                    window.location.href = "first-year.html";
-                }
+                window.location.href = "fy.html"; // डिफ़ॉल्ट बैकअप फ़ॉल-बैक
             }
         }
     </script>
