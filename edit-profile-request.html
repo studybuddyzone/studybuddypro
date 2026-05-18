@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Profile Update | Practical Zone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 🎨 अल्ट्रा प्रीमियम डार्क ग्लासमोर्फिज्म थीम वेरिएबल्स */
+        :root {
+            --bg-dark: #070a13;
+            --card-bg: rgba(15, 22, 42, 0.7);
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.15);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --error-red: #ef4444;
+            --success-green: #10b981;
+            --glass-shadow: rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background-image: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.04) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.03) 0px, transparent 50%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* 💎 प्रीमियम ग्लासमोर्फिज्म मास्टर कार्ड */
+        .edit-deck-card {
+            width: 100%;
+            max-width: 560px;
+            background: var(--card-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            padding: 40px 35px;
+            box-shadow: 0 30px 70px var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.05);
+            animation: cardPopup 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardPopup {
+            from { opacity: 0; transform: scale(0.96) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* 👑 कार्ड हेडर */
+        .card-header-block {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .icon-shield-pulse {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.15);
+        }
+
+        .card-header-block h2 {
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-header-block p {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* 📋 फॉर्म यूआई फ्रेमवर्क */
+        .form-scaffold {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .input-group-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .input-group-wrapper label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.8px;
+            padding-left: 2px;
+        }
+
+        .interactive-input-box {
+            position: relative;
+        }
+
+        .interactive-input-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+            transition: color 0.3s ease;
+            z-index: 2;
+        }
+
+        /* 💎 ग्लास इनपुट्स और ड्रॉपडाउन */
+        .interactive-input-box input, .interactive-input-box select {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            padding: 14px 16px 14px 46px;
+            border-radius: 14px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 🎓 ड्रॉपडाउन ऑप्शंस को प्रीमियम डार्क और ग्लास लुक देने के लिए */
+        .interactive-input-box select option {
+            background: #0f172a;
+            color: var(--text-main);
+            padding: 12px;
+        }
+
+        .interactive-input-box input:focus, .interactive-input-box select:focus {
+            border-color: var(--primary);
+            background: rgba(15, 23, 42, 0.7);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+
+        .interactive-input-box input:focus + i, .interactive-input-box select:focus + i {
+            color: var(--primary);
+        }
+
+        /* इनवैलिड या एरर अलर्ट टेक्स्ट स्टाइल */
+        .error-hint-text {
+            font-size: 11px;
+            color: var(--error-red);
+            font-weight: 500;
+            margin-top: 4px;
+            display: none;
+            padding-left: 2px;
+        }
+
+        /* ⚠️ इन्फो नोटिस बॉक्स */
+        .secure-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: rgba(56, 189, 248, 0.04);
+            border: 1px solid rgba(56, 189, 248, 0.12);
+            padding: 14px;
+            border-radius: 14px;
+            margin-top: 4px;
+        }
+
+        .secure-notice i {
+            color: var(--primary);
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .secure-notice p {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ⚡ प्रीमियम एनिमेटेड सबमिट बटन */
+        .btn-submit-request {
+            width: 100%;
+            background: var(--primary);
+            color: #030712;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 18px rgba(56, 189, 248, 0.25);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 5px;
+            position: relative;
+        }
+
+        .btn-submit-request:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.45);
+            filter: brightness(1.05);
+        }
+
+        .btn-submit-request:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit-request.loading {
+            pointer-events: none;
+            opacity: 0.75;
+            color: transparent;
+        }
+
+        .btn-spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(3, 7, 18, 0.2);
+            border-top-color: #030712;
+            border-radius: 50%;
+            position: absolute;
+            animation: spinEngine 0.6s linear infinite;
+        }
+
+        .btn-submit-request.loading .btn-spinner {
+            display: inline-block;
+        }
+
+        @keyframes spinEngine {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 🔥 PREMIUM GLASSMORPHISM TOAST POPUP SYSTEM */
+        .premium-toast-panel {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px 26px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            z-index: 99999;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            min-width: 340px;
+        }
+
+        .premium-toast-panel.active {
+            top: 30px;
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .premium-toast-panel i {
+            font-size: 22px;
+        }
+
+        .toast-success-node i { color: var(--success-green); drop-shadow: 0 0 10px var(--success-green); }
+        .toast-error-node i { color: var(--error-red); drop-shadow: 0 0 10px var(--error-red); }
+
+        .toast-text-content h4 {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.2px;
+        }
+
+        .toast-text-content p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="premium-toast-panel" id="customGlassToast">
+        <i id="toastIconBlock" class="fa-solid fa-circle-check"></i>
+        <div class="toast-text-content">
+            <h4 id="toastTitleBlock">Request Dispatched</h4>
+            <p id="toastMessageBlock">Data logs uploaded safely.</p>
+        </div>
+    </div>
+
+    <div class="edit-deck-card">
+        <div class="card-header-block">
+            <div class="icon-shield-pulse">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h2>Request Profile Update</h2>
+            <p>Modify your parameters and submit for rank verification</p>
+        </div>
+
+        <form class="form-scaffold" id="updateRequestForm" onsubmit="dispatchUpdateRequest(event)">
+            
+            <div class="input-group-wrapper">
+                <label>PRN / Student Key Identifier (16 Digits Mandatory)</label>
+                <div class="interactive-input-box">
+                    <input type="text" id="studentPrn" readonly style="opacity: 0.75; background: rgba(255,255,255,0.02); border-style: dashed; cursor: not-allowed; font-weight: 700; letter-spacing: 1px;">
+                    <i class="fa-solid fa-fingerprint"></i>
+                </div>
+                <div class="error-hint-text" id="prnError">Security Threat: PRN key must be exactly 16 characters/digits.</div>
+            </div>
+
+            <div class="input-group-wrapper">
+                <label>Full Name</label>
+                <div class="interactive-input-box">
+                    <input type="text" id="updateName" placeholder="Enter your full name">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            </div>
+
+            <div class="input-group-wrapper">
+                <label>Email Address</label>
+                <div class="interactive-input-box">
+                    <input type="text" id="updateEmail" placeholder="student@gmail.com">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div class="error-hint-text" id="emailError">Format Error: Please enter a valid email format (e.g., name@domain.com).</div>
+            </div>
+
+            <div class="input-group-wrapper">
+                <label>Contact Number</label>
+                <div class="interactive-input-box">
+                    <input type="text" id="updatePhone" placeholder="e.g. +91 9XXXXXXXXX">
+                    <i class="fa-solid fa-phone"></i>
+                </div>
+            </div>
+
+            <div class="input-group-wrapper">
+                <label>Date of Birth (DOB)</label>
+                <div class="interactive-input-box">
+                    <input type="date" id="updateDOB">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+            </div>
+
+            <div class="input-group-wrapper">
+                <label>Academic Year</label>
+                <div class="interactive-input-box">
+                    <select id="updateYear">
+                        <option value="">Select Academic Year (Unchanged)</option>
+                        <option value="first_year">First Year (FY)</option>
+                        <option value="second_year">Second Year (SY)</option>
+                        <option value="third_year">Third Year (TY)</option>
+                        <option value="final_year">Final Year (BE/BTech)</option>
+                    </select>
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+            </div>
+
+            <div class="input-group-wrapper">
+                <label>Request Hierarchy Rank / Role</label>
+                <div class="interactive-input-box">
+                    <select id="updateRole">
+                        <option value="">Select Role Rank (Unchanged)</option>
+                        <option value="student">Student (Free Tier)</option>
+                        <option value="silver">Silver User</option>
+                        <option value="gold">Gold User</option>
+                        <option value="diamond">Diamond Member</option>
+                        <option value="moderator">Moderator Node</option>
+                        <option value="admin">Admin Authorization</option>
+                        <option value="superadmin">Superadmin Console</option>
+                    </select>
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+            </div>
+
+            <div class="secure-notice">
+                <i class="fa-solid fa-circle-info"></i>
+                <p>Modifications are locked until verified. Data packet shifts directly to the <strong>Master Authority Deck Approval Stream</strong> for security log validation.</p>
+            </div>
+
+            <button type="submit" class="btn-submit-request" id="submitBtn">
+                <span class="btn-spinner"></span>
+                <span class="btn-text"><i class="fa-solid fa-paper-plane" style="margin-right: 5px;"></i> Push Data to Master Deck</span>
+            </button>
+        </form>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // 🔒 डेटाबेस ओरिजिनल कॉन्फ़िगरेशन
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+            authDomain: "students-e5183.firebaseapp.com",
+            databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+            projectId: "students-e5183"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 🔑 localStorage से छात्र का PRN फ़ेच करना
+        const prn = localStorage.getItem('userPRN');
+
+        if (!prn) {
+            triggerGlassNotification("Authorization Void", "No active key found. Booting to terminal.", "error");
+            setTimeout(() => { window.location.href = "index.html"; }, 2500);
+        } else {
+            document.getElementById('studentPrn').value = prn;
+        }
+
+        // ✨ लाइव ग्लासमोर्फिज्म पॉपअप ट्रिगर इंजन
+        function triggerGlassNotification(title, message, type) {
+            const toast = document.getElementById('customGlassToast');
+            const icon = document.getElementById('toastIconBlock');
+            document.getElementById('toastTitleBlock').innerText = title;
+            document.getElementById('toastMessageBlock').innerText = message;
+            
+            if (type === 'success') {
+                toast.className = "premium-toast-panel toast-success-node active";
+                icon.className = "fa-solid fa-circle-check";
+            } else {
+                toast.className = "premium-toast-panel toast-error-node active";
+                icon.className = "fa-solid fa-triangle-exclamation";
+            }
+            
+            // 3.5 सेकंड बाद पॉपअप अपने आप गायब हो जाएगा
+            setTimeout(() => { 
+                toast.classList.remove('active'); 
+            }, 3500);
+        }
+
+        // 🔄 लाइव डेटा पैकेट ट्रांसमिशन एवं कड़ा वैलिडेशन इंजन
+        function dispatchUpdateRequest(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const prnInput = document.getElementById('studentPrn').value.trim();
+            const newName = document.getElementById('updateName').value.trim();
+            const newEmail = document.getElementById('updateEmail').value.trim();
+            const newPhone = document.getElementById('updatePhone').value.trim();
+            const newDOB = document.getElementById('updateDOB').value;
+            const newYear = document.getElementById('updateYear').value;
+            const newRole = document.getElementById('updateRole').value;
+
+            // एरर हिंट्स को रीसेट करना
+            document.getElementById('prnError').style.display = 'none';
+            document.getElementById('emailError').style.display = 'none';
+
+            let hasError = false;
+
+            // 🛑 1. 16-Digit PRN नंबर कड़ा वैलिडेशन
+            if (prnInput.length !== 16) {
+                document.getElementById('prnError').style.display = 'block';
+                triggerGlassNotification("PRN Invalid", "PRN key must be exactly 16 characters.", "error");
+                hasError = true;
+            }
+
+            // 🛑 2. ईमेल फॉर्मेट वैलिडेशन (Regex pattern)
+            if (newEmail !== "") {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(newEmail)) {
+                    document.getElementById('emailError').style.display = 'block';
+                    triggerGlassNotification("Format Mismatch", "Invalid email formatting detected.", "error");
+                    hasError = true;
+                }
+            }
+
+            if (hasError) return;
+
+            // कम से कम एक इनपुट फील्ड भरना जरूरी है
+            if (!newName && !newEmail && !newPhone && !newDOB && !newYear && !newRole) {
+                triggerGlassNotification("Validation Empty", "Please modify at least one parameter.", "error");
+                return;
+            }
+
+            // लोडिंग स्टेट एक्टिवेट करें
+            submitBtn.classList.add('loading');
+
+            // 1. मुख्य यूजर नोड से पुराना पैकेट रीड करें
+            database.ref('users/' + prn).once('value').then((snapshot) => {
+                const userData = snapshot.val();
+                
+                const oldName = userData ? userData.name : "Not Available";
+                const oldEmail = userData ? userData.email : "Not Available";
+                const oldPhone = userData ? userData.phone : "Not Available";
+                const oldPassword = userData ? userData.password : "Not Available";
+                const oldDOB = userData && userData.dob ? userData.dob : "Not Set";
+                const oldYear = userData && userData.year ? userData.year : "first_year";
+                const oldRole = userData && userData.role ? userData.role : "student";
+
+                // 2. 'profile_requests' के अंदर पूरा पैकेट सिंक करें (बिकर पासवर्ड के)
+                database.ref('profile_requests/' + prn).set({
+                    prn: prn,
+                    oldName: oldName,
+                    newName: newName || oldName,
+                    
+                    oldEmail: oldEmail,
+                    newEmail: newEmail || oldEmail,
+                    
+                    oldPhone: oldPhone,
+                    newPhone: newPhone || oldPhone,
+
+                    oldPassword: oldPassword,
+                    newPassword: oldPassword, // पासवर्ड पूरी तरह सुरक्षित और अनछुआ
+
+                    oldDOB: oldDOB,
+                    newDOB: newDOB || oldDOB,
+
+                    oldYear: oldYear,
+                    newYear: newYear || oldYear,
+
+                    oldRole: oldRole,
+                    newRole: newRole || oldRole,
+                    
+                    status: "pending"
+                }).then(() => {
+                    setTimeout(() => {
+                        submitBtn.classList.remove('loading');
+                        
+                        // लोकल अलर्ट हटाकर प्रीमियम ग्लास नोटिफिकेशन शो करना
+                        triggerGlassNotification("Sync Successful", "Data queued into Master Deck Approval Stream!", "success");
+                        
+                        document.getElementById('updateRequestForm').reset();
+                        
+                        // नोटिफिकेशन देखने के लिए 2 सेकंड होल्ड करके फिर रीडायरेक्ट करना
+                        setTimeout(() => {
+                            window.location.href = "fy.html";
+                        }, 2200);
+
+                    }, 1000);
+                }).catch((error) => {
+                    submitBtn.classList.remove('loading');
+                    console.error("Firebase Sync Error: ", error);
+                    triggerGlassNotification("Packet Drop", "Failed to inject data to core node.", "error");
+                });
+            }).catch((err) => {
+                submitBtn.classList.remove('loading');
+                triggerGlassNotification("Node Error", err.message, "error");
+            });
+        }
+    </script>
+</body>
+</html>
