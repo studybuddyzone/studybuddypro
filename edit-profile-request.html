@@ -283,10 +283,10 @@
                 <div class="interactive-input-box">
                     <select id="updateYear">
                         <option value="">Select Academic Year (Unchanged)</option>
-                        <option value="first_year">First Year (FY)</option>
-                        <option value="second_year">Second Year (SY)</option>
-                        <option value="third_year">Third Year (TY)</option>
-                        <option value="final_year">Final Year (BE/BTech)</option>
+                        <option value="1">First Year (FY)</option>
+                        <option value="2">Second Year (SY)</option>
+                        <option value="3">Third Year (TY)</option>
+                        <option value="4">Final Year (BE/BTech)</option>
                     </select>
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
@@ -325,27 +325,41 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // 🧠 स्मार्ट बाईपास लॉजिक (चूंकि fy.html डेटा क्लियर कर देता है)
         let detectedPrn = localStorage.getItem('userPRN') || localStorage.getItem('PRN') || localStorage.getItem('studentPRN') || localStorage.getItem('user_prn');
         const prnField = document.getElementById('studentPrn');
 
         if (detectedPrn && detectedPrn.trim() !== "") {
-            // यदि डेटा मिल गया, तो उसे लॉक कर दो
             applyLockedState(detectedPrn.trim());
+            checkUserRoleAndLockFields(detectedPrn.trim());
         } else {
-            // ⚠️ FALLBACK MODE: यदि 'fy.html' ने सब डिलीट कर दिया है, तो छात्र को खुद एक बार टाइप करने दें
             prnField.placeholder = "Enter your 16-digit PRN Number";
             document.getElementById('prnLabel').innerText = "PRN / Student Key Identifier (Required Once)";
             prnField.style.borderColor = "rgba(255,255,255,0.15)";
             
-            // जैसे ही छात्र 16 अंकों का पीआरएन पूरा टाइप करेगा, सिस्टम उसे वहीं ऑटो-लॉक कर देगा!
             prnField.addEventListener('input', function() {
                 if (this.value.trim().length === 16) {
-                    localStorage.setItem('userPRN', this.value.trim());
+                    const typedPrn = this.value.trim();
+                    localStorage.setItem('userPRN', typedPrn);
                     triggerGlassNotification("Key Synced", "PRN Verification successfully locked.", "success");
-                    applyLockedState(this.value.trim());
+                    applyLockedState(typedPrn);
+                    checkUserRoleAndLockFields(typedPrn);
                 }
             });
+        }
+
+        // 🛡️ User ka database status check karke Dropdown lock karne wala logic
+        function checkUserRoleAndLockFields(prn) {
+            database.ref('users/' + prn).once('value').then((snapshot) => {
+                const userData = snapshot.val() || {};
+                if (userData.role === 'master') {
+                    const roleSelect = document.getElementById('updateRole');
+                    roleSelect.setAttribute('disabled', true);
+                    roleSelect.style.cursor = "not-allowed";
+                    roleSelect.style.opacity = "0.6";
+                    roleSelect.options[0].text = "Locked (Master Rank Active)";
+                    triggerGlassNotification("Security Active", "Master privileges detected. Hierarchy restricted.", "success");
+                }
+            }).catch(err => console.error("Verification Fail:", err));
         }
 
         function applyLockedState(value) {
@@ -379,7 +393,8 @@
             const newPhone = document.getElementById('updatePhone').value.trim();
             const newDOB = document.getElementById('updateDOB').value;
             const newYear = document.getElementById('updateYear').value;
-            const newRole = document.getElementById('updateRole').value;
+            const roleSelect = document.getElementById('updateRole');
+            const newRole = roleSelect.value;
 
             document.getElementById('prnError').style.display = 'none';
 
@@ -397,6 +412,12 @@
             database.ref('users/' + prnInput).once('value').then((snapshot) => {
                 const userData = snapshot.val() || {};
                 
+                // Backend bypass protection
+                let finalRoleSetting = newRole || userData.role || "student";
+                if(userData.role === 'master') {
+                    finalRoleSetting = "master"; 
+                }
+
                 database.ref('profile_requests/' + prnInput).set({
                     prn: prnInput,
                     oldName: userData.name || "Not Available",
@@ -410,7 +431,7 @@
                     oldYear: userData.year || "first_year",
                     newYear: newYear || userData.year || "first_year",
                     oldRole: userData.role || "student",
-                    newRole: newRole || userData.role || "student",
+                    newRole: finalRoleSetting,
                     status: "pending"
                 }).then(() => {
                     triggerGlassNotification("Sync Successful", "Data queued into Master Deck Stream!", "success");
