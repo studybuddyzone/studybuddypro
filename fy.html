@@ -82,7 +82,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 🔥 सिर्फ लॉक बटन शेक होने का प्रीमियम एनीमेशन (पूरी स्क्रीन नहीं हिलेगी) */
         @keyframes buttonOnlyDangerShake {
             0%, 100% { transform: scale(1); }
             20%, 60% { transform: scale(1.1) translateX(-4px); border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
@@ -98,7 +97,7 @@
         .danger-overlay.active { opacity: 1; }
         .danger-center-icon { font-size: 80px; color: #ef4444; filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.6)); }
 
-        /* --- Fixed Header (Optimized & Responsive) --- */
+        /* --- Fixed Header --- */
         .top-header {
             width: 100%; display: flex; align-items: center; justify-content: space-between;
             padding: 16px 40px; background: var(--sidebar-bg); border-bottom: 1px solid var(--border);
@@ -106,14 +105,9 @@
         }
         .header-left { display: flex; align-items: center; min-width: 0; gap: 15px; width: 100%; }
         .menu-btn { font-size: 22px; color: var(--text-main); cursor: pointer; flex-shrink: 0; order: 1; }
-        
-        /* लॉक बटन को लेफ्ट में रखने और रीस्टार्ट पोजीशन के लिए */
         #adminLockBtn { order: 2; }
-        
-        /* टाइटल को दोनों बटन्स के बीच फ्लेक्स ग्रो के साथ सेट किया गया है */
         .web-title { font-size: 24px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; order: 3; flex-grow: 1; margin-left: 5px; }
         .web-title span { color: var(--primary); }
-
         .header-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
         .header-action-btn {
             font-size: 18px; color: var(--text-muted); cursor: pointer;
@@ -123,61 +117,35 @@
             outline: none;
         }
 
-        /* 📱 RESPONSIVE BREAKPOINT FOR MOBILE DEVICES */
         @media (max-width: 600px) {
-            .top-header {
-                padding: 14px 15px; /* स्क्रीन से बाहर कंटेंट भागना पूरी तरह ब्लॉक */
-            }
-            .header-left {
-                gap: 10px;
-            }
-            .web-title {
-                font-size: 19px; /* छोटी स्क्रीन पर टाइटल ऑटो-एडजस्ट */
-            }
-            .header-right {
-                gap: 8px; /* दोनों बटन्स के बीच सेफ गैप */
-            }
-            .header-action-btn {
-                width: 36px; /* मोबाइल पर आइकॉन साइज परफेक्टली कॉम्पैक्ट */
-                height: 36px;
-                font-size: 15px;
-            }
+            .top-header { padding: 14px 15px; }
+            .header-left { gap: 10px; }
+            .web-title { font-size: 19px; }
+            .header-right { gap: 8px; }
+            .header-action-btn { width: 36px; height: 36px; font-size: 15px; }
         }
 
         /* --- Notice Ticker --- */
         .premium-ticker-wrapper { width: 100%; max-width: 1160px; margin: 85px auto 0 auto; padding: 0 20px; }
         @media (max-width: 600px) { .premium-ticker-wrapper { margin-top: 78px; padding: 0 12px; } }
-        
         .premium-ticker-container { width: 100%; background: var(--noti-bg); border: 1px solid var(--noti-border); border-radius: 12px; padding: 10px 16px; display: flex; align-items: center; overflow: hidden; backdrop-filter: blur(10px); }
         .ticker-badge { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; display: flex; align-items: center; gap: 6px; margin-right: 15px; white-space: nowrap; z-index: 10; }
         .ticker-marquee-box { flex-grow: 1; overflow: hidden; position: relative; display: flex; align-items: center; height: 20px; cursor: pointer; }
-        
-        .marquee-text-content { 
-            display: inline-block; white-space: nowrap; font-size: 13.5px; font-weight: 500; color: var(--text-main); 
-            position: absolute; padding-left: 100%; animation: studyBuddyMarquee 25s linear infinite; 
-        }
-        
+        .marquee-text-content { display: inline-block; white-space: nowrap; font-size: 13.5px; font-weight: 500; color: var(--text-main); position: absolute; padding-left: 100%; animation: studyBuddyMarquee 25s linear infinite; }
         @keyframes studyBuddyMarquee { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
         .premium-ticker-container:hover .marquee-text-content { animation-play-state: paused !important; }
 
         /* --- Sidebar Menu --- */
-        .sidebar {
-            position: fixed; top: 0; left: -320px; width: 320px; height: 100%;
-            background: var(--sidebar-bg); border-right: 1px solid var(--border); z-index: 2000;
-            transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; padding: 20px;
-        }
+        .sidebar { position: fixed; top: 0; left: -320px; width: 320px; height: 100%; background: var(--sidebar-bg); border-right: 1px solid var(--border); z-index: 2000; transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; padding: 20px; }
         .sidebar.active { left: 0; }
         .close-sidebar-btn { align-self: flex-end; font-size: 20px; color: var(--text-muted); cursor: pointer; margin-bottom: 15px; }
-
         .user-details-card { background: rgba(0,0,0,0.02); border: 1px solid var(--border); border-radius: 14px; padding: 15px; margin-bottom: 25px; }
         .user-profile-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
         .user-profile-header i { font-size: 32px; color: var(--primary); }
         .user-profile-header h4 { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
         .user-role-badge { font-size: 11px; padding: 4px 12px; border-radius: 6px; font-weight: 800; display: inline-block; text-transform: uppercase; color: white; background: #64748b; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-
         .sidebar-action-links { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 10px; }
         .action-link-item { font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-
         .sidebar-menu-items { list-style: none; display: flex; flex-direction: column; gap: 6px; }
         .menu-item-link { display: flex; align-items: center; gap: 15px; padding: 12px 16px; color: var(--text-main); text-decoration: none; font-size: 14.5px; font-weight: 500; border-radius: 10px; cursor: pointer; }
         .menu-item-link i { font-size: 16px; color: var(--text-muted); width: 20px; }
@@ -191,6 +159,28 @@
         .modal-overlay.active .premium-modal { transform: scale(1); }
         .modal-close { position: absolute; top: 20px; right: 20px; font-size: 18px; color: var(--text-muted); cursor: pointer; border: none; background: none; }
         
+        /* 🚨 SOLO MCQ SPECIAL LARGE OVERLAY HUB */
+        .premium-modal.large-hub-panel { max-width: 850px; width: 100%; padding: 24px; text-align: left; }
+        .solo-workspace-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; margin-top: 15px; }
+        @media (max-width: 768px) { .solo-workspace-grid { grid-template-columns: 1fr; } }
+        
+        .solo-quiz-card-box { background: rgba(0, 0, 0, 0.02); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; min-height: 320px; }
+        [data-theme="dark"] .solo-quiz-card-box { background: rgba(255,255,255,0.02); }
+        
+        /* Leaderboard Box styling */
+        .leaderboard-card-box { background: rgba(0, 0, 0, 0.01); border: 1px solid var(--border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; }
+        .leaderboard-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed var(--border); padding-bottom: 8px; }
+        .leaderboard-list-container { max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        
+        .leaderboard-item-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 10px; }
+        .leaderboard-item-row.top-rank { border-color: #f59e0b; background: rgba(245, 158, 11, 0.06); }
+        
+        .rank-user-meta { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .rank-badge-number { width: 24px; height: 24px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+        .top-rank .rank-badge-number { background: #f59e0b; color: #000; }
+        .rank-user-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rank-score-badge { font-size: 12px; font-weight: 800; color: var(--primary); }
+
         .modal-header i { font-size: 38px; color: var(--primary); margin-bottom: 12px; }
         .modal-header h3 { font-size: 22px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
         .modal-header p { font-size: 12.5px; color: var(--text-muted); margin-bottom: 20px; }
@@ -278,9 +268,7 @@
     <header id="topHeader" class="top-header">
         <div class="header-left">
             <div class="menu-btn" onclick="openSidebar()"><i class="fa-solid fa-bars"></i></div>
-            
             <div id="adminLockBtn" class="header-action-btn" onclick="window.checkMasterRoleAccess()"><i class="fa-solid fa-lock"></i></div>
-            
             <h1 class="web-title">StudyBuddy<span>Zone</span></h1>
         </div>
         <div class="header-right">
@@ -302,7 +290,6 @@
     <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
     <nav id="mySidebar" class="sidebar">
         <div class="close-sidebar-btn" onclick="closeSidebar()"><i class="fa-solid fa-xmark"></i></div>
-
         <div class="user-details-card">
             <div class="user-profile-header">
                 <i class="fa-solid fa-circle-user"></i>
@@ -316,7 +303,6 @@
                 <a onclick="redirectToApprovalPage()" class="action-link-item" style="color: var(--accent);"><i class="fa-solid fa-paper-plane"></i>Request Profile Edit</a>
             </div>
         </div>
-
         <ul class="sidebar-menu-items">
             <li><a onclick="openMCQPage()" class="menu-item-link"><i class="fa-solid fa-list-check"></i>BATTLE ARENA</a></li>
             <li><a onclick="openPYQPage()" class="menu-item-link"><i class="fa-solid fa-file-invoice"></i>PYQ Section</a></li>
@@ -324,6 +310,51 @@
             <li><a onclick="openAboutModal()" class="menu-item-link" style="color: var(--primary);"><i class="fa-solid fa-circle-info"></i>About Us</a></li>
         </ul>
     </nav>
+
+    <!-- 🌟 SOLO MCQ LIVE INTERACTIVE HUB OVERLAY -->
+    <div id="soloMcqOverlayHub" class="modal-overlay">
+        <div class="premium-modal large-hub-panel">
+            <button class="modal-close" onclick="closeSoloMcqHub()"><i class="fa-solid fa-xmark"></i></button>
+            <div style="display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                <i class="fa-solid fa-bolt" style="font-size: 28px; color: var(--primary);"></i>
+                <div>
+                    <h3 style="font-size: 18px; font-weight: 800;">Solo MCQ Arena Panel</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Verified Terminal: <span id="soloIdentityHook" style="color: var(--primary); font-weight:600;">Guest Terminal</span></p>
+                </div>
+            </div>
+
+            <div class="solo-workspace-grid">
+                <!-- Left Module: Placeholder to test score submission -->
+                <div class="solo-quiz-card-box">
+                    <div>
+                        <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 5px;">Active Engine Mock</h4>
+                        <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5;">MCQ engine modules are queued. Click below to simulate a match finish and test your Firestore real-time Leaderboard highscore record logic.</p>
+                    </div>
+                    <div style="background: var(--bg-dark); padding: 12px; border-radius: 10px; border: 1px solid var(--border); margin: 15px 0;">
+                        <span style="font-size: 11px; font-weight:600; color:var(--text-muted); display:block; text-transform:uppercase;">Test Score Simulator</span>
+                        <input type="number" id="testScoreInputField" value="85" style="width:100%; background:transparent; border:none; color:var(--text-main); font-size:22px; font-weight:800; outline:none; margin-top:4px;">
+                    </div>
+                    <button type="button" id="submitScoreBtn" class="submit-btn" style="margin: 0;" onclick="pushSoloScoreToFirestore()">Push Simulated Score</button>
+                </div>
+
+                <!-- Right Module: Realtime Live Leaderboard -->
+                <div class="leaderboard-card-box">
+                    <div class="leaderboard-header-row">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-trophy" style="color: #f59e0b; font-size: 14px;"></i>
+                            <span style="font-size: 13px; font-weight: 700;">LIVE LEADERBOARD</span>
+                        </div>
+                        <button onclick="syncSoloLeaderboard()" style="background: none; border: none; color: var(--primary); cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px;" title="Refresh Scores">
+                            <i class="fa-solid fa-rotate"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="leaderboardRowsContainer" class="leaderboard-list-container">
+                        <!-- Dynamic Leaderboard Data rows loaded here via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="profileDetailsModal" class="modal-overlay">
         <div class="premium-modal">
@@ -368,7 +399,7 @@
                 <p>Version 2.0.26 | Academic Excellence Hub</p>
             </div>
             <div class="about-text-panel">
-                <p>प्रैक्टिकल ज़ोन (Practical Zone) प्रथम वर्ष के इंजीनियरिंग छात्रों के लिए बनाया गया एक premium और सुरक्षित शैक्षणिक प्लेटफ़ॉर्म है। इसका उद्देश्य मुख्य विषयों में छात्रों को उत्कृष्ट परिणाम प्रदान करना है।</p>
+                <p>प्रैक्टिकल ज़ोन (Practical Zone) प्रथम वर्ष के ingeniería छात्रों के लिए बनाया गया एक premium और सुरक्षित शैक्षणिक प्लेटफ़ॉर्म है। इसका उद्देश्य मुख्य विषयों में छात्रों को उत्कृष्ट परिणाम प्रदान करना है।</p>
                 <div class="about-feature-tag"><i class="fa-solid fa-bolt"></i> Realtime Sync Dashboard</div>
                 <div class="about-feature-tag"><i class="fa-solid fa-shield-halved"></i> Layered Security Protocol</div>
                 <div class="about-feature-tag"><i class="fa-solid fa-graduation-cap"></i> Target 50 Multi-Subject Questions</div>
@@ -378,13 +409,13 @@
     </div>
 
     <main id="mainContent" class="main-content">
-        <a href="update 1.html" class="proceed-box-link">
+        <a href="up-premium.html" class="proceed-box-link">
             <div class="horizontal-section-box">
                 <div class="box-left-content">
-                    <div class="box-icon"><i class="fa-solid fa-folder-open"></i></div>
+                    <div class="box-icon"><i class="fa-solid fa-crown"></i></div>
                     <div class="box-text">
-                        <h3>Click Here to Proceed (First Year)</h3>
-                        <p>Click on this box to open and view core academic resources.</p>
+                        <h3>Get To Premium</h3>
+                        <p>Click on this box to upgrade to premium</p>
                     </div>
                 </div>
                 <div class="box-right-arrow"><i class="fa-solid fa-chevron-right"></i></div>
@@ -398,6 +429,18 @@
                     <div class="box-info-text">
                         <h4>BATTLE ARENA&#128948;</h4>
                         <p>"Where Warriors Clash, Legends Rise!"</p>
+                    </div>
+                </div>
+                <div class="box-action-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+            
+            <!-- 👑 SOLO MCQ TRIGGERING BOX SECTION -->
+            <div class="premium-vertical-box" onclick="handlePremiumBoxClick('solo')">
+                <div class="box-main-details">
+                    <div class="box-primary-icon" style="background: rgba(79, 70, 229, 0.15); color: var(--accent); border-color: rgba(79, 70, 229, 0.2);"><i class="fa-solid fa-user-shield"></i></div>
+                    <div class="box-info-text">
+                        <h4>SOLO MCQ&#128948;</h4>
+                        <p>Practice MCQ Questions & Rule Live Leaderboard</p>
                     </div>
                 </div>
                 <div class="box-action-arrow"><i class="fa-solid fa-arrow-right"></i></div>
@@ -416,9 +459,20 @@
 
             <div class="premium-vertical-box" onclick="handlePremiumBoxClick('QuestionBank')">
                 <div class="box-main-details">
-                    <div class="box-primary-icon"><i class="fa-solid fa-cubes"></i></div>
+                    <div class="box-primary-icon"><i class="fa-solid fa-piggy-bank"></i></div>
                     <div class="box-info-text">
                         <h4>Question Bank</h4>
+                        <p>soon</p>
+                    </div>
+                </div>
+                <div class="box-action-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+
+             <div class="premium-vertical-box" onclick="handlePremiumBoxClick('PYQs')">
+                <div class="box-main-details">
+                    <div class="box-primary-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="box-info-text">
+                        <h4>PYQs</h4>
                         <p>soon</p>
                     </div>
                 </div>
@@ -429,7 +483,7 @@
 
     <footer class="premium-footer">
         <p>&copy; 2026 <span class="footer-brand">Practical Zone</span>. Academic Excellence Redefined.</p>
-        <p>Developed by <span class="dev-attribution">I-26</span> | <i class="fa-solid fa-location-dot" style="font-size: 10px; margin-right: 2px;"></i> Nanded, Maharashtra, India</p>
+        <p>Developed by : <span class="dev-attribution">Nexus-Tech</span> | <i class="fa-solid fa-location-dot" style="font-size: 10px; margin-right: 2px;"></i> Nanded, Maharashtra, India</p>
     </footer>
 
     <div id="universalPremiumToast" class="premium-toast toast-success">
@@ -458,10 +512,13 @@
 
         const auth = firebase.auth();
         const rtdb = firebase.database();
+        // Initialize Firestore Environment safely
+        const db = firebase.firestore();
 
         let currentUserUid = null;
         let currentUserRole = "blank"; 
         let currentUserEmail = "";
+        let currentUserName = "Student User";
         let masterWelcomeSoundPlayed = false;
 
         auth.onAuthStateChanged((user) => {
@@ -478,6 +535,7 @@
             if (user) {
                 currentUserUid = user.uid;
                 currentUserEmail = user.email;
+                document.getElementById('soloIdentityHook').innerText = currentUserEmail;
                 
                 rtdb.ref('users').orderByChild('uid').equalTo(user.uid).on('value', (snapshot) => {
                     if (snapshot.exists()) {
@@ -485,6 +543,7 @@
                         const userData = snapshot.val()[key];
                         
                         currentUserRole = userData.role ? userData.role.trim().toLowerCase() : "student";
+                        currentUserName = userData.name || user.email.split('@')[0];
                         rolePlaceholder.innerText = currentUserRole.toUpperCase();
                         
                         if (currentUserRole === "master") {
@@ -548,8 +607,8 @@
                             rolePlaceholder.style.color = "#ffffff";
                         }
 
-                        namePlaceholder.innerText = userData.name || user.email.split('@')[0];
-                        document.getElementById('profName').innerText = userData.name || "N/A";
+                        namePlaceholder.innerText = currentUserName;
+                        document.getElementById('profName').innerText = currentUserName;
                         document.getElementById('profEmail').innerText = userData.email || user.email || "N/A";
                         document.getElementById('profMobile').innerText = userData.mobile || "Not Linked";
                     } else {
@@ -570,6 +629,7 @@
                 rolePlaceholder.innerText = "GUEST";
                 rolePlaceholder.style.background = "#64748b";
                 fallbackProfileDetails("Guest Mode Active");
+                document.getElementById('soloIdentityHook').innerText = "Guest Terminal (Sign In Required)";
             }
         });
 
@@ -631,6 +691,74 @@
                 passwordField.value = "";
             });
         };
+
+        /* 👑 FIRESTORE SOLO MCQ HIGH SCORE HANDLING LOGIC */
+        window.pushSoloScoreToFirestore = function() {
+            if (!currentUserUid) {
+                showPremiumNotification("Access Denied", "Please sign in to log academic scores!", true);
+                return;
+            }
+
+            const scoreValue = parseInt(document.getElementById('testScoreInputField').value);
+            if (isNaN(scoreValue) || scoreValue < 0) {
+                showPremiumNotification("Invalid Input", "Please enter a valid positive score structure.", true);
+                return;
+            }
+
+            const btn = document.getElementById('submitScoreBtn');
+            btn.innerText = "Syncing Core Firestore Ledger...";
+            btn.disabled = true;
+
+            const userRecordRef = db.collection('solo').doc(currentUserUid);
+
+            db.runTransaction((transaction) => {
+                return transaction.get(userRecordRef).then((doc) => {
+                    if (!doc.exists) {
+                        // Create record if user doesn't have an entry yet
+                        transaction.set(userRecordRef, {
+                            uid: currentUserUid,
+                            name: currentUserName,
+                            email: currentUserEmail,
+                            highscore: scoreValue,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        return "created";
+                    }
+
+                    const existingHighScore = doc.data().highscore || 0;
+                    if (scoreValue > existingHighScore) {
+                        // Overwrite only if new score beats the previous personal highscore
+                        transaction.update(userRecordRef, {
+                            highscore: scoreValue,
+                            name: currentUserName, // updates display name if changed
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        return "updated";
+                    } else {
+                        return "not_beaten";
+                    }
+                });
+            })
+            .then((status) => {
+                btn.innerText = "Push Simulated Score";
+                btn.disabled = false;
+                if (status === "created" || status === "updated") {
+                    showPremiumNotification("Cloud Synced", `Highscore updated successfully to ${scoreValue}!`, false);
+                    syncSoloLeaderboard();
+                } else {
+                    showPremiumNotification("Record Safe", `Score ${scoreValue} didn't beat your personal best.`, false);
+                }
+            })
+            .catch((error) => {
+                console.error("Firestore Error:", error);
+                btn.innerText = "Push Simulated Score";
+                btn.disabled = false;
+                showPremiumNotification("Sync Error", "Transaction tracking system failed.", true);
+            });
+        };
+
+        
+        
     </script>
 
     <script>
@@ -658,6 +786,17 @@
 
         function openAboutModal() { closeSidebar(); document.getElementById('aboutUsModal').classList.add('active'); }
         function closeAboutModal() { document.getElementById('aboutUsModal').classList.remove('active'); }
+
+        /* 👑 SOLO MCQ WORKSPACE CONTROLS */
+        function openSoloMcqHub() {
+            document.getElementById('soloMcqOverlayHub').classList.add('active');
+            if (typeof window.syncSoloLeaderboard === 'function') {
+                window.syncSoloLeaderboard();
+            }
+        }
+        function closeSoloMcqHub() {
+            document.getElementById('soloMcqOverlayHub').classList.remove('active');
+        }
 
         function redirectToApprovalPage() {
             closeSidebar();
@@ -777,8 +916,10 @@
 
         function handlePremiumBoxClick(boxName) {
             if (boxName === 'MCQNotes') window.location.href = "battlearena.html";
+            else if (boxName === 'solo') window.location.href = "solo.html"; // 👑 Triggers the secure overlay modal room instead of redirection
             else if (boxName === 'HandwrittenNotes') window.location.href = "handwritten-notes.html";
-            else if (boxName === 'QuestionBank') window.location.href = "pyq-question-bank.html";
+            else if (boxName === 'QuestionBank') window.location.href = "material-hub.html";
+            else if (boxName === 'PYQs') window.location.href = "pyq.html";
             else showPremiumNotification("Section Launch", `Opening section modules [${boxName}]`, false);
         }
 
