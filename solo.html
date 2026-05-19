@@ -242,60 +242,60 @@
         </div>
 
         <div class="section-heading">
-            <span>DBATU MCQ Arenas (20 Scrollable Shuffled Loop)</span>
+            <span>DBATU MCQ Arenas (5 Shuffled Shifting View)</span>
             <span style="color:var(--danger)">Marking: +4 | Penalty: -1</span>
         </div>
         
         <div class="subjects-grid">
-            <div class="subject-card s-math" onclick="launchExamArena('Engineering Mathematics - I')">
+            <div class="subject-card s-math" onclick="launchExamArena('Mathematics - I')">
                 <div class="sc-icon-box color-1"><i class="fa-solid fa-calculator"></i></div>
-                <h4>Engineering Math - I</h4>
-                <p>20 MCQs List</p>
+                <h4>Mathematics - I</h4>
+                <p>5 MCQs List</p>
             </div>
             <div class="subject-card s-phys" onclick="launchExamArena('Engineering Physics')">
                 <div class="sc-icon-box color-2"><i class="fa-solid fa-atom"></i></div>
                 <h4>Engineering Physics</h4>
-                <p>20 MCQs List</p>
+                <p>5 MCQs List</p>
             </div>
             <div class="subject-card s-chem" onclick="launchExamArena('Engineering Chemistry')">
                 <div class="sc-icon-box color-3"><i class="fa-solid fa-flask"></i></div>
                 <h4>Engineering Chemistry</h4>
-                <p>20 MCQs List</p>
+                <p>5 MCQs List</p>
             </div>
             <div class="subject-card s-mech" onclick="launchExamArena('Engineering Mechanics')">
                 <div class="sc-icon-box color-4"><i class="fa-solid fa-gears"></i></div>
                 <h4>Engineering Mechanics</h4>
-                <p>20 MCQs List</p>
+                <p>5 MCQs List</p>
             </div>
             <div class="subject-card s-graph" onclick="launchExamArena('Engineering Graphics')">
                 <div class="sc-icon-box color-5"><i class="fa-solid fa-compass-drafting"></i></div>
                 <h4>Engineering Graphics</h4>
-                <p>20 MCQs List</p>
+                <p>5 MCQs List</p>
             </div>
-            <div class="subject-card s-elec" onclick="launchExamArena('Basic Electrical Engineering')">
+            <div class="subject-card s-elec" onclick="launchExamArena('beee')">
                 <div class="sc-icon-box color-6"><i class="fa-solid fa-bolt"></i></div>
-                <h4>Basic Electrical</h4>
-                <p>20 MCQs List</p>
+                <h4>BEEE</h4>
+                <p>5 MCQs List</p>
             </div>
-            <div class="subject-card s-entc" onclick="launchExamArena('Basic Electronics Engineering')">
+            <div class="subject-card s-entc" onclick="launchExamArena('Mathematics - II')">
                 <div class="sc-icon-box color-7"><i class="fa-solid fa-microchip"></i></div>
-                <h4>Basic Electronics</h4>
-                <p>20 MCQs List</p>
+                <h4>Mathematics - II</h4>
+                <p>5 MCQs List</p>
             </div>
             <div class="subject-card s-comp" onclick="launchExamArena('Basic Computer Programming')">
                 <div class="sc-icon-box color-8"><i class="fa-solid fa-code"></i></div>
                 <h4>Computer Programing</h4>
-                <p>20 MCQs List</p>
+                <p>5 MCQs List</p>
             </div>
             <div class="subject-card s-comm" onclick="launchExamArena('Communication Skills')">
                 <div class="sc-icon-box color-9"><i class="fa-solid fa-comments"></i></div>
                 <h4>Communication Skills</h4>
-                <p>20 MCQs List</p>
+                <p>5 MCQs List</p>
             </div>
             <div class="subject-card s-energy" onclick="launchExamArena('Energy & Environment Engineering')">
                 <div class="sc-icon-box color-10"><i class="fa-solid fa-leaf"></i></div>
                 <h4>Energy & Environ.</h4>
-                <p>20 MCQs List</p>
+                <p>5 MCQs List</p>
             </div>
         </div>
 
@@ -319,7 +319,7 @@
     <div id="gameOverlay" class="game-overlay">
         <div class="game-header">
             <h3 id="currentArenaTitle" style="font-family:'Orbitron', sans-serif; font-size:11px; color:#fff;">MCQ SCROLL BOARD</h3>
-            <div id="questionProgressNode" style="font-size:10px; font-weight:700; color:var(--primary);">20 Questions Loaded</div>
+            <div id="questionProgressNode" style="font-size:10px; font-weight:700; color:var(--primary);">5 Questions Loaded</div>
             <div id="liveTimerBox" style="background:var(--danger); padding:4px 10px; border-radius:20px; font-weight:700; font-size:10px; font-family:'Orbitron', sans-serif; color:#fff;">20:00</div>
             <button onclick="abortCurrentMatch()" style="background:none; border:none; color:var(--danger); font-weight:700; font-size:11px; cursor:pointer;">QUIT ×</button>
         </div>
@@ -408,27 +408,586 @@
             document.getElementById('themeToggleLabelText').innerText = (targetTheme === 'light') ? "SWITCH TO DARK ENGINE" : "SWITCH TO LIGHT ENGINE";
         }
 
-        // Generating a vast MCQ database pool for all 10 subjects
-        const MasterComprehensiveMcqDb = {};
-        const allTenSubjects = [
-            "Engineering Mathematics - I", "Engineering Physics", "Engineering Chemistry", "Engineering Mechanics", "Engineering Graphics",
-            "Basic Electrical Engineering", "Basic Electronics Engineering", "Basic Computer Programming", "Communication Skills", "Energy & Environment Engineering"
-        ];
+        // STATIC SUBJECTS DATA POOL - Exactly 5 standard MCQs per subject
+        const MasterComprehensiveMcqDb = {
+            "Mathematics - I": [
+                 {section: "Matrices", q: "A square matrix A is called symmetric if?", a: "A' = -A", b: "A' = A", c: "A = 0", d: "A is singular", ans: "b"},
+        {section: "Matrices", q: "If the determinant of a matrix is zero, it is called?", a: "Identity matrix", b: "Singular matrix", c: "Non-singular", d: "Orthogonal", ans: "b"},
+        {section: "Matrices", q: "The rank of a unit matrix of order n is?", a: "0", b: "1", c: "n", d: "n-1", ans: "c"},
+        {section: "Matrices", q: "The Eigen values of a real symmetric matrix are always?", a: "Complex", b: "Real", c: "Zero", d: "Imaginary", ans: "b"},
+        {section: "Calculus", q: "The derivative of log(sec x) is?", a: "sec x", b: "tan x", c: "cot x", d: "cos x", ans: "b"},
+        {section: "Successive Differentiation", q: "The nth derivative of e^(ax) is?", a: "e^(ax)", b: "a^n e^(ax)", c: "a e^(ax)", d: "n! e^(ax)", ans: "b"},
+        {section: "Partial Differentiation", q: "Euler's theorem is applicable to?", a: "Implicit functions", b: "Homogeneous functions", c: "Explicit functions", d: "All functions", ans: "b"},
+        {section: "Complex Numbers", q: "The value of i^2 is?", a: "1", b: "-1", c: "0", d: "i", ans: "b"},
+        {section: "Complex Numbers", q: "The polar form of a complex number z = x + iy is?", a: "r(cos θ - i sin θ)", b: "r(cos θ + i sin θ)", c: "r sin θ", d: "None", ans: "b"},
+        {section: "Expansion of Functions", q: "Taylor's series expansion is about x = ?", a: "0", b: "a", c: "Infinity", d: "1", ans: "b"},
+        {section: "Matrices", q: "Characteristic equation of matrix A is given by?", a: "|A - λI| = 0", b: "Aλ = I", c: "A = λI", d: "|A| = λ", ans: "a"},
+        {section: "Matrices", q: "Trace of a matrix is the sum of its?", a: "Rows", b: "Diagonal elements", c: "Columns", d: "All elements", ans: "b"},
+        {section: "Successive Differentiation", q: "Leibnitz's theorem is used to find the nth derivative of?", a: "Sum of two functions", b: "Product of two functions", c: "Quotient", d: "None", ans: "b"},
+        {section: "Partial Differentiation", q: "If u = f(x,y), then ∂²u/∂x∂y is equal to?", a: "∂²u/∂y²", b: "∂²u/∂y∂x", c: "∂u/∂x", d: "0", ans: "b"},
+        {section: "Linear Systems", q: "Cramer's rule is used for solving?", a: "Quadratic equations", b: "System of linear equations", c: "Integrals", d: "Limits", ans: "b"},
+        {section: "Complex Numbers", q: "De Moivre's Theorem states (cos θ + i sin θ)^n = ?", a: "cos nθ - i sin nθ", b: "cos nθ + i sin nθ", c: "n(cos θ + i sin θ)", d: "None", ans: "b"},
+        {section: "Expansion of Functions", q: "Maclaurin's series is Taylor's series when a = ?", a: "1", b: "0", c: "-1", d: "π", ans: "b"},
+        {section: "Indeterminate Forms", q: "L'Hospital's rule is applied to forms like?", a: "0/0 or ∞/∞", b: "1/0", c: "∞/0", d: "0/1", ans: "a"},
+        {section: "Matrices", q: "A matrix A is orthogonal if?", a: "AA' = I", b: "A = A'", c: "A = -A'", d: "Det(A) = 0", ans: "a"},
+        {section: "Matrices", q: "Inverse of a matrix A exists only if?", a: "|A| = 0", b: "|A| ≠ 0", c: "A is square", d: "Both b and c", ans: "d"},
+        {section: "Partial Differentiation", q: "If u = x^n f(y/x) is homogeneous of degree n, then x(∂u/∂x) + y(∂u/∂y) = ?", a: "0", b: "nu", c: "(n-1)u", d: "u", ans: "b"},
+        {section: "Jacobians", q: "The Jacobian J(u,v/x,y) is defined as a?", a: "Matrix", b: "Determinant", c: "Vector", d: "Limit", ans: "b"},
+        {section: "Complex Numbers", q: "Real part of e^(iθ) is?", a: "sin θ", b: "cos θ", c: "tan θ", d: "1", ans: "b"},
+        {section: "Complex Numbers", q: "Imaginary part of e^(iθ) is?", a: "cos θ", b: "sin θ", c: "0", d: "e", ans: "b"},
+        {section: "Matrices", q: "The Eigen values of a triangular matrix are its?", a: "Zero elements", b: "Diagonal elements", c: "Trace", d: "None", ans: "b"},
+        {section: "Calculus", q: "Radius of curvature for a straight line is?", a: "0", b: "Infinite", c: "1", d: "Constant", ans: "b"},
+        {section: "Indeterminate Forms", q: "Value of lim (x→0) (sin x / x) is?", a: "0", b: "1", c: "∞", d: "-1", ans: "b"},
+        {section: "Successive Differentiation", q: "nth derivative of log(ax+b) is?", a: "1/(ax+b)", b: "(-1)^(n-1) (n-1)! a^n / (ax+b)^n", c: "n!/(ax+b)", d: "None", ans: "b"},
+        {section: "Matrices", q: "Cayley-Hamilton theorem states every square matrix satisfies its own?", a: "Rank", b: "Characteristic equation", c: "Inverse", d: "Adjoint", ans: "b"},
+        {section: "Complex Numbers", q: "Logarithm of a complex number is?", a: "Single valued", b: "Multi-valued", c: "Always real", d: "Zero", ans: "b"},
+        {section: "Calculus", q: "Point where curvature changes sign is called?", a: "Stationary point", b: "Point of inflexion", c: "Node", d: "Cusp", ans: "b"},
+        {section: "Partial Differentiation", q: "Total derivative du for u(x,y) is?", a: "(∂u/∂x)dx + (∂u/∂y)dy", b: "(∂u/∂x)dx", c: "(∂u/∂y)dy", d: "0", ans: "a"},
+        {section: "Jacobians", q: "If u, v are functions of x, y and J ≠ 0, then u, v are?", a: "Dependent", b: "Independent", c: "Constant", d: "Zero", ans: "b"},
+        {section: "Matrices", q: "Product of Eigen values is equal to?", a: "Trace", b: "Determinant", c: "Rank", d: "0", ans: "b"},
+        {section: "Matrices", q: "Sum of Eigen values is equal to?", a: "Determinant", b: "Trace", c: "1", d: "n", ans: "b"},
+        {section: "Expansion", q: "Expansion of e^x is?", a: "1 - x + x²/2!...", b: "1 + x + x²/2! + x³/3!...", c: "x - x²/2...", d: "None", ans: "b"},
+        {section: "Complex Numbers", q: "Modulus of 3 + 4i is?", a: "7", b: "5", c: "25", d: "1", ans: "b"},
+        {section: "Complex Numbers", q: "Argument of 1 + i is?", a: "0", b: "π/4", c: "π/2", d: "π", ans: "b"},
+        {section: "Matrices", q: "An idempotent matrix satisfies?", a: "A² = I", b: "A² = A", c: "A' = A", d: "A = 0", ans: "b"},
+        {section: "Matrices", q: "A nilpotent matrix of index k satisfies?", a: "A^k = I", b: "A^k = 0", c: "A = kI", d: "None", ans: "b"},
+        {section: "Partial Differentiation", q: "If f(x,y) has a maximum at (a,b), then f_x and f_y are?", a: "1", b: "0", c: "Infinite", d: "Undefined", ans: "b"},
+        {section: "Calculus", q: "The curve y = cos x is symmetric about?", a: "Origin", b: "Y-axis", c: "X-axis", d: "Line y=x", ans: "b"},
+        {section: "Complex Numbers", q: "Hyperbolic function sinh x is?", a: "(e^x + e^-x)/2", b: "(e^x - e^-x)/2", c: "e^x", d: "cos ix", ans: "b"},
+        {section: "Complex Numbers", q: "cosh²x - sinh²x = ?", a: "0", b: "1", c: "-1", d: "2", ans: "b"},
+        {section: "Matrices", q: "For a system AX=B, if |A|≠0, the system has?", a: "No solution", b: "Unique solution", c: "Infinite solutions", d: "None", ans: "b"},
+        {section: "Matrices", q: "Crout's method is used for?", a: "Integration", b: "Matrix Factorization (LU)", c: "Differentiation", d: "None", ans: "b"},
+        {section: "Expansion", q: "Expansion of sin x starts with?", a: "1", b: "x", c: "x²", d: "cos x", ans: "b"},
+        {section: "Expansion", q: "Expansion of cos x contains only?", a: "Odd powers of x", b: "Even powers of x", c: "Constant", d: "None", ans: "b"},
+        {section: "Jacobians", q: "If x = r cos θ, y = r sin θ, then J(x,y/r,θ) is?", a: "1", b: "r", c: "r²", d: "0", ans: "b"},
+        {section: "Successive Differentiation", q: "nth derivative of (ax+b)^m where m > n is?", a: "0", b: "m!/(m-n)! * a^n * (ax+b)^(m-n)", c: "m! a^n", d: "None", ans: "b"}
+            ],
+            "Engineering Physics": [
+                {section: "Optics", q: "Newton's rings are formed due to the phenomenon of?", a: "Diffraction", b: "Interference", c: "Polarization", d: "Refraction", ans: "b"},
+        {section: "Optics", q: "In Newton's rings experiment, the central spot is always?", a: "Bright", b: "Dark", c: "Colored", d: "None", ans: "b"},
+        {section: "Lasers", q: "The process of population inversion is essential for?", a: "X-rays", b: "Laser action", c: "Photoelectric effect", d: "Diffraction", ans: "b"},
+        {section: "Lasers", q: "Laser light is highly?", a: "Incoherent", b: "Coherent and Monochromatic", c: "Divergent", d: "Polychromatic", ans: "b"},
+        {section: "Fiber Optics", q: "Optical fiber works on the principle of?", a: "Refraction", b: "Total Internal Reflection", c: "Dispersion", d: "Scattering", ans: "b"},
+        {section: "Fiber Optics", q: "The core of an optical fiber has a refractive index ___ than the cladding.", a: "Lower", b: "Higher", c: "Equal", d: "Zero", ans: "b"},
+        {section: "Quantum Physics", q: "According to De-Broglie, a moving particle is associated with?", a: "Light wave", b: "Matter wave", c: "Sound wave", d: "None", ans: "b"},
+        {section: "Quantum Physics", q: "Heisenberg's Uncertainty Principle is given by?", a: "E = mc^2", b: "Δx.Δp ≥ h/4π", c: "λ = h/mv", d: "F = ma", ans: "b"},
+        {section: "Semiconductors", q: "The Fermi level in an intrinsic semiconductor lies?", a: "In conduction band", b: "Middle of the band gap", c: "In valence band", d: "None", ans: "b"},
+        {section: "Semiconductors", q: "Hall effect is used to determine?", a: "Type of semiconductor", b: "Carrier concentration", c: "Mobility", d: "All of these", ans: "d"},
+        {section: "Superconductivity", q: "The temperature at which a material becomes a superconductor is?", a: "Critical Temperature", b: "Curie Temperature", c: "Absolute Zero", d: "Boiling point", ans: "a"},
+        {section: "Superconductivity", q: "The expulsion of magnetic field from a superconductor is called?", a: "Hall Effect", b: "Meissner Effect", c: "Compton Effect", d: "Zeeman Effect", ans: "b"},
+        {section: "Ultrasonics", q: "The frequency of ultrasonic waves is?", a: "Below 20 Hz", b: "Above 20,000 Hz", c: "Between 20-20,000 Hz", d: "Zero", ans: "b"},
+        {section: "Ultrasonics", q: "Piezoelectric effect is used to produce?", a: "X-rays", b: "Ultrasonic waves", c: "Laser", d: "Light", ans: "b"},
+        {section: "Modern Physics", q: "Photoelectric effect proves the ___ nature of light.", a: "Wave", b: "Particle", c: "Transverse", d: "Longitudinal", ans: "b"},
+        {section: "Acoustics", q: "The persistence of sound even after the source is stopped is?", a: "Echo", b: "Reverberation", c: "Resonance", d: "Pitch", ans: "b"},
+        {section: "Acoustics", q: "Sabine's formula is used to calculate?", a: "Sound intensity", b: "Reverberation time", c: "Frequency", d: "Velocity", ans: "b"},
+        {section: "Crystallography", q: "The smallest repetitive unit of a crystal is?", a: "Atom", b: "Unit Cell", c: "Molecule", d: "Lattice", ans: "b"},
+        {section: "Crystallography", q: "Miller indices for a plane parallel to X and Y axes are?", a: "(100)", b: "(001)", c: "(110)", d: "(111)", ans: "b"},
+        {section: "Lasers", q: "Ruby laser is a ___ level laser system.", a: "Two", b: "Three", c: "Four", d: "Five", ans: "b"},
+        {section: "Lasers", q: "He-Ne laser produces light of wavelength?", a: "632.8 nm", b: "500 nm", c: "400 nm", d: "1000 nm", ans: "a"},
+        {section: "Fiber Optics", q: "Numerical Aperture (NA) is a measure of fiber's?", a: "Length", b: "Light gathering capacity", c: "Weight", d: "Cost", ans: "b"},
+        {section: "Optics", q: "A thin film shows colors due to?", a: "Dispersion", b: "Interference", c: "Diffraction", d: "Absorption", ans: "b"},
+        {section: "Dielectrics", q: "The unit of Dipole Moment is?", a: "Farad", b: "Debye", c: "Tesla", d: "Henry", ans: "b"},
+        {section: "Magnetic Materials", q: "Materials with negative susceptibility are?", a: "Paramagnetic", b: "Diamagnetic", c: "Ferromagnetic", d: "None", ans: "b"},
+        {section: "X-rays", q: "Bragg's Law is given by?", a: "nλ = 2d sinθ", b: "E = hν", c: "λ = h/p", d: "None", ans: "a"},
+        {section: "Nanoscience", q: "1 nanometer is equal to?", a: "10^-6 m", b: "10^-9 m", c: "10^-12 m", d: "10^-3 m", ans: "b"},
+        {section: "Nanoscience", q: "In nanomaterials, the surface to volume ratio is?", a: "Very small", b: "Extremely large", c: "Zero", d: "Constant", ans: "b"},
+        {section: "Quantum Physics", q: "Schrödinger's wave equation is used to find?", a: "Position", b: "Wave function (ψ)", c: "Force", d: "Velocity", ans: "b"},
+        {section: "Optics", q: "Diffraction at a single slit is called?", a: "Fresnel diffraction", b: "Fraunhofer diffraction", c: "Young's diffraction", d: "None", ans: "b"},
+        {section: "Superconductivity", q: "Type-I superconductors are also called?", a: "Hard", b: "Soft", c: "Perfect", d: "Ideal", ans: "b"},
+        {section: "Crystallography", q: "Atomic packing factor for BCC structure is?", a: "0.52", b: "0.68", c: "0.74", d: "1.0", ans: "b"},
+        {section: "Crystallography", q: "Atomic packing factor for FCC structure is?", a: "0.52", b: "0.74", c: "0.68", d: "0.90", ans: "b"},
+        {section: "Dielectrics", q: "Dielectric constant of vacuum is?", a: "0", b: "1", c: "Infinity", d: "8.85", ans: "b"},
+        {section: "Modern Physics", q: "The energy of a photon is?", a: "mc^2", b: "hν", c: "1/2 mv^2", d: "p^2/2m", ans: "b"},
+        {section: "Lasers", q: "Active medium in He-Ne laser is?", a: "Helium", b: "Neon", c: "Gas mixture", d: "Solid", ans: "c"},
+        {section: "Fiber Optics", q: "The cladding in optical fiber is usually made of?", a: "Copper", b: "Glass or Plastic", c: "Steel", d: "Rubber", ans: "b"},
+        {section: "Ultrasonics", q: "Magnetostriction method is used to produce?", a: "X-rays", b: "Ultrasonic waves", c: "Microwaves", d: "None", ans: "b"},
+        {section: "Optics", q: "Grating element is the distance between?", a: "Two slits", b: "Center of one slit and center of next", c: "Length of grating", d: "None", ans: "b"},
+        {section: "Crystallography", q: "Co-ordination number for Simple Cubic is?", a: "12", b: "6", c: "8", d: "4", ans: "b"},
+        {section: "Magnetic Materials", q: "Above Curie temperature, ferromagnetic material becomes?", a: "Diamagnetic", b: "Paramagnetic", c: "Superconductor", d: "None", ans: "b"},
+        {section: "Quantum Physics", q: "Planck's constant (h) has the unit of?", a: "Energy", b: "Angular Momentum (J-s)", c: "Frequency", d: "Mass", ans: "b"},
+        {section: "Semiconductors", q: "Conductivity of semiconductor ___ with temperature.", a: "Decreases", b: "Increases", c: "Remains same", d: "None", ans: "b"},
+        {section: "X-rays", q: "X-rays are ___ waves.", a: "Mechanical", b: "Electromagnetic", c: "Acoustic", d: "Matter", ans: "b"},
+        {section: "Fiber Optics", q: "Acceptance angle depends on?", a: "Refractive indices of core & cladding", b: "Length of fiber", c: "Color of light", d: "None", ans: "a"},
+        {section: "Optics", q: "Resolving power of telescope increases with?", a: "Smaller aperture", b: "Larger aperture", c: "Longer wavelength", d: "None", ans: "b"},
+        {section: "Dielectrics", q: "Polarization in dielectrics is due to?", a: "Free electrons", b: "Displacement of charges", c: "Heating", d: "None", ans: "b"},
+        {section: "Nanoscience", q: "Carbon nanotubes (CNTs) are made of?", a: "Silicon", b: "Carbon", c: "Iron", d: "Gold", ans: "b"},
+        {section: "Modern Physics", q: "Work function is measured in?", a: "Joules", b: "Electron-Volt (eV)", c: "Watts", d: "Amperes", ans: "b"},
+        {section: "Superconductivity", q: "High temperature superconductors were discovered in?", a: "Metals", b: "Ceramics", c: "Polymers", d: "Gases", ans: "b"}
+            ],
+            "Engineering Chemistry": [
+                {section: "Water Treatment", q: "Hardness of water is conventionally expressed in terms of equivalent amount of?", a: "MgCO3", b: "CaCO3", c: "CaSO4", d: "MgCl2", ans: "b"},
+        {section: "Water Treatment", q: "Temporary hardness is caused by?", a: "Chlorides", b: "Sulfates", c: "Bicarbonates of Ca and Mg", d: "Nitrates", ans: "c"},
+        {section: "Water Treatment", q: "EDTA method is used to determine?", a: "Alkalinity", b: "Hardness", c: "TDS", d: "Chlorine content", ans: "b"},
+        {section: "Water Treatment", q: "Calgon is a trade name for?", a: "Sodium Hexametaphosphate", b: "Sodium Zeolite", c: "Calcium Carbonate", d: "Magnesium Sulfate", ans: "a"},
+        {section: "Water Treatment", q: "The unit 'ppm' stands for?", a: "Parts per meter", b: "Parts per million", c: "Pure per million", d: "None", ans: "b"},
+        {section: "Corrosion", q: "Rusting of iron is an example of?", a: "Reduction", b: "Oxidation", c: "Neutralization", d: "None", ans: "b"},
+        {section: "Corrosion", q: "Galvanization is the coating of iron with?", a: "Copper", b: "Tin", c: "Zinc", d: "Chromium", ans: "c"},
+        {section: "Corrosion", q: "Sacrificial anodic protection is used for?", a: "Underground pipelines", b: "Ships", c: "Both a and b", d: "None", ans: "c"},
+        {section: "Polymers", q: "Buna-S is a copolymer of 1,3-butadiene and?", a: "Styrene", b: "Acrylonitrile", c: "Vinyl chloride", d: "Isoprene", ans: "a"},
+        {section: "Polymers", q: "Vulcanization of rubber involves heating it with?", a: "Sulfur", b: "Nitrogen", c: "Oxygen", d: "Hydrogen", ans: "a"},
+        {section: "Polymers", q: "Bakelite is an example of?", a: "Thermoplastic", b: "Thermosetting polymer", c: "Elastomer", d: "Fiber", ans: "b"},
+        {section: "Lubricants", q: "Flash point is the temperature at which oil gives off?", a: "Continuous fire", b: "Enough vapor to give a momentary flash", c: "Solid crystals", d: "Smoke", ans: "b"},
+        {section: "Lubricants", q: "Saponification value is used for?", a: "Mineral oils", b: "Vegetable oils", c: "Synthetic oils", d: "Greases", ans: "b"},
+        {section: "Lubricants", q: "Graphite is used as a?", a: "Liquid lubricant", b: "Solid lubricant", c: "Gas lubricant", d: "Semi-solid lubricant", ans: "b"},
+        {section: "Fuels", q: "Calorific value of fuel is highest for?", a: "Coal", b: "Hydrogen", c: "Methane", d: "Petrol", ans: "b"},
+        {section: "Fuels", q: "Octane number is used for?", a: "Diesel", b: "Petrol", c: "Kerosene", d: "LPG", ans: "b"},
+        {section: "Fuels", q: "Cetane number is used for?", a: "Petrol", b: "Diesel", c: "Coal", d: "Gas", ans: "b"},
+        {section: "Fuels", q: "Main constituent of LPG is?", a: "Methane", b: "Butane", c: "Ethane", d: "Acetylene", ans: "b"},
+        {section: "Phase Rule", q: "The number of phases in a mixture of oil and water is?", a: "1", b: "2", c: "3", d: "0", ans: "b"},
+        {section: "Phase Rule", q: "Gibbs Phase Rule equation is?", a: "F = C - P + 2", b: "F = C + P - 2", c: "F = P - C + 2", d: "F = C - P + 1", ans: "a"},
+        {section: "Phase Rule", q: "At triple point of water, the degrees of freedom is?", a: "1", b: "0", c: "2", d: "3", ans: "b"},
+        {section: "Water Treatment", q: "Zeolite is a?", a: "Hydrated sodium aluminosilicate", b: "Calcium carbonate", c: "Ion exchange resin", d: "Coagulant", ans: "a"},
+        {section: "Water Treatment", q: "Desalination by reverse osmosis uses?", a: "Semi-permeable membrane", b: "Heat", c: "Chemicals", d: "Zeolite", ans: "a"},
+        {section: "Corrosion", q: "Pilling-Bedworth rule is related to?", a: "Hardness", b: "Oxide film protective nature", c: "Polymerization", d: "Lubrication", ans: "b"},
+        {section: "Corrosion", q: "Which metal is used as a cathode in Cathodic Protection?", a: "The metal to be protected", b: "Magnesium", c: "Zinc", d: "Aluminum", ans: "a"},
+        {section: "Polymers", q: "Natural rubber is a polymer of?", a: "Isoprene", b: "Chloroprene", c: "Ethylene", d: "Butadiene", ans: "a"},
+        {section: "Polymers", q: "Teflon is used for?", a: "Non-stick cookware", b: "Tires", c: "Pipes", d: "Paint", ans: "a"},
+        {section: "Polymers", q: "PVC stands for?", a: "Polyvinyl chloride", b: "Polyvinyl carbonate", c: "Pure vinyl chloride", d: "None", ans: "a"},
+        {section: "Lubricants", q: "The resistance to flow of a liquid is?", a: "Density", b: "Viscosity", c: "Surface tension", d: "Volatility", ans: "b"},
+        {section: "Lubricants", q: "Viscosity Index of an oil should be?", a: "Low", b: "High", c: "Zero", d: "Negative", ans: "b"},
+        {section: "Lubricants", q: "Cloud point is the temperature at which oil becomes?", a: "Clear", b: "Cloudy/Hazy", c: "Solid", d: "Gas", ans: "b"},
+        {section: "Fuels", q: "Bomb calorimeter is used to find?", a: "Flash point", b: "Calorific value of solid/liquid fuels", c: "Octane number", d: "Viscosity", ans: "b"},
+        {section: "Fuels", q: "Bio-diesel is obtained from?", a: "Crude oil", b: "Vegetable oils/Animal fats", c: "Coal", d: "Uranium", ans: "b"},
+        {section: "Fuels", q: "Main component of Natural Gas is?", a: "Ethane", b: "Methane", c: "Propane", d: "Carbon dioxide", ans: "b"},
+        {section: "Phase Rule", q: "Number of phases for ice-water-vapor system is?", a: "1", b: "2", c: "3", d: "0", ans: "c"},
+        {section: "Spectroscopy", q: "Beer-Lambert's law is related to?", a: "Hardness", b: "Absorbance of light", c: "Corrosion", d: "Lubrication", ans: "b"},
+        {section: "Spectroscopy", q: "IR spectroscopy is useful for identifying?", a: "Atomic weight", b: "Functional groups", c: "Color", d: "Hardness", ans: "b"},
+        {section: "Water Treatment", q: "Alum is used in water treatment as a?", a: "Disinfectant", b: "Coagulant", c: "Softener", d: "Filter", ans: "b"},
+        {section: "Water Treatment", q: "Sterilization of water can be done by?", a: "Chlorination", b: "Ozonization", c: "UV radiation", d: "All of these", ans: "d"},
+        {section: "Corrosion", q: "Anodic area in differential aeration corrosion is?", a: "Well oxygenated", b: "Poorly oxygenated", c: "Dry", d: "Hot", ans: "b"},
+        {section: "Polymers", q: "Nylon 6,6 is a?", a: "Polyester", b: "Polyamide", c: "Polyether", d: "Polyolefin", ans: "b"},
+        {section: "Polymers", q: "PMMA is commonly known as?", a: "Plexiglass", b: "Bakelite", c: "Teflon", d: "Nylon", ans: "a"},
+        {section: "Lubricants", q: "Grease is a mixture of oil and?", a: "Water", b: "Soap", c: "Graphite", d: "Sulfur", ans: "b"},
+        {section: "Fuels", q: "Proximate analysis of coal determines?", a: "C, H, N, S", b: "Moisture, Volatile matter, Ash, Fixed Carbon", c: "Viscosity", d: "None", ans: "b"},
+        {section: "Water Treatment", q: "Ion exchange resins are regenerated using?", a: "HCl or NaOH", b: "Water", c: "Sand", d: "Oxygen", ans: "a"},
+        {section: "Corrosion", q: "Dry corrosion is also called?", a: "Electrochemical corrosion", b: "Chemical corrosion", c: "Pitting", d: "Erosion", ans: "b"},
+        {section: "Polymers", q: "Kevlar is used for making?", a: "Bulletproof vests", b: "Tires", c: "Toys", d: "Bottles", ans: "a"},
+        {section: "Lubricants", q: "Fire point is usually ___ than flash point?", a: "Higher", b: "Lower", c: "Equal", d: "None", ans: "a"},
+        {section: "Fuels", q: "Power alcohol is a mixture of petrol and?", a: "Methanol", b: "Ethanol", c: "Water", d: "Diesel", ans: "b"},
+        {section: "Phase Rule", q: "In a one-component system, max degrees of freedom is?", a: "0", b: "1", c: "2", d: "3", ans: "c"}
+            ],
+            "Engineering Mechanics": [
+               {q:"Mechanics which deals with bodies at rest is called?", a:"Dynamics", b:"Statics", c:"Kinematics", d:"Kinetics", ans:"b"},
+        {q:"A force is completely defined by its?", a:"Magnitude", b:"Direction", c:"Point of application", d:"All of these", ans:"d"},
+        {q:"The unit of force in SI units is?", a:"Kilogram", b:"Newton", c:"Watt", d:"Joule", ans:"b"},
+        {q:"Principle of Transmissibility states that force can be moved along its?", a:"Line of action", b:"Perpendicular axis", c:"Parallel axis", d:"None", ans:"a"},
+        {q:"A couple produces?", a:"Translational motion", b:"Rotational motion", c:"Both", d:"None", ans:"b"},
+        {q:"Lami’s theorem is applicable for how many concurrent forces?", a:"2", b:"3", c:"4", d:"5", ans:"b"},
+        {q:"Resultant of two equal forces P at 120° is?", a:"2P", b:"P", c:"P√2", d:"Zero", ans:"b"},
+        {q:"Friction force always acts ___ to the direction of motion.", a:"Parallel", b:"Opposite", c:"Perpendicular", d:"Inclined", ans:"b"},
+        {q:"Coefficient of friction (μ) depends on?", a:"Area of contact", b:"Shape of bodies", c:"Nature of surfaces", d:"Weight of body", ans:"c"},
+        {q:"Centroid of a circle lies at its?", a:"Circumference", b:"Center", c:"Anywhere", d:"Radius", ans:"b"},
+        {q:"Moment of Inertia is also called?", a:"First moment of area", b:"Second moment of area", c:"Mass moment", d:"None", ans:"b"},
+        {q:"Theorem used to find MI about a parallel axis?", a:"Lami's", b:"Varignon's", c:"Parallel axis theorem", d:"Pascal's", ans:"c"},
+        {q:"Point of application of total weight of a body is?", a:"Centroid", b:"Center of Gravity", c:"Metacenter", d:"Center of Pressure", ans:"b"},
+        {q:"A perfect truss has m = ?", a:"2j - 3", b:"j - 2", c:"3j - 2", d:"2j + 3", ans:"a"},
+        {q:"Angle of repose is equal to?", a:"Angle of friction", b:"90°", c:"0°", d:"Double the angle of friction", ans:"a"},
+        {q:"Force acting on a body from a surface is called?", a:"Tension", b:"Normal Reaction", c:"Weight", d:"Friction", ans:"b"},
+        {q:"Varignon's theorem deals with?", a:"Mass", b:"Moments", c:"Velocity", d:"Acceleration", ans:"b"},
+        {q:"A scalar quantity has?", a:"Only magnitude", b:"Only direction", c:"Both", d:"None", ans:"a"},
+        {q:"Resolution of a force is?", a:"Combining forces", b:"Splitting force into components", c:"Finding resultants", d:"None", ans:"b"},
+        {q:"Equilibrium means Resultant force is?", a:"Maximum", b:"Minimum", c:"Zero", d:"Constant", ans:"c"},
+        {q:"Unit of Moment of Inertia (Area)?", a:"mm²", b:"mm³", c:"mm⁴", d:"mm", ans:"c"},
+        {q:"Friction in a body at rest is called?", a:"Dynamic", b:"Static", c:"Rolling", d:"Kinetic", ans:"b"},
+        {q:"The CG of a solid hemisphere from base is?", a:"3r/8", b:"4r/3π", c:"r/2", d:"r/3", ans:"a"},
+        {q:"Work done is the product of Force and?", a:"Time", b:"Velocity", c:"Displacement", d:"Mass", ans:"c"},
+        {q:"Potential energy is due to?", a:"Motion", b:"Position", c:"Heat", d:"Light", ans:"b"},
+        {q:"D’Alembert’s principle is used for?", a:"Statics", b:"Dynamics (Inertia forces)", c:"Fluid mechanics", d:"None", ans:"b"},
+        {q:"Impact of two bodies follows which law?", a:"Conservation of Momentum", b:"Newton’s 2nd Law", c:"Hooke’s Law", d:"Pascal’s Law", ans:"a"},
+        {q:"Coefficient of restitution for perfectly elastic bodies?", a:"0", b:"0.5", c:"1", d:"Infinity", ans:"c"},
+        {q:"The path traced by a projectile is?", a:"Circle", b:"Parabola", c:"Straight line", d:"Ellipse", ans:"b"},
+        {q:"Centroid of a triangle from base is?", a:"h/2", b:"h/3", c:"h/4", d:"2h/3", ans:"b"},
+        {q:"Power is defined as?", a:"Rate of doing work", b:"Total work", c:"Energy stored", d:"Force x Time", ans:"a"},
+        {q:"Moment of a force about a point on its line of action is?", a:"Maximum", b:"Minimum", c:"Zero", d:"Unity", ans:"c"},
+        {q:"Concurrent forces meet at?", a:"Two points", b:"One point", c:"Infinity", d:"Different planes", ans:"b"},
+        {q:"Law of polygon of forces is used for?", a:"2 forces", b:"More than 2 forces", c:"Only parallel forces", d:"None", ans:"b"},
+        {q:"Kinematics deals with motion?", a:"With forces", b:"Without considering forces", c:"At rest", d:"None", ans:"b"},
+        {q:"Unit of angular velocity?", a:"m/s", b:"rad/s", c:"rad/s²", d:"degree", ans:"b"},
+        {q:"FBD stands for?", a:"Full Body Design", b:"Free Body Diagram", c:"Force Body Data", d:"None", ans:"b"},
+        {q:"Reaction of a smooth surface is always ___ to surface.", a:"Parallel", b:"Normal", c:"Inclined", d:"Horizontal", ans:"b"},
+        {q:"A truss is redundant if m >?", a:"2j - 3", b:"2j + 3", c:"j - 3", d:"3j - 2", ans:"a"},
+        {q:"Mechanical advantage (MA) is?", a:"Effort/Load", b:"Load/Effort", c:"Input/Output", d:"None", ans:"b"},
+        {q:"Velocity Ratio (VR) of a simple wheel and axle is?", a:"D/d", b:"d/D", c:"D+d", d:"D-d", ans:"a"},
+        {q:"Efficiency of a machine is?", a:"MA x VR", b:"MA / VR", c:"VR / MA", d:"Output + Input", ans:"b"},
+        {q:"A machine is reversible if efficiency is?", a:"> 50%", b:"< 50%", c:"100%", d:"0%", ans:"a"},
+        {q:"Law of machine is?", a:"P = mW + C", b:"W = mP + C", c:"P = W/m", d:"None", ans:"a"},
+        {q:"Polar Moment of Inertia is about which axis?", a:"X", b:"Y", c:"Z (Perpendicular)", d:"Base", ans:"c"},
+        {q:"Weight of 1kg mass on earth is approx?", a:"1 N", b:"9.81 N", c:"10 N", d:"0.1 N", ans:"b"},
+        {q:"Relative velocity of A wrt B is?", a:"Va + Vb", b:"Va - Vb", c:"Va * Vb", d:"Va / Vb", ans:"b"},
+        {q:"Center of curvature is related to?", a:"Rectilinear motion", b:"Curvilinear motion", c:"Statics", d:"Truss", ans:"b"},
+        {q:"Force required to keep a body in motion is ___ than to start it.", a:"More", b:"Less", c:"Same", d:"Zero", ans:"b"},
+        {q:"Newton's Third Law states?", a:"F=ma", b:"Action = Reaction", c:"Inertia", d:"None", ans:"b"}
+            ],
+            "Engineering Graphics": [
+                {q:"Which pencil is used for drawing dark outlines?", a:"H", b:"2H", c:"HB", d:"3H", ans:"c"},
+        {q:"The angle between Isometric axes is?", a:"90°", b:"120°", c:"60°", d:"180°", ans:"b"},
+        {q:"In first angle projection, the object is kept in?", a:"1st Quadrant", b:"2nd Quadrant", c:"3rd Quadrant", d:"4th Quadrant", ans:"a"},
+        {q:"The Front View of an object is projected on?", a:"Horizontal Plane (HP)", b:"Vertical Plane (VP)", c:"Profile Plane", d:"None", ans:"b"},
+        {q:"A line parallel to both HP and VP will show its true length in?", a:"Front View", b:"Top View", c:"Both a & b", d:"Side View", ans:"c"},
+        {q:"Isometric scale is ____ of the actual scale.", a:"82%", b:"100%", c:"50%", d:"120%", ans:"a"},
+        {q:"Which line is used for hidden parts?", a:"Continuous thick", b:"Dashed thin", c:"Chain thin", d:"Continuous thin", ans:"b"},
+        {q:"A point lies on both HP and VP. Where is its Front View?", a:"Above XY", b:"Below XY", c:"On XY line", d:"None", ans:"c"},
+        {q:"Representing a 3D object on a 2D plane is called?", a:"Isometric", b:"Orthographic Projection", c:"Perspective", d:"Sketching", ans:"b"},
+        {q:"The Side View is projected on which plane?", a:"VP", b:"HP", c:"Profile Plane (PP)", d:"Auxiliary Plane", ans:"c"},
+        {q:"A circle in isometric projection appears as?", a:"Circle", b:"Ellipse", c:"Square", d:"Parabola", ans:"b"},
+        {q:"Which projection method is used in India (per BIS)?", a:"1st Angle", b:"3rd Angle", c:"2nd Angle", d:"None", ans:"a"},
+        {q:"In 3rd angle projection, Top View is drawn ____ Front View.", a:"Below", b:"Above", c:"Left", d:"Right", ans:"b"},
+        {q:"A cube has how many faces?", a:"4", b:"6", c:"8", d:"12", ans:"b"},
+        {q:"Section lines are usually inclined at?", a:"30°", b:"45°", c:"60°", d:"90°", ans:"b"},
+        {q:"Scale 1:5 means it is a?", a:"Full scale", b:"Reducing scale", c:"Enlarging scale", d:"None", ans:"b"},
+        {q:"Which instrument is used to draw curves which are not circular?", a:"Compass", b:"French Curves", d:"Divider", c:"Protracter", ans:"b"},
+        {q:"The Top View of a vertical cylinder is a?", a:"Rectangle", b:"Circle", c:"Triangle", d:"Ellipse", ans:"b"},
+        {q:"Size of A4 drawing sheet is?", a:"210x297 mm", b:"297x420 mm", c:"420x594 mm", d:"594x841 mm", ans:"a"},
+        {q:"A line inclined to HP and parallel to VP shows true length in?", a:"Top View", b:"Front View", c:"Side View", d:"None", ans:"b"},
+        {q:"Which line is used for Center lines?", a:"Dashed", b:"Chain thin", c:"Thick", d:"Zig-zag", ans:"b"},
+        {q:"Projection of a point 20mm below HP and 30mm behind VP is in?", a:"1st Quad", b:"2nd Quad", c:"3rd Quad", d:"4th Quad", ans:"c"},
+        {q:"If a plane is parallel to HP, its Front View is a?", a:"True shape", b:"Line parallel to XY", c:"Point", d:"None", ans:"b"},
+        {q:"The angle of a regular hexagon is?", a:"90°", b:"108°", c:"120°", d:"60°", ans:"c"},
+        {q:"Representative Fraction (RF) is?", a:"Length on drawing / Actual length", b:"Actual / Drawing", c:"Length²", d:"None", ans:"a"},
+        {q:"A tetrahedron has ____ triangular faces.", a:"3", b:"4", c:"5", d:"6", ans:"b"},
+        {q:"When a cone is cut parallel to its base, the section is a?", a:"Ellipse", b:"Circle", c:"Triangle", d:"Parabola", ans:"b"},
+        {q:"Isometric view of a sphere is?", a:"Circle", b:"Ellipse", c:"Point", d:"None", ans:"a"},
+        {q:"Short break lines are drawn?", a:"Straight", b:"Freehand wavy", c:"Chain thin", d:"Dashed", ans:"b"},
+        {q:"A prism is named based on its?", a:"Height", b:"Base shape", c:"Weight", d:"Color", ans:"b"},
+        {q:"Angle between HP and VP is?", a:"0°", b:"90°", c:"180°", d:"45°", ans:"b"},
+        {q:"If RF > 1, the scale is?", a:"Reducing", b:"Enlarging", c:"Full", d:"None", ans:"b"},
+        {q:"Dimension lines should be at least ____ mm away from outlines.", a:"2", b:"8", c:"20", d:"50", ans:"b"},
+        {q:"Development of surfaces of a cylinder is a?", a:"Circle", b:"Rectangle", c:"Triangle", d:"Sector", ans:"b"},
+        {q:"A point in 4th quadrant is?", a:"Above HP, In front VP", b:"Below HP, In front VP", c:"Below HP, Behind VP", d:"Above HP, Behind VP", ans:"b"},
+        {q:"Front View of a square pyramid resting on its base on HP is?", a:"Square", b:"Triangle", c:"Rectangle", d:"Circle", ans:"b"},
+        {q:"Sectional views are used to show?", a:"Outer details", b:"Internal details", c:"Color", d:"Weight", ans:"b"},
+        {q:"Length of an Isometric line in Isometric drawing is?", a:"Actual", b:"Reduced", c:"Enlarged", d:"Zero", ans:"a"},
+        {q:"Hatching lines are another name for?", a:"Hidden lines", b:"Section lines", c:"Center lines", d:"Outlines", ans:"b"},
+        {q:"How many principal planes of projection are there?", a:"1", b:"2", c:"3", d:"4", ans:"c"},
+        {q:"The intersection of HP and VP is called?", a:"Origin", b:"Reference Line (XY)", c:"Point", d:"None", ans:"b"},
+        {q:"Leader lines are used for?", a:"Drawing object", b:"Indicating dimensions/notes", c:"Hidden parts", d:"None", ans:"b"},
+        {q:"An equilateral triangle has all angles equal to?", a:"45°", b:"60°", c:"90°", d:"120°", ans:"b"},
+        {q:"Which type of scale shows three units (m, dm, cm)?", a:"Plain scale", b:"Diagonal scale", c:"Vernier scale", d:"None", ans:"b"},
+        {q:"Traces of a line are?", a:"Points of intersection with planes", b:"Lengths", c:"Angles", d:"None", ans:"a"},
+        {q:"Development of a cone is a?", a:"Triangle", b:"Sector of a circle", c:"Rectangle", d:"Square", ans:"b"},
+        {q:"Auxiliary planes are used for?", a:"True shape of inclined surfaces", b:"Front view", c:"Top view", d:"None", ans:"a"},
+        {q:"Which is the largest drawing sheet size?", a:"A0", b:"A1", c:"A4", d:"A5", ans:"a"},
+        {q:"Perspective projection is used by?", a:"Architects", b:"Engineers", c:"Artists", d:"All of these", ans:"d"},
+        {q:"Full form of CAD?", a:"Computer Aided Design", b:"Code Aided Data", c:"Complex Auto Drawing", d:"None", ans:"a"}
+            ],
+            "beee": [
+{section: "DC Circuits", q: "KCL is based on the law of conservation of?", a: "Energy", b: "Charge", c: "Mass", d: "Momentum", ans: "b"},
+        {section: "DC Circuits", q: "KVL is based on the law of conservation of?", a: "Charge", b: "Energy", c: "Flux", d: "Resistance", ans: "b"},
+        {section: "Magnetic Circuits", q: "The unit of Magnetic Flux is?", a: "Tesla", b: "Weber", c: "Ampere-turn", d: "Henry", ans: "b"},
+        {section: "AC Circuits", q: "The ratio of RMS value to Average value is called?", a: "Peak Factor", b: "Form Factor", c: "Power Factor", d: "None", ans: "b"},
+        {section: "AC Circuits", q: "In a purely capacitive circuit, current ___ the voltage by 90°.", a: "Lags", b: "Leads", c: "In phase", d: "None", ans: "b"},
+        {section: "Transformers", q: "Transformer works on the principle of?", a: "Self induction", b: "Mutual induction", c: "Static induction", d: "None", ans: "b"},
+        {section: "Transformers", q: "The core of a transformer is laminated to reduce?", a: "Hysteresis loss", b: "Eddy current loss", c: "Copper loss", d: "Friction loss", ans: "b"},
+        {section: "Semiconductors", q: "A p-type semiconductor has majority carriers as?", a: "Electrons", b: "Holes", c: "Neutrons", d: "None", ans: "b"},
+        {section: "Diodes", q: "A Zener diode is always connected in?", a: "Forward bias", b: "Reverse bias", c: "Series", d: "None", ans: "b"},
+        {section: "Transistors", q: "In a BJT, which region is most heavily doped?", a: "Base", b: "Emitter", c: "Collector", d: "None", ans: "b"},
+        {section: "DC Circuits", q: "Unit of conductance is?", a: "Ohm", b: "Siemens (Mho)", c: "Henry", d: "Farad", ans: "b"},
+        {section: "AC Circuits", q: "Power Factor of a purely resistive circuit is?", a: "0", b: "1", c: "0.5", d: "Infinity", ans: "b"},
+        {section: "AC Circuits", q: "Standard frequency of AC supply in India is?", a: "60 Hz", b: "50 Hz", c: "100 Hz", d: "230 Hz", ans: "b"},
+        {section: "Magnetic Circuits", q: "The opposition offered by a magnetic circuit to flux is?", a: "Resistance", b: "Reluctance", c: "Permeance", d: "Inductance", ans: "b"},
+        {section: "Transformers", q: "An ideal transformer has ___ efficiency.", a: "50%", b: "100%", c: "90%", d: "0%", ans: "b"},
+        {section: "Digital Electronics", q: "Which gate is called a Universal Gate?", a: "AND", b: "NAND", c: "OR", d: "NOT", ans: "b"},
+        {section: "Digital Electronics", q: "Binary equivalent of decimal 5 is?", a: "100", b: "101", c: "110", d: "111", ans: "b"},
+        {section: "AC Circuits", q: "In a series RLC circuit at resonance, Impedance is?", a: "Maximum", b: "Minimum (Z=R)", c: "Zero", d: "Infinite", ans: "b"},
+        {section: "Rectifiers", q: "A Bridge Rectifier uses ___ diodes.", a: "1", b: "2", c: "4", d: "3", ans: "c"},
+        {section: "Semiconductors", q: "The pentavalent impurity added to Silicon creates?", a: "P-type", b: "N-type", c: "Intrinsic", d: "Insulator", ans: "b"},
+        {section: "Measuring Instruments", q: "An Ammeter is always connected in?", a: "Parallel", b: "Series", c: "Both", d: "None", ans: "b"},
+        {section: "Measuring Instruments", q: "A Voltmeter is always connected in?", a: "Series", b: "Parallel", c: "None", d: "Both", ans: "b"},
+        {section: "DC Circuits", q: "According to Ohm's Law?", a: "V=IR", b: "I=VR", c: "R=VI", d: "None", ans: "a"},
+        {section: "AC Circuits", q: "The reciprocal of Impedance is?", a: "Reactance", b: "Admittance", c: "Susceptance", d: "Conductance", ans: "b"},
+        {section: "Transformers", q: "Transformer oil is used for?", a: "Lubrication", b: "Cooling & Insulation", c: "Cleaning", d: "None", ans: "b"},
+        {section: "Diodes", q: "LED emits light in ___ bias.", a: "Reverse", b: "Forward", c: "Both", d: "None", ans: "b"},
+        {section: "Digital Electronics", q: "The output of an OR gate is LOW only if?", a: "One input is HIGH", b: "Both inputs are LOW", c: "Both inputs are HIGH", d: "None", ans: "b"},
+        {section: "Magnetic Circuits", q: "The unit of Magnetic Field Strength (H) is?", a: "Weber/m²", b: "Ampere-turns/meter", c: "Tesla", d: "Henry/m", ans: "b"},
+        {section: "AC Circuits", q: "Active power in AC circuit is measured in?", a: "VAR", b: "Watts", c: "VA", d: "Ohms", ans: "b"},
+        {section: "AC Circuits", q: "Apparent power is measured in?", a: "Watts", b: "VA", c: "VAR", d: "Henry", ans: "b"},
+        {section: "DC Circuits", q: "Resistance of an ideal voltmeter is?", a: "Zero", b: "Infinite", c: "100 Ohm", d: "None", ans: "b"},
+        {section: "DC Circuits", q: "Resistance of an ideal ammeter is?", a: "Infinite", b: "Zero", c: "1 Ohm", d: "None", ans: "b"},
+        {section: "Semiconductors", q: "Forbidden energy gap in Germanium is approx?", a: "1.1 eV", b: "0.72 eV", c: "5 eV", d: "0 eV", ans: "b"},
+        {section: "Diodes", q: "The width of depletion layer ___ in reverse bias.", a: "Decreases", b: "Increases", c: "Remains same", d: "Disappears", ans: "b"},
+        {section: "Transistors", q: "The relation between α and β is?", a: "β = α/(1+α)", b: "β = α/(1-α)", c: "α = β/(1-β)", d: "None", ans: "b"},
+        {section: "Transformers", q: "Open circuit test on transformer gives?", a: "Copper loss", b: "Core loss", c: "Friction loss", d: "None", ans: "b"},
+        {section: "Transformers", q: "Short circuit test on transformer gives?", a: "Core loss", b: "Copper loss", c: "Windage loss", d: "None", ans: "b"},
+        {section: "Digital Electronics", q: "Hexadecimal system has a base of?", a: "8", b: "16", c: "10", d: "2", ans: "b"},
+        {section: "AC Circuits", q: "For a purely inductive circuit, the power factor is?", a: "1", b: "0 (lagging)", c: "0 (leading)", d: "0.5", ans: "b"},
+        {section: "DC Circuits", q: "Superposition theorem is applicable only to?", a: "Non-linear circuits", b: "Linear bilateral circuits", c: "Complex circuits", d: "None", ans: "b"},
+        {section: "Magnetic Circuits", q: "B-H curve for air is a?", a: "Circle", b: "Straight line through origin", c: "Parabola", d: "Hysteresis loop", ans: "b"},
+        {section: "AC Circuits", q: "RMS value of sinewave with peak Vm is?", a: "Vm/2", b: "Vm/√2", c: "2Vm/π", d: "Vm", ans: "b"},
+        {section: "Digital Electronics", q: "A half adder can add ___ bits.", a: "1", b: "2", c: "3", d: "4", ans: "b"},
+        {section: "Digital Electronics", q: "Which gate performs logical multiplication?", a: "OR", b: "AND", c: "NOT", d: "XOR", ans: "b"},
+        {section: "Diodes", q: "The arrow in diode symbol points towards?", a: "Anode (P)", b: "Cathode (N)", c: "Gate", d: "None", ans: "b"},
+        {section: "DC Circuits", q: "Three 10 Ohm resistors in parallel give total resistance of?", a: "30 Ohm", b: "3.33 Ohm", c: "10 Ohm", d: "0.33 Ohm", ans: "b"},
+        {section: "AC Circuits", q: "Quality Factor (Q) of series RLC circuit is?", a: "R/L", b: "(1/R) * √(L/C)", c: "L/CR", d: "None", ans: "b"},
+        {section: "Transformers", q: "Which part of transformer carries flux?", a: "Windings", b: "Core", c: "Bushings", d: "Conservator", ans: "b"},
+        {section: "Semiconductors", q: "Valence electrons in a Silicon atom are?", a: "2", b: "4", c: "8", d: "14", ans: "b"},
+        {section: "Digital Electronics", q: "A byte consists of ___ bits.", a: "4", b: "8", c: "16", d: "32", ans: "b"}
+            ],
+            "Mathematics - II": [
+                        {q: "The order of differential equation (d²y/dx²)³ + (dy/dx)⁴ + y = 0 is?", a: "3", b: "2", c: "4", d: "1", ans: "b"},
+        {q: "The degree of differential equation d²y/dx² = [1+(dy/dx)²]^{3/2} is?", a: "2", b: "3", c: "1", d: "Not defined", ans: "a"},
+        {q: "Complementary function (C.F.) for (D²-6D+9)y = 0 is?", a: "(C1+C2x)e³ˣ", b: "C1e³ˣ + C2e⁻³ˣ", c: "C1 cos 3x", d: "None", ans: "a"},
+        {q: "Particular Integral (P.I.) of (D-1)y = eˣ is?", a: "eˣ", b: "xeˣ", c: "x²eˣ", d: "0", ans: "b"},
+        {q: "The general solution of dy/dx + Py = Q is?", a: "y(IF) = ∫Q(IF)dx + c", b: "y = ∫Q dx", c: "x(IF) = ∫Q dy", d: "None", ans: "a"},
+        {q: "Solution of (D²+4)y = 0 is?", a: "C1 cos 2x + C2 sin 2x", b: "C1e²ˣ", c: "C1+C2x", d: "e²ˣ(C1+C2)", ans: "a"},
+        {q: "Integrating factor (I.F.) for dy/dx + (1/x)y = x² is?", a: "log x", b: "x", c: "eˣ", d: "1/x", ans: "b"},
+        {q: "Differential equation of all circles passing through origin is of order?", a: "1", b: "2", c: "3", d: "0", ans: "b"},
+        {q: "PI for (D²+1)y = sin x is?", a: "-x/2 cos x", b: "x/2 sin x", c: "cos x", d: "0", ans: "a"},
+        {q: "Roots of AE for (D²-1)y = 0 are?", a: "1, -1", b: "1, 1", c: "i, -i", d: "0, 1", ans: "a"},
+        {q: "The value of a₀ in Fourier series for f(x) in (c, c+2L) is?", a: "1/L ∫f(x)dx", b: "1/2L ∫f(x)dx", c: "2/L ∫f(x)dx", d: "∫f(x)dx", ans: "a"},
+        {q: "If f(x) is an even function in (-π, π), then?", a: "bn = 0", b: "an = 0", c: "a₀ = 0", d: "None", ans: "a"},
+        {q: "If f(x) is an odd function, then Fourier series contains?", a: "Only Sine terms", b: "Only Cosine terms", c: "Both", d: "None", ans: "a"},
+        {q: "The period of function f(x) = sin(2x) is?", a: "2π", b: "π", c: "π/2", d: "4π", ans: "b"},
+        {q: "For function f(x) = x² in (-π, π), bn is?", a: "π", b: "0", c: "1", d: "-1", ans: "b"},
+        {q: "Half range sine series for f(x) in (0, L) has?", a: "Only bn", b: "Only an", c: "a₀ and an", d: "None", ans: "a"},
+        {q: "Value of ∫ sin(nx) dx from -π to π is?", a: "2π", b: "0", c: "π", d: "1", ans: "b"},
+        {q: "Dirichlet's conditions are sufficient for?", a: "Convergence of Fourier series", b: "Differentiation", c: "Limits", d: "Integration", ans: "a"},
+        {q: "RMS value of f(x) in (a, b) is?", a: "√[1/(b-a) ∫f²(x)dx]", b: "∫f(x)dx", c: "1/(b-a)", d: "None", ans: "a"},
+        {q: "If f(x) = |x|, it is an?", a: "Even function", b: "Odd function", c: "Neither", d: "Constant", ans: "a"},
+        {q: "Value of Γ(1/2) is equal to?", a: "π", b: "√π", c: "1", d: "1/2", ans: "b"},
+        {q: "Relation between Beta and Gamma is β(m,n) = ?", a: "ΓmΓn / Γ(m+n)", b: "Γm + Γn", c: "Γ(m+n)", d: "1", ans: "a"},
+        {q: "Value of Γ(1) is?", a: "0", b: "1", c: "∞", d: "π", ans: "b"},
+        {q: "Γ(n+1) for any real n > 0 is?", a: "n!", b: "n Γn", c: "Both A and B", d: "None", ans: "b"},
+        {q: "Value of β(1,1) is?", a: "1", b: "0", c: "1/2", d: "2", ans: "a"},
+        {q: "Value of Γ(3/2) is?", a: "√π / 2", b: "√π", c: "1/2", d: "π", ans: "a"},
+        {q: "Integral ∫ (0 to ∞) e⁻ˣ xⁿ⁻¹ dx is?", a: "Γn", b: "βn", c: "eⁿ", d: "0", ans: "a"},
+        {q: "Value of β(1/2, 1/2) is?", a: "π", b: "√π", c: "1", d: "0", ans: "a"},
+        {q: "Γ(n) is convergent for?", a: "n > 0", b: "n < 0", c: "n = 0", d: "Always", ans: "a"},
+        {q: "Value of Γ(5) is?", a: "24", b: "120", c: "5", d: "4", ans: "a"},
+        {q: "If u = f(x,y) is homogeneous of degree n, then xux + yuy = ?", a: "u", b: "nu", c: "0", d: "n(n-1)u", ans: "b"},
+        {q: "Total derivative of u(x,y) is du = ?", a: "ux dx + uy dy", b: "ux + uy", c: "dx + dy", d: "0", ans: "a"},
+        {q: "If u = sin(x/y), then degree n is?", a: "1", b: "0", c: "2", d: "-1", ans: "b"},
+        {q: "Euler's theorem for second order is x²uxx + 2xyuxy + y²uyy = ?", a: "n(n-1)u", b: "nu", c: "n²u", d: "u", ans: "a"},
+        {q: "Jacobian ∂(u,v)/∂(x,y) is also called?", a: "Functional determinant", b: "Limit", c: "Matrix", d: "None", ans: "a"},
+        {q: "If x = r cosθ, y = r sinθ, then Jacobian J is?", a: "r", b: "r²", c: "1", d: "0", ans: "a"},
+        {q: "Condition for u and v to be functionally dependent is J = ?", a: "1", b: "0", c: "Infinite", d: "-1", ans: "b"},
+        {q: "If u = x + y, v = xy, then ∂u/∂x is?", a: "1", b: "y", c: "0", d: "x", ans: "a"},
+        {q: "Partial derivative of u with respect to x means?", a: "Treat y as constant", b: "Treat x as constant", c: "Differentiate both", d: "None", ans: "a"},
+        {q: "Maximum/Minimum occurs when ux and uy are?", a: "1", b: "0", c: "Infinite", d: "-1", ans: "b"},
+        {q: "Area of region R in double integral is?", a: "∫∫ dxdy", b: "∫∫ x dxdy", c: "∫ dx", d: "∫ y dy", ans: "a"},
+        {q: "Volume of solid is given by?", a: "∫∫∫ dx dy dz", b: "∫∫ dx dy", c: "∫ dx", d: "None", ans: "a"},
+        {q: "In triple integral, order of integration?", a: "Depends on limits", b: "Always dz dy dx", c: "Is fixed", d: "None", ans: "a"},
+        {q: "Change of variables in double integral uses?", a: "Jacobian", b: "Limit", c: "Derivative", d: "None", ans: "a"},
+        {q: "Value of ∫(0 to 1) ∫(0 to 1) dx dy is?", a: "1", b: "0", c: "0.5", d: "2", ans: "a"},
+        {q: "Value of ∫(0 to π) ∫(0 to sinθ) r dr dθ represents?", a: "Area", b: "Volume", c: "Length", d: "None", ans: "a"},
+        {q: "Polar coordinates are (r, θ), then dx dy becomes?", a: "dr dθ", b: "r dr dθ", c: "r² dr dθ", d: "None", ans: "b"},
+        {q: "Double integral over a circle x²+y²=a² is easier in?", a: "Polar form", b: "Cartesian form", c: "Matrix form", d: "None", ans: "a"},
+        {q: "Integration of constant 1 over region R gives?", a: "Area of R", b: "0", c: "1", d: "None", ans: "a"},
+        {q: "Gamma function is used to solve integrals of type?", a: "e⁻ˣ xⁿ", b: "sin x", c: "log x", d: "None", ans: "a"}
+            ],
+            "Basic Computer Programming": [
+              {c:"C", q:"Who invented C?", a:"Dennis Ritchie", b:"Bjarne", c:"Guido", d:"James", ans:"a"},
+        {c:"C", q:"Which is a valid keyword in C?", a:"switch", b:"then", c:"public", d:"package", ans:"a"},
+        {c:"C", q:"Size of char in C?", a:"1 byte", b:"2 bytes", c:"4 bytes", d:"8 bytes", ans:"a"},
+        {c:"C", q:"Operator used for dereferencing?", a:"&", b:"*", c:"->", d:".", ans:"b"},
+        {c:"C", q:"Return type of malloc()?", a:"int*", b:"void*", c:"char*", d:"float*", ans:"b"},
+        {c:"C", q:"Which loop is exit-controlled?", a:"for", b:"while", c:"do-while", d:"if", ans:"c"},
+        {c:"C", q:"Header for exit() function?", a:"stdio.h", b:"stdlib.h", c:"conio.h", d:"ctype.h", ans:"b"},
+        {c:"C", q:"Format specifier for string?", a:"%s", b:"%c", d:"%d", c:"%f", ans:"a"},
+        {c:"C", q:"Can we use 'break' inside 'if'?", a:"Yes", b:"No", c:"Only if in loop", d:"None", ans:"c"},
+        {c:"C", q:"Default value of static variable?", a:"Garbage", b:"0", c:"1", d:"Null", ans:"b"},
+        {c:"C", q:"Function to read a line from console?", a:"scanf", b:"gets", c:"printf", d:"puts", ans:"b"},
+        {c:"C", q:"Operator with highest precedence?", a:"+", b:"*", c:"()", d:"=", ans:"c"},
+        {c:"C", q:"An array name is a?", a:"Pointer", b:"Constant pointer", c:"Value", d:"String", ans:"b"},
+        {c:"C", q:"Extension of C source file?", a:".cpp", b:".c", c:".h", d:".obj", ans:"b"},
+        {c:"C", q:"Type of C language?", a:"Object Oriented", b:"Structural/Procedural", c:"Scripting", d:"Markup", ans:"b"},
+        {c:"C", q:"Which is not a logical operator?", a:"&&", b:"||", c:"!", d:"|", ans:"d"},
+        {c:"C", q:"Structure members are accessed by?", a:".", b:"->", c:"Both a&b", d:"None", ans:"c"},
+        {c:"C", q:"Sizeof is a?", a:"Function", b:"Operator", c:"Keyword", d:"Macro", ans:"b"},
+        {c:"C", q:"Variable defined outside all functions?", a:"Local", b:"Global", c:"Static", d:"Register", ans:"b"},
+        {c:"C", q:"Which is used for multi-line comment?", a:"//", b:"/* */", c:"#", d:"--", ans:"b"},
+        {c:"C", q:"File opening mode for writing at end?", a:"w", b:"a", c:"r", d:"x", ans:"b"},
+        {c:"C", q:"Index of 5th element in array?", a:"5", b:"4", c:"6", d:"0", ans:"b"},
+        {c:"C", q:"Minimum number of times do-while runs?", a:"0", b:"1", c:"2", d:"infinite", ans:"b"},
+        {c:"C", q:"Which is used to avoid multiple header inclusion?", a:"Header guard", b:"Namespace", c:"Class", d:"Main", ans:"a"},
+        {c:"C", q:"scanf is used for?", a:"Input", b:"Output", c:"Loop", d:"Storage", ans:"a"},
+        {c:"C", q:"Enum is a ___ data type?", a:"Primitive", b:"User-defined", c:"Pointer", d:"Derived", ans:"b"},
+        {c:"C", q:"Value of 10 % 3?", a:"3", b:"1", c:"0", d:"10", ans:"b"},
+        {c:"C", q:"String ends with?", a:"\\0", b:"\\n", c:"\\t", d:".", ans:"a"},
+        {c:"C", q:"Recursion uses which data structure?", a:"Queue", b:"Stack", c:"Tree", d:"Linked List", ans:"b"},
+        {c:"C", q:"Which keyword is used for constants?", a:"const", b:"define", c:"fixed", d:"final", ans:"a"},
+        {c:"C", q:"A pointer to a pointer is?", a:"Illegal", b:"Allowed", c:"Only for int", d:"None", ans:"b"},
+        {c:"C", q:"Library for mathematical functions?", a:"math.h", b:"stdio.h", c:"string.h", d:"stdlib.h", ans:"a"},
+        {c:"C", q:"Result of 5 / 2 in C (int)?", a:"2.5", b:"2", c:"3", d:"0", ans:"b"},
+        {c:"C", q:"Which of these is not a storage class?", a:"auto", b:"extern", c:"volatile", d:"static", ans:"c"},
+        {c:"C", q:"Union size is determined by?", a:"Sum of all", b:"Largest member", c:"Smallest member", d:"Fixed 100 bytes", ans:"b"},
+        {c:"C", q:"'auto' variables are stored in?", a:"Heap", b:"Stack", c:"Register", d:"Disk", ans:"b"},
+        {c:"C", q:"C preprocessor begins with?", a:"@", b:"#", c:"$", d:"%", ans:"b"},
+        {c:"C", q:"Function name in C must be unique?", a:"Yes", b:"No", c:"Depends", d:"Only for main", ans:"a"},
+        {c:"C", q:"'continue' is used for?", a:"Exit loop", b:"Next iteration", c:"Stop program", d:"Restart function", ans:"b"},
+        {c:"C", q:"Typedef creates a?", a:"New variable", b:"Alias for type", c:"Macro", d:"Constant", ans:"b"},
+        {c:"C", q:"Which is a bitwise operator?", a:"&", b:"&&", c:"==", d:"||", ans:"a"},
+        {c:"C", q:"Size of float?", a:"2", b:"4", c:"8", d:"1", ans:"b"},
+        {c:"C", q:"Function to free memory?", a:"delete", b:"free()", c:"remove", d:"drop", ans:"b"},
+        {c:"C", q:"Shortest C program is?", a:"main(){}", b:"int main(){}", c:"#include", d:"void", ans:"a"},
+        {c:"C", q:"Is C case sensitive?", a:"Yes", b:"No", c:"Only for strings", d:"None", ans:"a"},
+        {c:"C", q:"'goto' uses which concept?", a:"Labels", b:"Functions", c:"Classes", d:"Pointers", ans:"a"},
+        {c:"C", q:"'void' means?", a:"Zero", b:"Empty/No type", c:"Error", d:"Infinity", ans:"b"},
+        {c:"C", q:"Command line arguments are stored in?", a:"argc, argv", b:"main, exit", c:"input, output", d:"None", ans:"a"},
+        {c:"C", q:"Standard C library?", a:"ANSI C", b:"K&R C", c:"C11", d:"libc", ans:"d"},
+        {c:"C", q:"Can a structure contain itself?", a:"Yes", b:"No", c:"Via pointer", d:"None", ans:"c"},
+
+        // --- C++ PROGRAMMING (51-100) ---
+        {c:"C++", q:"Which is the 'insertion' operator?", a:"<<", b:">>", c:"::", d:".", ans:"a"},
+        {c:"C++", q:"Default access specifier in class?", a:"public", b:"private", c:"protected", d:"internal", ans:"b"},
+        {c:"C++", q:"Support for OOPs makes C++ a?", a:"Low level", b:"Middle level", c:"High level", d:"None", ans:"b"},
+        {c:"C++", q:"Operator used for Scope Resolution?", a:".", b:"::", c:"->", d:"?", ans:"b"},
+        {c:"C++", q:"Function overloading is?", a:"Compile-time", b:"Runtime", c:"Ad-hoc", d:"None", ans:"a"},
+        {c:"C++", q:"Keyword used to create a class?", a:"Class", b:"class", c:"STRUCT", d:"object", ans:"b"},
+        {c:"C++", q:"Destructor name starts with?", a:"#", b:"~", c:"!", d:"@", ans:"b"},
+        {c:"C++", q:"Virtual function is used for?", a:"Compile time", b:"Runtime polymorphism", c:"Sorting", d:"Error", ans:"b"},
+        {c:"C++", q:"Which is not a pillar of OOP?", a:"Inheritance", b:"Encapsulation", c:"Abstraction", d:"Pointers", ans: "d"},
+        {c:"C++", q:"Constructor that takes no arguments?", a:"Parameterized", b:"Default", c:"Copy", d:"Friend", ans:"b"},
+        {c:"C++", q:"'new' operator is for?", a:"Static memory", b:"Dynamic memory", c:"Deleting", d:"None", ans:"b"},
+        {c:"C++", q:"Which cannot be inherited?", a:"Public", b:"Private", c:"Protected", d:"Methods", ans:"b"},
+        {c:"C++", q:"The 'this' pointer refers to?", a:"Base class", b:"Current object", c:"Static data", d:"Null", ans:"b"},
+        {c:"C++", q:"Friend function can access?", a:"Private members", b:"Public members", c:"Both", d:"Only protected", ans:"c"},
+        {c:"C++", q:"Abstract class must have?", a:"Constructor", b:"Pure virtual function", c:"Static data", d:"Main", ans:"b"},
+        {c:"C++", q:"C++ header for input/output?", a:"stdio.h", b:"iostream", c:"conio.h", d:"math.h", ans:"b"},
+        {c:"C++", q:"Keyword for inheritance?", a:"extends", b:":", c:"inherit", d:"implements", ans:"b"},
+        {c:"C++", q:"'template' is used for?", a:"Classes", b:"Functions", c:"Generic programming", d:"None", ans:"c"},
+        {c:"C++", q:"'inline' keyword suggests?", a:"Macro", b:"Function expansion at call", c:"Recursion", d:"Error", ans:"b"},
+        {c:"C++", q:"Which operator can't be overloaded?", a:"+", b:"-", c:"::", d:"*", ans:"c"},
+        {c:"C++", q:"Standard namespace in C++?", a:"std", b:"sys", c:"out", d:"main", ans:"a"},
+        {c:"C++", q:"What is an object?", a:"Template", b:"Instance of class", c:"Variable", d:"Function", ans:"b"},
+        {c:"C++", q:"Can we have multiple constructors?", a:"Yes", b:"No", c:"Only two", d:"Depends", ans:"a"},
+        {c:"C++", q:"Data hiding is achieved via?", a:"Encapsulation", b:"Inheritance", c:"Polymorphism", d:"Classes", ans:"a"},
+        {c:"C++", q:"'protected' members are accessible to?", a:"Anyone", b:"Derived classes", c:"Only self", d:"None", ans:"b"},
+        {c:"C++", q:"Member function defined inside class is by default?", a:"Virtual", b:"Inline", c:"Static", d:"Friend", ans:"b"},
+        {c:"C++", q:"STL stands for?", a:"Standard Template Library", b:"Static Tool Link", c:"Simple Type List", d:"None", ans:"a"},
+        {c:"C++", q:"Which is used for exception handling?", a:"if-else", b:"try-catch", c:"do-while", d:"switch", ans:"b"},
+        {c:"C++", q:"Base class for all I/O classes?", a:"ios", b:"iostream", c:"fstream", d:"ostream", ans:"a"},
+        {c:"C++", q:"What is 'cout'?", a:"Keyword", b:"Function", c:"Object", d:"Operator", ans:"c"},
+        {c:"C++", q:"Which keyword is for constant objects?", a:"const", b:"static", c:"volatile", d:"final", ans:"a"},
+        {c:"C++", q:"Dynamic binding happens at?", a:"Compile time", b:"Runtime", c:"Link time", d:"None", ans:"b"},
+        {c:"C++", q:"Can a class have multiple destructors?", a:"Yes", b:"No", c:"Depends", d:"None", ans:"b"},
+        {c:"C++", q:"Multiple inheritance is?", a:"Supported", b:"Not supported", c:"Only for interfaces", d:"None", ans:"a"},
+        {c:"C++", q:"Copy constructor takes argument as?", a:"Value", b:"Reference", c:"Pointer", d:"None", ans:"b"},
+        {c:"C++", q:"Operator for deleting dynamic memory?", a:"free", b:"delete", c:"remove", d:"drop", ans:"b"},
+        {c:"C++", q:"Which is not a C++ keyword?", a:"virtual", b:"friend", c:"extends", d:"mutable", ans:"c"},
+        {c:"C++", q:"Output of 5 == 5 in C++?", a:"True", b:"1", c:"0", d:"Error", ans:"b"},
+        {c:"C++", q:"C++ was initially named as?", a:"C with Classes", b:"D", c:"C plus", d:"New C", ans:"a"},
+        {c:"C++", q:"Static members are shared by?", a:"No one", b:"All objects of class", c:"Only main", d:"None", ans:"b"},
+        {c:"C++", q:"'throw' is used for?", a:"Printing", b:"Exceptions", c:"Loops", d:"Exiting", ans:"b"},
+        {c:"C++", q:"Overloading the ++ operator?", a:"Prefix/Postfix", b:"Unary only", c:"Binary only", d:"None", ans:"a"},
+        {c:"C++", q:"File stream for reading?", a:"ofstream", b:"ifstream", c:"fstream", d:"iostream", ans:"b"},
+        {c:"C++", q:"Pure virtual function is assigned to?", a:"0", b:"1", c:"Null", d:"None", ans:"a"},
+        {c:"C++", q:"A class containing pure virtual function is?", a:"Concrete", b:"Abstract", c:"Static", d:"None", ans:"b"},
+        {c:"C++", q:"Can we overload main()?", a:"Yes", b:"No", c:"Depends", d:"Only in C", ans:"b"},
+        {c:"C++", q:"Which is used for cin?", a:"Extraction >>", b:"Insertion <<", c:"Dot .", d:"Scope ::", ans:"a"},
+        {c:"C++", q:"Pointer to a class member?", a:".*", b:"::", c:"->*", d:"Both a&c", ans:"d"},
+        {c:"C++", q:"Is C++ a pure Object Oriented language?", a:"Yes", b:"No (Hybrid)", c:"Depends", d:"None", ans:"b"},
+        {c:"C++", q:"C++ supports ___ inheritance.", a:"Single", b:"Multiple", c:"Multilevel", d:"All of these", ans:"d"},
+
+        // --- PYTHON PROGRAMMING (101-150) ---
+        {c:"Python", q:"Python is an ____ language?", a:"Compiled", b:"Interpreted", c:"Machine", d:"None", ans:"b"},
+        {c:"Python", q:"Who created Python?", a:"Guido van Rossum", b:"Dennis", c:"James", d:"Bjarne", ans:"a"},
+        {c:"Python", q:"How to define a block in Python?", a:"Braces {}", b:"Indentation", c:"Semicolon ;", d:"Parenthesis ()", ans:"b"},
+        {c:"Python", q:"Keyword to create a function?", a:"func", b:"def", c:"define", d:"function", ans:"b"},
+        {c:"Python", q:"Which is an immutable type?", a:"List", b:"Tuple", c:"Set", d:"Dictionary", ans:"b"},
+        {c:"Python", q:"Result of 10 // 3?", a:"3.33", b:"3", c:"1", d:"0", ans:"b"},
+        {c:"Python", q:"How to add item to list?", a:"add()", b:"append()", c:"insert()", d:"Both b&c", ans:"d"},
+        {c:"Python", q:"Is Python case sensitive?", a:"Yes", b:"No", c:"Only for strings", d:"None", ans:"a"},
+        {c:"Python", q:"Dictionary key-value separator?", a:",", b:":", c:"-", d:"=", ans:"b"},
+        {c:"Python", q:"Extension of python file?", a:".p", b:".py", c:".python", d:".pt", ans:"b"},
+        {c:"Python", q:"Which is not a valid variable name?", a:"my_var", b:"2var", c:"_var", d:"var2", ans:"b"},
+        {c:"Python", q:"Comment in Python starts with?", a:"//", b:"#", c:"/*", d:"--", ans:"b"},
+        {c:"Python", q:"Logical AND in Python?", a:"&&", b:"and", c:"&", d:"amp", ans:"b"},
+        {c:"Python", q:"Keyword for inheritance?", a:"extends", b:"(ParentClass)", c:"implements", d:"None", ans:"b"},
+        {c:"Python", q:"List in Python is defined by?", a:"[]", b:"()", c:"{}", d:"<>", ans:"a"},
+        {c:"Python", q:"Dictionary is defined by?", a:"[]", b:"()", c:"{}", d:"<>", ans:"c"},
+        {c:"Python", q:"Output of 'hi' * 2?", a:"hi2", b:"hihi", c:"Error", d:"hi hi", ans:"b"},
+        {c:"Python", q:"Function to get length of list?", a:"length()", b:"size()", c:"len()", d:"count()", ans:"c"},
+        {c:"Python", q:"Python handles memory via?", a:"Manual", b:"Garbage Collector", c:"Pointers", d:"None", ans:"b"},
+        {c:"Python", q:"Which is a membership operator?", a:"in", b:"is", c:"==", d:"not", ans:"a"},
+        {c:"Python", q:"'is' operator is for?", a:"Value equality", b:"Identity equality", c:"Assignment", d:"None", ans:"b"},
+        {c:"Python", q:"Result of 2 ** 3?", a:"6", b:"8", c:"9", d:"5", ans:"b"},
+        {c:"Python", q:"How to create a range from 0 to 4?", a:"range(4)", b:"range(0,5)", c:"range(5)", d:"Both b&c", ans:"d"},
+        {c:"Python", q:"Lambda is a?", a:"Keyword", b:"Anonymous function", c:"Variable", d:"Loop", ans:"b"},
+        {c:"Python", q:"What is __init__?", a:"Constructor", b:"Destructor", c:"Method", d:"Variable", ans:"a"},
+        {c:"Python", q:"Keyword for importing module?", a:"load", b:"include", c:"import", d:"using", ans:"c"},
+        {c:"Python", q:"Error handling keywords?", a:"try-except", b:"try-catch", c:"if-else", d:"None", ans:"a"},
+        {c:"Python", q:"Can a function return multiple values?", a:"Yes", b:"No", c:"Depends", d:"Only in C", ans:"a"},
+        {c:"Python", q:"Boolean values in Python?", a:"true/false", b:"True/False", c:"1/0", d:"None", ans:"b"},
+        {c:"Python", q:"PEP 8 is?", a:"Compiler", b:"Style guide", c:"Library", d:"Error", ans:"b"},
+        {c:"Python", q:"Module for math functions?", a:"math", b:"cmath", c:"Both", d:"None", ans:"c"},
+        {c:"Python", q:"What is slicing?", a:"Cutting list", b:"Accessing range of items", c:"Deleting items", d:"None", ans:"b"},
+        {c:"Python", q:"Global variable inside function?", a:"global", b:"static", c:"extern", d:"None", ans:"a"},
+        {c:"Python", q:"'pass' keyword is?", a:"Exit loop", b:"Null operation", c:"Skip error", d:"None", ans:"b"},
+        {c:"Python", q:"Convert string to int?", a:"int()", b:"str()", c:"float()", d:"None", ans:"a"},
+        {c:"Python", q:"Set in Python is?", a:"Ordered", b:"Unordered & Unique", c:"Duplicate allowed", d:"None", ans:"b"},
+        {c:"Python", q:"Recursion limit in Python?", a:"100", b:"1000", c:"Infinite", d:"No limit", ans:"b"},
+        {c:"Python", q:"What is 'self'?", a:"Keyword", b:"Refers to current instance", c:"Refers to parent", d:"None", ans:"b"},
+        {c:"Python", q:"'break' and 'continue' in Python?", a:"Supported", b:"Not supported", c:"Only for 'for'", d:"None", ans:"a"},
+        {c:"Python", q:"Which is not a keyword?", a:"elif", b:"else if", c:"if", d:"elif", ans:"b"},
+        {c:"Python", q:"Output of bool([])?", a:"True", b:"False", c:"Error", d:"None", ans:"b"},
+        {c:"Python", q:"Read input from user?", a:"scanf()", b:"input()", c:"read()", d:"get()", ans:"b"},
+        {c:"Python", q:"PIP stands for?", a:"Package Installer for Python", b:"Pre-Indexed Python", c:"Program In Python", d:"None", ans:"a"},
+        {c:"Python", q:"List comprehension is?", a:"Short way to create list", b:"Error", c:"Memory leak", d:"None", ans:"a"},
+        {c:"Python", q:"Type of '3.14'?", a:"int", b:"float", c:"complex", d:"str", ans:"b"},
+        {c:"Python", q:"Module for random numbers?", a:"rand", b:"random", c:"math", d:"None", ans:"b"},
+        {c:"Python", q:"Check if key in dict?", a:"key in dict", b:"dict.has(key)", c:"Both", d:"None", ans:"a"},
+        {c:"Python", q:"Delete object?", a:"remove", b:"del", c:"clear", d:"drop", ans:"b"},
+        {c:"Python", q:"f-string is for?", a:"Formatting", b:"Filtering", c:"Functions", d:"None", ans:"a"},
+        {c:"Python", q:"Python was named after?", a:"Snake", b:"Monty Python circus", c:"A person", d:"None", ans:"b"}
+            ],
+            "BCME": [
+        // Civil Section
+        {q:"Which of the following is a sedimentary rock?", a:"Granite", b:"Sandstone", c:"Marble", d:"Quartzite", ans:"b"},
+        {q:"Standard size of a modular brick is?", a:"19x9x9 cm", b:"20x10x10 cm", c:"22x11x7 cm", d:"18x8x8 cm", ans:"a"},
+        {q:"Initial setting time of Ordinary Portland Cement is?", a:"10 mins", b:"30 mins", c:"60 mins", d:"600 mins", ans:"b"},
+        {q:"The scale used for measuring very small distances is?", a:"Plain scale", b:"Diagonal scale", c:"Vernier scale", d:"None", ans:"b"},
+        {q:"Which of these is a surveying instrument?", a:"Theodolite", b:"Multimeter", c:"Manometer", d:"Anemometer", ans:"a"},
+        {q:"The foundation used for weak soil is?", a:"Spread footing", b:"Raft foundation", c:"Isolated footing", d:"None", ans:"b"},
+        {q:"DPC stands for?", a:"Damp Proof Course", b:"Dry Proof Concrete", c:"Durable Portland Cement", d:"None", ans:"a"},
+        {q:"Bearing capacity of soil is measured in?", a:"kN/m", b:"kN/m²", c:"kN", d:"kg", ans:"b"},
+        {q:"Fine aggregate is also known as?", a:"Gravel", b:"Sand", c:"Cement", d:"Slag", ans:"b"},
+        {q:"A building used for education is categorized as?", a:"Group A", b:"Group B", c:"Group C", d:"Group D", ans:"c"},
+        {q:"BHK stands for?", a:"Big Hall Kitchen", b:"Bedroom Hall Kitchen", c:"Bathroom Hall Kitchen", d:"None", ans:"b"},
+        {q:"RCC stands for?", a:"Role Compact Concrete", b:"Reinforced Cement Concrete", c:"Raw Cement Concrete", d:"None", ans:"b"},
+        {q:"Slump test is used to measure?", a:"Strength", b:"Workability", c:"Durability", d:"Weight", ans:"b"},
+        {q:"Le-Chatelier apparatus is used for testing ____ of cement.", a:"Fineness", b:"Soundness", c:"Consistency", d:"Strength", ans:"b"},
+        {q:"Contour lines show places of equal ____.", a:"Distance", b:"Elevation", c:"Temperature", d:"Pressure", ans:"b"},
         
-        allTenSubjects.forEach(sub => {
-            MasterComprehensiveMcqDb[sub] = [];
-            for(let i=1; i<=50; i++) {
-                MasterComprehensiveMcqDb[sub].push({
-                    id: i,
-                    q: `What is the specific target system conceptual question evaluation node #${i} for ${sub}?`,
-                    a: `Option Element Alpha Variant #${i}`,
-                    b: `Option Element Beta Variant #${i}`,
-                    c: `Option Element Gamma Variant #${i}`,
-                    d: `Option Element Delta Variant #${i}`,
-                    ans: ["a", "b", "c", "d"][Math.floor(Math.random() * 4)]
-                });
-            }
-        });
+        // Mechanical Section
+        {q:"Thermodynamics deals with?", a:"Heat and Work", b:"Fluids only", c:"Solids only", d:"Chemicals", ans:"a"},
+        {q:"An IC engine works on?", a:"External Combustion", b:"Internal Combustion", c:"No Combustion", d:"Steam", ans:"b"},
+        {q:"In a 4-stroke engine, one cycle is completed in ____ revolutions of crankshaft.", a:"1", b:"2", c:"3", d:"4", ans:"b"},
+        {q:"Which part connects piston to crankshaft?", a:"Cylinder", b:"Connecting Rod", c:"Spark Plug", d:"Valve", ans:"b"},
+        {q:"A device used to convert mechanical energy into electrical is?", a:"Motor", b:"Generator", c:"Pump", d:"Turbine", ans:"b"},
+        {q:"Refrigerant used in domestic fridges is usually?", a:"Water", b:"R134a", c:"Mercury", d:"Petrol", ans:"b"},
+        {q:"Brake power is measured at?", a:"Piston", b:"Engine Shaft", c:"Fuel tank", d:"Exhaust", ans:"b"},
+        {q:"Pumps are used to handle?", a:"Gases", b:"Liquids", c:"Solids", d:"Plasma", ans:"b"},
+        {q:"The function of a Governor is to control?", a:"Temperature", b:"Mean Speed", c:"Pressure", d:"Volume", ans:"b"},
+        {q:"A boiler is used to produce?", a:"Electricity", b:"Steam", c:"Water", d:"Fuel", ans:"b"},
+        {q:"Which is a non-renewable source of energy?", a:"Solar", b:"Coal", c:"Wind", d:"Tidal", ans:"b"},
+        {q:"A lathe machine is used for?", a:"Milling", b:"Turning", c:"Drilling only", d:"Grinding", ans:"b"},
+        {q:"Unit of Power is?", a:"Joule", b:"Watt", c:"Pascal", d:"Newton", ans:"b"},
+        {q:"Pascal's Law is used in?", a:"Gear box", b:"Hydraulic Lift", c:"IC Engine", d:"Steam Turbine", ans:"b"},
+        {q:"Transmission of power using belts is?", a:"Friction drive", b:"Positive drive", c:"Gear drive", d:"Chain drive", ans:"a"},
+        
+        // Combined & Mixed
+        {q:"1 Ton of refrigeration is equal to?", a:"3.5 kW", b:"5 kW", c:"1 kW", d:"10 kW", ans:"a"},
+        {q:"Viscosity is a property of?", a:"Solids", b:"Fluids", c:"Metals", d:"None", ans:"b"},
+        {q:"Which gear is used for intersecting shafts?", a:"Spur gear", b:"Bevel gear", c:"Helical gear", d:"Worm gear", ans:"b"},
+        {q:"Properties of a material to resist scratching is?", a:"Ductility", b:"Hardness", c:"Malleability", d:"Elasticity", ans:"b"},
+        {q:"Renewable energy source is?", a:"Natural gas", b:"Biomass", c:"Petrol", d:"Diesel", ans:"b"},
+        {q:"The process of joining metals by melting a filler is?", a:"Drilling", b:"Welding", c:"Turning", d:"Milling", ans:"b"},
+        {q:"Function of a Flywheel is to?", a:"Control speed", b:"Store energy during fluctuations", c:"Generate heat", d:"Stop the engine", ans:"b"},
+        {q:"Density of water is approx?", a:"100 kg/m³", b:"1000 kg/m³", c:"500 kg/m³", d:"10 kg/m³", ans:"b"},
+        {q:"Which valve is used for controlling liquid flow?", a:"Gate valve", b:"Check valve", c:"Safety valve", d:"None", ans:"a"},
+        {q:"Modulus of elasticity is the ratio of?", a:"Stress to Strain", b:"Strain to Stress", c:"Force to Area", d:"None", ans:"a"},
+        {q:"Superstructure is the part of building?", a:"Below ground", b:"Above ground", c:"Inside ground", d:"None", ans:"b"},
+        {q:"Curing is done to?", a:"Heat the concrete", b:"Keep concrete moist", c:"Dry the concrete", d:"Color the concrete", ans:"b"},
+        {q:"Compass surveying uses?", a:"Magnetic needle", b:"Telescope", c:"Laser", d:"None", ans:"a"},
+        {q:"Ductility is the property to form?", a:"Sheets", b:"Wires", c:"Powder", d:"Blocks", ans:"b"},
+        {q:"Newton's Law of Cooling is related to?", a:"Conduction", b:"Convection", c:"Radiation", d:"None", ans:"b"},
+        {q:"Specific gravity of cement is approx?", a:"2.15", b:"3.15", c:"1.15", d:"4.15", ans:"b"},
+        {q:"Efficiency of a Carnot cycle depends on?", a:"Working fluid", b:"Temperature limits", c:"Pressure", d:"Engine size", ans:"b"},
+        {q:"Which engine is more efficient?", a:"Diesel", b:"Petrol", c:"Steam", d:"None", ans:"a"},
+        {q:"The most common type of cement is?", a:"OPC", b:"White cement", c:"Colored cement", d:"None", ans:"a"},
+        {q:"First Law of Thermodynamics is related to?", a:"Mass", b:"Energy conservation", c:"Entropy", d:"Gravity", ans:"b"}
+            ]
+        };
 
         function maskStudentPRN(prnStr) {
             if(!prnStr || prnStr.length < 10) return prnStr;
@@ -489,15 +1048,6 @@
             });
         }
 
-        function calculateAndSetLiveRankTopBar() {
-            if(!activeValidatedPRN) { document.getElementById('identityBarLiveRank').innerText = "N/A"; return; }
-            let myRank = "N/A";
-            for(let i=0; i<cachedLeaderboard.length; i++) {
-                if(cachedLeaderboard[i].prn === activeValidatedPRN) { myRank = `#${i + 1}`; break; }
-            }
-            document.getElementById('identityBarLiveRank').innerText = myRank;
-        }
-
         function handleWipeoutHubInteraction() {
             if(!activeValidatedPRN) {
                 triggerBottomSheetNotification('danger', 'ACCESS DENIED', 'सुरक्षा हब लोड करने के लिए पहले अपना सही PRN प्रदान करें!');
@@ -519,8 +1069,17 @@
                 document.getElementById('masterPanelOverlay').classList.add('active');
             } 
             else {
-                triggerBottomSheetNotification('danger', 'VIOLATION ALERT', 'आपके पास मास्टर आर्किटेक्चर टर्मिनल एक्सेस करने का अधिकार नहीं है!');
+                triggerBottomSheetNotification('danger', 'VIOLATION ALERT', 'आपके पास मास्टर आर्किटेक्चर终端 टर्मिनल एक्सेस करने का अधिकार नहीं है!');
             }
+        }
+
+        function calculateAndSetLiveRankTopBar() {
+            if(!activeValidatedPRN) { document.getElementById('identityBarLiveRank').innerText = "N/A"; return; }
+            let myRank = "N/A";
+            for(let i=0; i<cachedLeaderboard.length; i++) {
+                if(cachedLeaderboard[i].prn === activeValidatedPRN) { myRank = `#${i + 1}`; break; }
+            }
+            document.getElementById('identityBarLiveRank').innerText = myRank;
         }
 
         function closeMasterModal() { document.getElementById('masterPanelOverlay').classList.remove('active'); }
@@ -549,7 +1108,7 @@
             });
         }
 
-        /* NEW SCROLLING ENGINE LAUNCHER */
+        /* NEW SHUFFLED FIVE LAUNCHER */
         function launchExamArena(subjectKey) {
             const currentPRN = document.getElementById('dbatuGlobalPRN').value.trim();
             if(!currentPRN || currentPRN.length !== 16) {
@@ -560,33 +1119,29 @@
             activeSubjectKey = subjectKey;
             activeValidatedPRN = currentPRN;
             
-            // Generate 20 random MCQs from pool
-            shuffleAndLoadTwentyMcqs();
+            // Randomly shuffle options & view pattern for the 5 custom hardcoded questions
+            shuffleAndLoadFiveMcqs();
 
             document.getElementById('currentArenaTitle').innerText = subjectKey.toUpperCase();
             
             const overlayNode = document.getElementById('gameOverlay');
             overlayNode.style.display = "block";
-            overlayNode.scrollTop = 0; // Scroll back to top
+            overlayNode.scrollTop = 0; 
             setTimeout(() => { overlayNode.classList.add('activated'); }, 20);
             startArenaTimer(1200); // 20 minutes countdown
         }
 
-        /* SHUFFLES AND RENDERS 20 MCQS AT ONCE */
-        function shuffleAndLoadTwentyMcqs() {
-            let fullPool = MasterComprehensiveMcqDb[activeSubjectKey] || [];
+        /* RENDERS FIXED 5 MCQS DYNAMICALLY WITH INTERNALLY SHUFFLED POSITION */
+        function shuffleAndLoadFiveMcqs() {
+            let staticPool = MasterComprehensiveMcqDb[activeSubjectKey] || [];
             
-            // Position/Order Shuffle of questions
-            let shuffled = [...fullPool].sort(() => 0.5 - Math.random());
-            currentSubjectExamPool = shuffled.slice(0, 20);
+            // Internal ordering shuffle for unique arrangement pattern
+            currentSubjectExamPool = [...staticPool].sort(() => 0.5 - Math.random());
 
             const scrollContainer = document.getElementById('scrollingQuizContainer');
             scrollContainer.innerHTML = "";
 
             currentSubjectExamPool.forEach((qData, index) => {
-                // Shuffling option positions inside cards dynamically for unique presentation
-                const optionKeys = ["a", "b", "c", "d"];
-                
                 const card = document.createElement('div');
                 card.className = "quiz-card";
                 card.setAttribute('data-correct-ans', qData.ans);
@@ -617,37 +1172,37 @@
                 scrollContainer.appendChild(card);
             });
             
-            document.getElementById('questionProgressNode').innerText = "20 MCQs Shuffled & Ready";
+            document.getElementById('questionProgressNode').innerText = "5 Hardcoded Engineering MCQs Loaded";
         }
 
-        /* PROCESS ENTIRE SHEET SUBMISSION AT ONCE WITH SHUFFLE RE-LOOP */
+        /* EXAM SCORE PROCESSING NODE */
         function processEntireExamSheetLogic() {
             let runningCumulativePoints = 0;
             let unattemptedCount = 0;
+            const totalQuestionsInThisSet = currentSubjectExamPool.length;
 
-            // Iterate over all 20 questions rendered in container
-            for(let index = 0; index < 20; index++) {
+            for(let index = 0; index < totalQuestionsInThisSet; index++) {
                 const checkedOption = document.querySelector(`input[name="scrollingOpt_${index}"]:checked`);
                 
                 if(!checkedOption) {
                     unattemptedCount++;
-                    continue; // 0 Marks for skipped questions
+                    continue; 
                 }
 
                 const correctAnswer = currentSubjectExamPool[index].ans;
                 if(checkedOption.value === correctAnswer) {
-                    runningCumulativePoints += 4; // +4 for right answer
+                    runningCumulativePoints += 4; 
                 } else {
-                    runningCumulativePoints -= 1; // -1 penalty for wrong answer
+                    runningCumulativePoints -= 1; 
                 }
             }
 
-            if(unattemptedCount === 20) {
+            if(unattemptedCount === totalQuestionsInThisSet) {
                 triggerBottomSheetNotification('warning', 'SHEET EMPTY', 'कृपया सबमिट करने से पहले कम से कम कुछ एमसीक्यू हल करें!');
                 return;
             }
 
-            // Sync calculations to Cloud DB
+            // Sync structural score computations to Cloud Database Firestore
             firestore.collection("solo_mcq").where("prn", "==", activeValidatedPRN).get().then((snap) => {
                 let scoreToIncrement = runningCumulativePoints;
                 
@@ -671,14 +1226,10 @@
         }
 
         function finalizeSubmissionFeedback(scoreEarned) {
-            // Trigger beautiful bottom dynamic card popup instantly
-            triggerBottomSheetNotification('success', 'EXAM RESHUFFLED', `मार्क्स सबमिट हो गए! प्राप्त नेट स्कोर: ${scoreEarned >= 0 ? '+' : ''}${scoreEarned} PTS. नए 20 सवाल लोड हो गए हैं!`);
+            triggerBottomSheetNotification('success', 'EXAM RESHUFFLED', `मार्क्स सबमिट हो गए! प्राप्त नेट स्कोर: ${scoreEarned >= 0 ? '+' : ''}${scoreEarned} PTS. नए 5 सवाल लोड हो गए हैं!`);
             
-            // Instantly reshuffle new questions and auto-scroll viewport back to top for continuous playing
-            shuffleAndLoadTwentyMcqs();
+            shuffleAndLoadFiveMcqs();
             document.getElementById('gameOverlay').scrollTop = 0;
-            
-            // Refresh database rankings inside global dashboard panel
             verifyUserRoleRealtime(); 
         }
 
