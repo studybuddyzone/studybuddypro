@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Arena | DBATU STUDY BUDDY v12.0</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    
+    <style>
+        /* CORE CONTROLS & CSS VARIABLES */
+        :root {
+            --bg: #05070f;
+            --bg-gradient: radial-gradient(circle at top right, #0b1329, #05070f);
+            --surface: rgba(13, 20, 38, 0.6);
+            --border: rgba(34, 47, 71, 0.6);
+            --primary: #3b82f6; 
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #f1f5f9;
+            --text-muted: #64748b;
+            --card-heading: #ffffff;
+            --input-bg: rgba(15, 23, 42, 0.8);
+            --input-border: #334155;
+            --list-item-bg: rgba(20, 30, 54, 0.6);
+            --study-buddy-gradient: linear-gradient(135deg, #3b82f6 0%, #ec4899 50%, #d4af37 100%);
+        }
+
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            --surface: rgba(255, 255, 255, 0.85);
+            --border: rgba(203, 213, 225, 0.8);
+            --primary: #2563eb; 
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --card-heading: #1e293b;
+            --input-bg: #ffffff;
+            --input-border: #cbd5e1;
+            --list-item-bg: rgba(241, 245, 249, 0.9);
+            --study-buddy-gradient: linear-gradient(135deg, #1d4ed8 0%, #a855f7 50%, #b45309 100%);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; transition: background 0.2s, border-color 0.2s, color 0.2s; }
+        
+        body { 
+            background: var(--bg-gradient);
+            color: var(--text); 
+            padding: 15px 10px 100px 10px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* IDENTITY TOP BAR */
+        .top-identity-bar {
+            width: 100%; max-width: 950px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 15px;
+        }
+        .identity-node-card {
+            background: var(--surface); border: 1px solid var(--border); backdrop-filter: blur(10px); padding: 6px 8px; border-radius: 10px; display: flex; flex-direction: column; justify-content: center; min-width: 0;
+        }
+        .identity-node-card .id-label { font-size: 8px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+        .identity-node-card .id-val { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 900; color: var(--text); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* BRANDING HEADER */
+        .header-container { text-align: center; margin-bottom: 20px; width: 100%; }
+        .university-title { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 4px; }
+        .main-title { 
+            font-family: 'Orbitron', sans-serif; 
+            font-size: 24px; 
+            font-weight: 900; 
+            letter-spacing: 1px;
+            background: var(--study-buddy-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0px 2px 8px rgba(0, 0, 0, 0.15));
+            text-transform: uppercase;
+        }
+
+        .container { width: 100%; max-width: 950px; display: flex; flex-direction: column; gap: 15px; }
+
+        .gateway-card {
+            background: var(--surface); backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: 16px; padding: 15px; position: relative;
+        }
+        
+        .mini-dashboard-radar {
+            position: absolute; top: 10px; left: 12px; display: flex; align-items: center; gap: 4px; background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.12); padding: 2px 6px; border-radius: 20px; font-size: 8px; font-weight: 800; color: var(--danger);
+        }
+        .radar-dot { width: 5px; height: 5px; background-color: var(--danger); border-radius: 50%; animation: blinker 1.2s infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        .refresh-dashboard-btn {
+            position: absolute; top: 8px; right: 12px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; padding: 4px;
+        }
+        .refresh-dashboard-btn:hover { color: var(--primary); }
+
+        .prn-input-wrapper {
+            background: var(--input-bg); border: 1px solid var(--input-border); padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 8px; margin-top: 14px;
+        }
+        .prn-input-wrapper input {
+            flex: 1; background: transparent; border: none; color: var(--text); font-size: 13px; font-weight: 700; text-align: center; outline: none; letter-spacing: 1px; font-family: 'Orbitron', sans-serif; width: 100%;
+        }
+
+        /* SUBJECT CARDS GRID */
+        .section-heading { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); padding: 0 2px; display: flex; justify-content: space-between; }
+        .subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        
+        @media (max-width: 360px) { .subjects-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .subject-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 15px 10px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .sc-icon-box { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; font-size: 14px; }
+        .subject-card h4 { font-size: 11px; font-weight: 700; color: var(--card-heading); line-height: 1.2; height: 26px; display: flex; align-items: center; justify-content: center; }
+        .subject-card p { font-size: 8px; color: var(--text-muted); margin-top: 3px; font-weight: 600; }
+        
+        .color-1 { background: rgba(59, 130, 246, 0.1); color: #3b82f6; } .s-math:hover { border-color: #3b82f6; }
+        .color-2 { background: rgba(168, 85, 247, 0.1); color: #a855f7; } .s-phys:hover { border-color: #a855f7; }
+        .color-3 { background: rgba(236, 72, 153, 0.1); color: #ec4899; } .s-chem:hover { border-color: #ec4899; }
+        .color-4 { background: rgba(245, 158, 11, 0.1); color: #f59e0b; } .s-mech:hover { border-color: #f59e0b; }
+        .color-5 { background: rgba(20, 184, 166, 0.1); color: #14b8a6; } .s-graph:hover { border-color: #14b8a6; }
+        .color-6 { background: rgba(16, 185, 129, 0.1); color: #10b981; } .s-elec:hover { border-color: #10b981; }
+        .color-7 { background: rgba(99, 102, 241, 0.1); color: #6366f1; } .s-entc:hover { border-color: #6366f1; }
+        .color-8 { background: rgba(244, 63, 94, 0.1); color: #f43f5e; }  .s-comp:hover { border-color: #f43f5e; }
+        .color-9 { background: rgba(14, 165, 233, 0.1); color: #0ea5e9; } .s-comm:hover { border-color: #0ea5e9; }
+        .color-10 { background: rgba(132, 204, 22, 0.1); color: #84cc16; } .s-energy:hover { border-color: #84cc16; }
+
+        /* THEME PILL */
+        .bottom-theme-zone { width: 100%; display: flex; justify-content: center; margin-top: 5px; }
+        .theme-toggle-pill {
+            background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .theme-toggle-pill span { font-size: 9px; font-weight: 800; font-family: 'Orbitron', sans-serif; color: var(--text); }
+        .theme-toggle-pill i { font-size: 11px; color: var(--warning); }
+
+        /* LEADERBOARD */
+        .leaderboard-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px; }
+        .leaderboard-header { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .leaderboard-scroll-box { max-height: 220px; overflow-y: auto; }
+        .leaderboard-list { display: flex; flex-direction: column; gap: 8px; }
+        .leaderboard-item { display: flex; align-items: center; justify-content: space-between; background: var(--list-item-bg); border: 1px solid var(--border); padding: 8px 12px; border-radius: 10px; }
+        .rank-badge { width: 22px; height: 22px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; }
+        .player-info { display: flex; flex-direction: column; flex: 1; margin-left: 10px; min-width: 0; gap: 1px; }
+        .player-name { font-size: 11px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: uppercase; color: var(--card-heading); }
+        .player-masked-prn { font-family: 'Orbitron', sans-serif; font-size: 8px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; }
+        .player-score { font-size: 11px; font-weight: 900; color: var(--success); font-family: 'Orbitron', sans-serif; }
+
+        /* CONTROL HUB */
+        .stacked-control-hub { position: fixed; bottom: 15px; right: 15px; z-index: 99999; }
+        .premium-hub-btn { 
+            width: 46px; height: 46px; border-radius: 50%; background: rgba(13, 20, 38, 0.95); border: 1px solid var(--border); color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .premium-hub-btn.admin-glow { border-color: #f59e0b !important; color: #f59e0b !important; }
+        .premium-hub-btn.superadmin-glow { border-color: #ec4899 !important; color: #ec4899 !important; }
+        .premium-hub-btn.master-glow { border-color: #d4af37 !important; color: #d4af37 !important; }
+
+        /* LIVE SCROLLING EXAM OVERLAY LAYERS */
+        .game-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #05070f; z-index: 9999; overflow-y: auto; padding: 15px; }
+        .game-overlay.activated { display: block; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 15px; position: sticky; top: 0; background: #05070f; z-index: 10; }
+        
+        .scrolling-quiz-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
+        .quiz-card { background: rgba(19, 28, 48, 0.8); border: 1px solid var(--border); border-radius: 14px; padding: 15px; }
+        .quiz-question-title { font-weight: 700; font-size: 13px; line-height: 1.5; margin-bottom: 12px; color: #fff; display: flex; gap: 6px; }
+        
+        .option-label { display: flex; align-items: center; gap: 10px; margin: 8px 0; background: rgba(11, 15, 25, 0.6); padding: 12px; border-radius: 10px; font-size: 12px; color: #fff; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s; }
+        .option-label:hover { border-color: var(--primary); }
+        .option-label input { accent-color: var(--primary); width: 16px; height: 16px; }
+        
+        .btn-submit { display: block; width: 100%; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; padding: 16px; border-radius: 12px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; font-family: 'Orbitron', sans-serif; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); text-transform: uppercase; margin-top: 10px; }
+
+        /* BOUNCE-UP BOTTOM SHEET POPUP */
+        .bottom-sheet-popup {
+            position: fixed; bottom: -60%; left: 0; width: 100%; height: 48vh; background: #090e1a; border-top: 3px solid var(--primary); border-radius: 24px 24px 0 0; z-index: 100000; padding: 25px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 -10px 30px rgba(0,0,0,0.5); visibility: hidden;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), visibility 0.4s;
+        }
+        .bottom-sheet-popup.trigger-rise { bottom: 0; visibility: visible; }
+        .bottom-sheet-popup.fast-fall { bottom: -60% !important; transition: bottom 0.25s ease-in !important; }
+        .sheet-icon { font-size: 36px; margin-bottom: 12px; }
+        .sheet-title { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+        .sheet-desc { font-size: 12px; color: #94a3b8; max-width: 400px; line-height: 1.5; }
+
+        /* MASTER COMMAND PANEL */
+        .master-panel-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,15,0.85); backdrop-filter: blur(5px); z-index: 100005; justify-content: center; align-items: center; padding: 15px; }
+        .master-panel-overlay.active { display: flex; }
+        .master-panel-card { background: #0c1222; border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 360px; padding: 20px; text-align: center; }
+        .master-action-btn { width: 100%; padding: 12px; margin-top: 8px; border: none; border-radius: 10px; font-size: 11px; font-weight: 800; font-family: 'Orbitron', sans-serif; cursor: pointer; text-transform: uppercase; color:#fff; }
+    </style>
+</head>
+<body>
+
+    <div id="dynamicBottomSheet" class="bottom-sheet-popup">
+        <div id="sheetIconBox" class="sheet-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <h3 id="sheetTitleText" class="sheet-title">SYSTEM ENGINE</h3>
+        <p id="sheetDescText" class="sheet-desc">Processing matrix verification node.</p>
+    </div>
+
+    <div class="top-identity-bar">
+        <div class="identity-node-card">
+            <span class="id-label"><i class="fa-solid fa-fingerprint"></i> PRN Verified</span>
+            <div id="identityBarPRN" class="id-val">#EMPTY</div>
+        </div>
+        <div class="identity-node-card">
+            <span class="id-label"><i class="fa-solid fa-shield-halved"></i> Hierarchy</span>
+            <div id="identityBarRank" class="id-val" style="color:var(--text-muted);">GUEST</div>
+        </div>
+        <div class="identity-node-card">
+            <span class="id-label"><i class="fa-solid fa-trophy"></i> LIVE RANK</span>
+            <div id="identityBarLiveRank" class="id-val" style="color:var(--success);">N/A</div>
+        </div>
+    </div>
+
+    <div class="header-container">
+        <div class="university-title">Dr. Babasaheb Ambedkar Technological University</div>
+        <div class="main-title">STUDY BUDDY PREMIUM</div>
+    </div>
+
+    <div class="container">
+        <div class="gateway-card">
+            <div class="mini-dashboard-radar"><div class="radar-dot"></div><span>LIVE NODE</span></div>
+            <button class="refresh-dashboard-btn" onclick="verifyUserRoleRealtime()" title="Refresh Dashboard Data">
+                <i class="fa-solid fa-rotate"></i>
+            </button>
+            <h4 style="font-size: 10px; font-weight:800; font-family:'Orbitron', sans-serif; margin-top:8px; text-align: center;">
+                IDENTITY VERIFICATION CENTER
+            </h4>
+            <div class="prn-input-wrapper">
+                <i class="fa-solid fa-key" style="color:var(--primary); font-size:12px;"></i>
+                <input type="text" id="dbatuGlobalPRN" placeholder="ENTER 16-DIGIT PRN KEY" maxlength="16" oninput="verifyUserRoleRealtime()">
+            </div>
+        </div>
+
+        <div class="section-heading">
+            <span>DBATU MCQ Arenas (20 Scrollable Shuffled Loop)</span>
+            <span style="color:var(--danger)">Marking: +4 | Penalty: -1</span>
+        </div>
+        
+        <div class="subjects-grid">
+            <div class="subject-card s-math" onclick="launchExamArena('Engineering Mathematics - I')">
+                <div class="sc-icon-box color-1"><i class="fa-solid fa-calculator"></i></div>
+                <h4>Engineering Math - I</h4>
+                <p>20 MCQs List</p>
+            </div>
+            <div class="subject-card s-phys" onclick="launchExamArena('Engineering Physics')">
+                <div class="sc-icon-box color-2"><i class="fa-solid fa-atom"></i></div>
+                <h4>Engineering Physics</h4>
+                <p>20 MCQs List</p>
+            </div>
+            <div class="subject-card s-chem" onclick="launchExamArena('Engineering Chemistry')">
+                <div class="sc-icon-box color-3"><i class="fa-solid fa-flask"></i></div>
+                <h4>Engineering Chemistry</h4>
+                <p>20 MCQs List</p>
+            </div>
+            <div class="subject-card s-mech" onclick="launchExamArena('Engineering Mechanics')">
+                <div class="sc-icon-box color-4"><i class="fa-solid fa-gears"></i></div>
+                <h4>Engineering Mechanics</h4>
+                <p>20 MCQs List</p>
+            </div>
+            <div class="subject-card s-graph" onclick="launchExamArena('Engineering Graphics')">
+                <div class="sc-icon-box color-5"><i class="fa-solid fa-compass-drafting"></i></div>
+                <h4>Engineering Graphics</h4>
+                <p>20 MCQs List</p>
+            </div>
+            <div class="subject-card s-elec" onclick="launchExamArena('Basic Electrical Engineering')">
+                <div class="sc-icon-box color-6"><i class="fa-solid fa-bolt"></i></div>
+                <h4>Basic Electrical</h4>
+                <p>20 MCQs List</p>
+            </div>
+            <div class="subject-card s-entc" onclick="launchExamArena('Basic Electronics Engineering')">
+                <div class="sc-icon-box color-7"><i class="fa-solid fa-microchip"></i></div>
+                <h4>Basic Electronics</h4>
+                <p>20 MCQs List</p>
+            </div>
+            <div class="subject-card s-comp" onclick="launchExamArena('Basic Computer Programming')">
+                <div class="sc-icon-box color-8"><i class="fa-solid fa-code"></i></div>
+                <h4>Computer Programing</h4>
+                <p>20 MCQs List</p>
+            </div>
+            <div class="subject-card s-comm" onclick="launchExamArena('Communication Skills')">
+                <div class="sc-icon-box color-9"><i class="fa-solid fa-comments"></i></div>
+                <h4>Communication Skills</h4>
+                <p>20 MCQs List</p>
+            </div>
+            <div class="subject-card s-energy" onclick="launchExamArena('Energy & Environment Engineering')">
+                <div class="sc-icon-box color-10"><i class="fa-solid fa-leaf"></i></div>
+                <h4>Energy & Environ.</h4>
+                <p>20 MCQs List</p>
+            </div>
+        </div>
+
+        <div class="bottom-theme-zone">
+            <div class="theme-toggle-pill" onclick="togglePlatformThemeEngine()">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+                <span id="themeToggleLabelText">SWITCH TO LIGHT ENGINE</span>
+            </div>
+        </div>
+
+        <div class="leaderboard-card">
+            <div class="leaderboard-header">
+                <h3 style="font-family:'Orbitron', sans-serif; font-size:11px;"><i class="fa-solid fa-trophy" style="color:var(--warning); margin-right:5px;"></i>GLOBAL CLOUD MARKS INDEX</h3>
+            </div>
+            <div class="leaderboard-scroll-box">
+                <div id="liveLeaderboardArea" class="leaderboard-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameOverlay" class="game-overlay">
+        <div class="game-header">
+            <h3 id="currentArenaTitle" style="font-family:'Orbitron', sans-serif; font-size:11px; color:#fff;">MCQ SCROLL BOARD</h3>
+            <div id="questionProgressNode" style="font-size:10px; font-weight:700; color:var(--primary);">20 Questions Loaded</div>
+            <div id="liveTimerBox" style="background:var(--danger); padding:4px 10px; border-radius:20px; font-weight:700; font-size:10px; font-family:'Orbitron', sans-serif; color:#fff;">20:00</div>
+            <button onclick="abortCurrentMatch()" style="background:none; border:none; color:var(--danger); font-weight:700; font-size:11px; cursor:pointer;">QUIT ×</button>
+        </div>
+        
+        <div id="scrollingQuizContainer" class="scrolling-quiz-container"></div>
+        
+        <button onclick="processEntireExamSheetLogic()" class="btn-submit">SUBMIT EXAM SHEET</button>
+    </div>
+
+    <div class="stacked-control-hub">
+        <button id="masterWipeoutBtn" class="premium-hub-btn" onclick="handleWipeoutHubInteraction()">
+            <i class="fa-solid fa-bolt-lightning"></i>
+        </button>
+    </div>
+
+    <div id="masterPanelOverlay" class="master-panel-overlay">
+        <div class="master-panel-card">
+            <div style="color:#d4af37; font-size:26px; margin-bottom:8px;"><i class="fa-solid fa-crown"></i></div>
+            <h3 style="color:#fff; font-family:'Orbitron',sans-serif; font-size:12px;">MASTER SYSTEM COMMAND</h3>
+            <p style="color:#94a3b8; font-size:11px; margin-top:6px;">डेटाबेस रीसेट करने के लिए कमांड निष्पादित करें:</p>
+            
+            <button onclick="executeScoresAndRanksOnlyWipeout()" class="master-action-btn" style="background:#e11d48;"><i class="fa-solid fa-broom"></i> Reset Marks to 0</button>
+            <button onclick="executeAbsoluteDatabaseCleanse()" class="master-action-btn" style="background:#b91c1c;"><i class="fa-solid fa-trash-can"></i> Absolute Server Wipe</button>
+            <button onclick="closeMasterModal()" class="master-action-btn" style="background:#334155;">Abort Console</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration Nodes
+        const firebaseConfig = {
+          apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+          authDomain: "students-e5183.firebaseapp.com",
+          databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+          projectId: "students-e5183",
+          storageBucket: "students-e5183.firebasestorage.app",
+          messagingSenderId: "473442117683",
+          appId: "1:473442117683:web:f39adc0665317aa95e9b46"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const firestore = firebase.firestore();
+        const realtimeDb = firebase.database();
+
+        let currentUserRole = "student"; 
+        let activeValidatedPRN = "";
+        let verifiedStudentName = "STUDENT";
+        let cachedLeaderboard = [];
+
+        // Engine States
+        let currentSubjectExamPool = [];
+        let activeSubjectKey = "";
+        let countdownTimerRef = null;
+
+        // ANIMATED BOTTOM SHEET POPUP FUNCTION
+        function triggerBottomSheetNotification(type, title, message) {
+            const sheet = document.getElementById('dynamicBottomSheet');
+            const iconBox = document.getElementById('sheetIconBox');
+            
+            document.getElementById('sheetTitleText').innerText = title;
+            document.getElementById('sheetDescText').innerText = message;
+
+            if(type === 'success') {
+                sheet.style.borderTopColor = "var(--success)";
+                iconBox.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>`;
+            } else if(type === 'warning') {
+                sheet.style.borderTopColor = "var(--warning)";
+                iconBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:var(--warning)"></i>`;
+            } else {
+                sheet.style.borderTopColor = "var(--danger)";
+                iconBox.innerHTML = `<i class="fa-solid fa-radiation" style="color:var(--danger)"></i>`;
+            }
+
+            sheet.classList.remove('fast-fall');
+            sheet.classList.add('trigger-rise');
+
+            setTimeout(() => {
+                sheet.classList.add('fast-fall');
+                setTimeout(() => { sheet.classList.remove('trigger-rise', 'fast-fall'); }, 300);
+            }, 2500);
+        }
+
+        function togglePlatformThemeEngine() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const targetTheme = (currentTheme === 'light') ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            document.getElementById('themeToggleLabelText').innerText = (targetTheme === 'light') ? "SWITCH TO DARK ENGINE" : "SWITCH TO LIGHT ENGINE";
+        }
+
+        // Generating a vast MCQ database pool for all 10 subjects
+        const MasterComprehensiveMcqDb = {};
+        const allTenSubjects = [
+            "Engineering Mathematics - I", "Engineering Physics", "Engineering Chemistry", "Engineering Mechanics", "Engineering Graphics",
+            "Basic Electrical Engineering", "Basic Electronics Engineering", "Basic Computer Programming", "Communication Skills", "Energy & Environment Engineering"
+        ];
+        
+        allTenSubjects.forEach(sub => {
+            MasterComprehensiveMcqDb[sub] = [];
+            for(let i=1; i<=50; i++) {
+                MasterComprehensiveMcqDb[sub].push({
+                    id: i,
+                    q: `What is the specific target system conceptual question evaluation node #${i} for ${sub}?`,
+                    a: `Option Element Alpha Variant #${i}`,
+                    b: `Option Element Beta Variant #${i}`,
+                    c: `Option Element Gamma Variant #${i}`,
+                    d: `Option Element Delta Variant #${i}`,
+                    ans: ["a", "b", "c", "d"][Math.floor(Math.random() * 4)]
+                });
+            }
+        });
+
+        function maskStudentPRN(prnStr) {
+            if(!prnStr || prnStr.length < 10) return prnStr;
+            return prnStr.substring(0, 6) + "******" + prnStr.substring(12, 16);
+        }
+
+        function verifyUserRoleRealtime() {
+            const inputPRN = document.getElementById('dbatuGlobalPRN').value.trim();
+            const btn = document.getElementById('masterWipeoutBtn');
+            const barPRN = document.getElementById('identityBarPRN');
+            const barRank = document.getElementById('identityBarRank');
+
+            btn.className = "premium-hub-btn"; 
+            barPRN.innerText = inputPRN ? inputPRN.toUpperCase() : "#EMPTY";
+            barRank.innerText = "GUEST";
+            barRank.style.color = "var(--text-muted)";
+            currentUserRole = "student";
+            activeValidatedPRN = "";
+            verifiedStudentName = "STUDENT " + (inputPRN.length >= 4 ? inputPRN.substring(12, 16) : "");
+
+            if(inputPRN.length !== 16) {
+                document.getElementById('identityBarLiveRank').innerText = "N/A";
+                return;
+            }
+
+            realtimeDb.ref('users/' + inputPRN).once('value').then((snapshot) => {
+                if(snapshot.exists()) {
+                    const data = snapshot.val();
+                    currentUserRole = data.role ? data.role.toLowerCase() : "student";
+                    activeValidatedPRN = inputPRN;
+                    if(data.name) { verifiedStudentName = data.name; }
+
+                    if(currentUserRole === "admin") {
+                        btn.classList.add("admin-glow");
+                        barRank.innerText = "ADMIN";
+                        barRank.style.color = "var(--warning)";
+                    } 
+                    else if(currentUserRole === "superadmin" || currentUserRole === "super_admin") {
+                        btn.classList.add("superadmin-glow");
+                        barRank.innerText = "SUPER ADMIN";
+                        barRank.style.color = "#ec4899";
+                    } 
+                    else if(currentUserRole === "master") {
+                        btn.classList.add("master-glow");
+                        barRank.innerText = "MASTER MASTER";
+                        barRank.style.color = "#d4af37";
+                    } 
+                    else {
+                        barRank.innerText = "STUDENT";
+                        barRank.style.color = "var(--primary)";
+                    }
+                    calculateAndSetLiveRankTopBar();
+                } else {
+                    barRank.innerText = "NOT LOCATED";
+                    barRank.style.color = "var(--danger)";
+                    document.getElementById('identityBarLiveRank').innerText = "N/A";
+                }
+            });
+        }
+
+        function calculateAndSetLiveRankTopBar() {
+            if(!activeValidatedPRN) { document.getElementById('identityBarLiveRank').innerText = "N/A"; return; }
+            let myRank = "N/A";
+            for(let i=0; i<cachedLeaderboard.length; i++) {
+                if(cachedLeaderboard[i].prn === activeValidatedPRN) { myRank = `#${i + 1}`; break; }
+            }
+            document.getElementById('identityBarLiveRank').innerText = myRank;
+        }
+
+        function handleWipeoutHubInteraction() {
+            if(!activeValidatedPRN) {
+                triggerBottomSheetNotification('danger', 'ACCESS DENIED', 'सुरक्षा हब लोड करने के लिए पहले अपना सही PRN प्रदान करें!');
+                return;
+            }
+
+            if(currentUserRole === "admin" || currentUserRole === "moderator" || currentUserRole === "superadmin") {
+                firestore.collection("master_requests").add({
+                    requestedByPRN: activeValidatedPRN,
+                    role: currentUserRole.toUpperCase(),
+                    message: `Request server wipeout triggered by ${currentUserRole}`,
+                    status: "pending",
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    triggerBottomSheetNotification('warning', 'REQUEST SENT', `🛰️ [${currentUserRole.toUpperCase()}]: रीसेट की रिक्वेस्ट मास्टर पैनल को भेज दी गई है!`);
+                });
+            } 
+            else if(currentUserRole === "master") {
+                document.getElementById('masterPanelOverlay').classList.add('active');
+            } 
+            else {
+                triggerBottomSheetNotification('danger', 'VIOLATION ALERT', 'आपके पास मास्टर आर्किटेक्चर टर्मिनल एक्सेस करने का अधिकार नहीं है!');
+            }
+        }
+
+        function closeMasterModal() { document.getElementById('masterPanelOverlay').classList.remove('active'); }
+
+        function executeScoresAndRanksOnlyWipeout() {
+            closeMasterModal();
+            firestore.collection("solo_mcq").get().then((querySnap) => {
+                const batch = firestore.batch();
+                querySnap.forEach((doc) => { batch.update(doc.ref, { score: 0 }); });
+                return batch.commit().then(() => {
+                    triggerBottomSheetNotification('success', 'SCORES RESET', 'सफलतापूर्वक सर्वर के सभी मार्क्स 0 PTS कर दिए गए!');
+                    verifyUserRoleRealtime();
+                });
+            });
+        }
+
+        function executeAbsoluteDatabaseCleanse() {
+            closeMasterModal();
+            firestore.collection("solo_mcq").get().then((querySnap) => {
+                const batch = firestore.batch();
+                querySnap.forEach((doc) => { batch.delete(doc.ref); });
+                return batch.commit().then(() => {
+                    triggerBottomSheetNotification('danger', 'CRITICAL DESTRUCTION', 'क्लाउड सर्वर से पूरा डेटाबेस कंपलीट डिलीट कर दिया गया है!');
+                    verifyUserRoleRealtime();
+                });
+            });
+        }
+
+        /* NEW SCROLLING ENGINE LAUNCHER */
+        function launchExamArena(subjectKey) {
+            const currentPRN = document.getElementById('dbatuGlobalPRN').value.trim();
+            if(!currentPRN || currentPRN.length !== 16) {
+                triggerBottomSheetNotification('danger', 'LOCK ACTIVE', 'पहले अपना सही 16-अंकीय PRN दर्ज करें!');
+                return;
+            }
+
+            activeSubjectKey = subjectKey;
+            activeValidatedPRN = currentPRN;
+            
+            // Generate 20 random MCQs from pool
+            shuffleAndLoadTwentyMcqs();
+
+            document.getElementById('currentArenaTitle').innerText = subjectKey.toUpperCase();
+            
+            const overlayNode = document.getElementById('gameOverlay');
+            overlayNode.style.display = "block";
+            overlayNode.scrollTop = 0; // Scroll back to top
+            setTimeout(() => { overlayNode.classList.add('activated'); }, 20);
+            startArenaTimer(1200); // 20 minutes countdown
+        }
+
+        /* SHUFFLES AND RENDERS 20 MCQS AT ONCE */
+        function shuffleAndLoadTwentyMcqs() {
+            let fullPool = MasterComprehensiveMcqDb[activeSubjectKey] || [];
+            
+            // Position/Order Shuffle of questions
+            let shuffled = [...fullPool].sort(() => 0.5 - Math.random());
+            currentSubjectExamPool = shuffled.slice(0, 20);
+
+            const scrollContainer = document.getElementById('scrollingQuizContainer');
+            scrollContainer.innerHTML = "";
+
+            currentSubjectExamPool.forEach((qData, index) => {
+                // Shuffling option positions inside cards dynamically for unique presentation
+                const optionKeys = ["a", "b", "c", "d"];
+                
+                const card = document.createElement('div');
+                card.className = "quiz-card";
+                card.setAttribute('data-correct-ans', qData.ans);
+                card.setAttribute('data-index', index);
+
+                card.innerHTML = `
+                    <div class="quiz-question-title">
+                        <span>${index + 1}.</span>
+                        <span>${qData.q}</span>
+                    </div>
+                    <label class="option-label">
+                        <input type="radio" name="scrollingOpt_${index}" value="a">
+                        <span>${qData.a}</span>
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="scrollingOpt_${index}" value="b">
+                        <span>${qData.b}</span>
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="scrollingOpt_${index}" value="c">
+                        <span>${qData.c}</span>
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="scrollingOpt_${index}" value="d">
+                        <span>${qData.d}</span>
+                    </label>
+                `;
+                scrollContainer.appendChild(card);
+            });
+            
+            document.getElementById('questionProgressNode').innerText = "20 MCQs Shuffled & Ready";
+        }
+
+        /* PROCESS ENTIRE SHEET SUBMISSION AT ONCE WITH SHUFFLE RE-LOOP */
+        function processEntireExamSheetLogic() {
+            let runningCumulativePoints = 0;
+            let unattemptedCount = 0;
+
+            // Iterate over all 20 questions rendered in container
+            for(let index = 0; index < 20; index++) {
+                const checkedOption = document.querySelector(`input[name="scrollingOpt_${index}"]:checked`);
+                
+                if(!checkedOption) {
+                    unattemptedCount++;
+                    continue; // 0 Marks for skipped questions
+                }
+
+                const correctAnswer = currentSubjectExamPool[index].ans;
+                if(checkedOption.value === correctAnswer) {
+                    runningCumulativePoints += 4; // +4 for right answer
+                } else {
+                    runningCumulativePoints -= 1; // -1 penalty for wrong answer
+                }
+            }
+
+            if(unattemptedCount === 20) {
+                triggerBottomSheetNotification('warning', 'SHEET EMPTY', 'कृपया सबमिट करने से पहले कम से कम कुछ एमसीक्यू हल करें!');
+                return;
+            }
+
+            // Sync calculations to Cloud DB
+            firestore.collection("solo_mcq").where("prn", "==", activeValidatedPRN).get().then((snap) => {
+                let scoreToIncrement = runningCumulativePoints;
+                
+                if(!snap.empty) {
+                    const userDoc = snap.docs[0].ref;
+                    const oldScore = snap.docs[0].data().score || 0;
+                    userDoc.update({ 
+                        score: oldScore + scoreToIncrement, 
+                        name: verifiedStudentName, 
+                        lastTestedTimestamp: firebase.firestore.FieldValue.serverTimestamp() 
+                    }).then(() => { finalizeSubmissionFeedback(scoreToIncrement); });
+                } else {
+                    firestore.collection("solo_mcq").add({ 
+                        prn: activeValidatedPRN, 
+                        name: verifiedStudentName, 
+                        score: scoreToIncrement, 
+                        lastTestedTimestamp: firebase.firestore.FieldValue.serverTimestamp() 
+                    }).then(() => { finalizeSubmissionFeedback(scoreToIncrement); });
+                }
+            });
+        }
+
+        function finalizeSubmissionFeedback(scoreEarned) {
+            // Trigger beautiful bottom dynamic card popup instantly
+            triggerBottomSheetNotification('success', 'EXAM RESHUFFLED', `मार्क्स सबमिट हो गए! प्राप्त नेट स्कोर: ${scoreEarned >= 0 ? '+' : ''}${scoreEarned} PTS. नए 20 सवाल लोड हो गए हैं!`);
+            
+            // Instantly reshuffle new questions and auto-scroll viewport back to top for continuous playing
+            shuffleAndLoadTwentyMcqs();
+            document.getElementById('gameOverlay').scrollTop = 0;
+            
+            // Refresh database rankings inside global dashboard panel
+            verifyUserRoleRealtime(); 
+        }
+
+        function startArenaTimer(secs) {
+            clearInterval(countdownTimerRef);
+            countdownTimerRef = setInterval(() => {
+                secs--;
+                let m = Math.floor(secs / 60); let s = secs % 60;
+                document.getElementById('liveTimerBox').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                if (secs <= 0) { 
+                    clearInterval(countdownTimerRef); 
+                    triggerBottomSheetNotification('danger', 'TIME OUT', 'समय समाप्त! आपकी आंसर शीट स्वतः ही प्रोसेस हो रही है।');
+                    processEntireExamSheetLogic(); 
+                }
+            }, 1000);
+        }
+
+        function abortCurrentMatch() {
+            clearInterval(countdownTimerRef);
+            const overlayNode = document.getElementById('gameOverlay');
+            overlayNode.classList.remove('activated'); overlayNode.style.display = "none";
+        }
+
+        function listenToLiveRanks() {
+            firestore.collection("solo_mcq").orderBy("score", "desc").limit(100).onSnapshot((snapshot) => {
+                cachedLeaderboard = [];
+                snapshot.forEach(doc => cachedLeaderboard.push(doc.data()));
+                renderLeaderboardDOM();
+                calculateAndSetLiveRankTopBar();
+            });
+        }
+
+        function renderLeaderboardDOM() {
+            const container = document.getElementById('liveLeaderboardArea');
+            container.innerHTML = "";
+            let rankNum = 1;
+
+            cachedLeaderboard.forEach((user) => {
+                const card = document.createElement('div');
+                card.className = "leaderboard-item";
+                const maskedPRN = maskStudentPRN(user.prn || "");
+
+                card.innerHTML = `
+                    <div class="rank-badge">${rankNum}</div>
+                    <div class="player-info">
+                        <span class="player-name">${(user.name || 'Student').toUpperCase()}</span>
+                        <span class="player-masked-prn">${maskedPRN}</span>
+                    </div>
+                    <div class="player-score">${user.score || 0} PTS</div>
+                `;
+                container.appendChild(card);
+                rankNum++;
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => { listenToLiveRanks(); });
+    </script>
+</body>
+</html>
