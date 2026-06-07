@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Communication Arena | Study Buddy Premium</title>
+    <title>M1 Arena | Study Buddy Premium</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,14 +12,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     
     <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
+
     
     <style>
         :root {
             --bg: #0b0f19;
             --surface: #131c2e;
             --border: #222f47;
-            --primary: #06b6d4; /* Communication Color: Cyan */
-            --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            --primary: #00d2ff;
+            --primary-gradient: linear-gradient(135deg, #00d2ff 0%, #0076ff 100%);
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
@@ -93,8 +94,8 @@
         }
 
         .card-icon-wrapper {
-            background: rgba(6, 182, 212, 0.1);
-            border: 1px solid rgba(6, 182, 212, 0.2);
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid rgba(0, 210, 255, 0.2);
             width: 50px;
             height: 50px;
             border-radius: 14px;
@@ -117,7 +118,7 @@
 
         .btn-solo { background: #1e293b; border: 1px solid #334155; }
         .btn-solo:hover { background: #334155; }
-        .btn-battle { background: var(--primary-gradient); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3); }
+        .btn-battle { background: var(--primary-gradient); box-shadow: 0 4px 15px rgba(0, 118, 255, 0.3); }
 
         /* Overlays */
         .game-overlay {
@@ -213,35 +214,53 @@
         .btn-alert-close.danger { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
         .btn-alert-close.warning { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); }
 
-        /* MIC BUTTON STYLE (TOP-LEFT) */
+
         .mic-control-box {
             display: none;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             background: #1e293b;
             border: 1px solid var(--border);
-            padding: 6px 14px;
-            border-radius: 20px;
+            padding: 6px 16px 6px 8px;
+            border-radius: 30px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
+        
+        /* PREMIUM GLOW MIC CONTROLLER BUTTON */
         .btn-mic-toggle {
-            background: var(--primary-gradient);
-            border: none;
-            color: #fff;
-            width: 30px;
-            height: 30px;
+            background: #0f172a;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 12px rgba(var(--primary-rgb, 0, 210, 255), 0.4);
         }
+        .btn-mic-toggle i {
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        .btn-mic-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 18px rgba(var(--primary-rgb, 0, 210, 255), 0.7);
+        }
+        
+        /* MUTED STATE (DANGER RED GLOW) */
         .btn-mic-toggle.muted {
-            background: var(--danger);
+            border-color: var(--danger);
+            color: var(--danger);
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
         }
-
+        .btn-mic-toggle.muted:hover {
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.7);
+        }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     
@@ -363,9 +382,9 @@
         </div>
 
         <div class="card-info">
-            <div class="card-icon-wrapper"><i class="fa-solid fa-comments" style="color:var(--primary);"></i></div>
+            <div class="card-icon-wrapper"><i class="fa-solid fa-calculator"></i></div>
             <div class="card-text">
-                <h4>Communication Skills</h4>
+                <h4>Engineering Maths - 1</h4>
                 <p>50 Questions • 10 Minutes</p>
             </div>
         </div>
@@ -379,17 +398,8 @@
 
     <div id="gameOverlay" class="game-overlay">
         <div class="game-header">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div id="micControlBox" class="mic-control-box">
-                    <button id="micToggleBtn" onclick="toggleMic()" class="btn-mic-toggle">
-                        <i id="micIcon" class="fa-solid fa-microphone"></i>
-                    </button>
-                    <span id="micStatusLabel" style="color: var(--primary);">Voice On</span>
-                </div>
-                <h3 id="arenaTitle" style="font-size:16px;">Communication Arena</h3>
-            </div>
-            
-            <div id="liveTimer" style="background:var(--danger); padding:5px 14px; border-radius:20px; font-weight:700; font-size:13px;">10:00</div>
+            <h3 id="arenaTitle" style="font-size:16px;">M1 Arena</h3>
+            <div id="liveTimer" style="background:var(--danger); padding:5px 14px; border-radius:20px; font-weight:700; font-size:13px;">00:00</div>
             <button onclick="leaveGame()" style="background:none; border:none; color:var(--danger); font-weight:700; cursor:pointer;">LEAVE ×</button>
         </div>
 
@@ -402,7 +412,7 @@
                     <input type="text" id="inviteUrlInput" readonly>
                     <button onclick="copyInviteLink()" class="btn-copy"><i class="fa-solid fa-copy"></i></button>
                 </div>
-                <p style="font-size:11px; color:#22d3ee; margin-top:12px;">जैसे ही आपका दोस्त लिंक से 16-अंकीय PRN वेरीफाई करेगा, मैच शुरू हो जाएगा।</p>
+                <p style="font-size:11px; color:#a78bfa; margin-top:12px;">जैसे ही आपका दोस्त लिंक से 16-अंकीय PRN वेरीफाई करेगा, मैच शुरू हो जाएगा।</p>
             </div>
         </div>
 
@@ -421,7 +431,7 @@
 
     <div id="prnGatekeeperModal" class="auth-modal">
         <div class="auth-card">
-            <div style="background:rgba(6, 182, 212, 0.1); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
+            <div style="background:rgba(0, 210, 255, 0.1); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
                 <i class="fa-solid fa-shield-halved" style="color:var(--primary); font-size:24px;"></i>
             </div>
             <h3 style="margin-bottom:5px;">Enter PRN to Join</h3>
@@ -480,58 +490,58 @@
         firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
 
-        // 50 Communication Skills Dataset
-        const commsDataset = [
-            {q: "Communication is a ______ process of exchanging information, ideas, and feelings.", a: "One-way", b: "Two-way", c: "Three-way", d: "Static", ans: "b"},
-            {q: "The person who converts a thought into a message and initiates communication is called the ______.", a: "Receiver", b: "Sender", c: "Decoder", d: "Channel", ans: "b"},
-            {q: "Transforming internal ideas and thoughts into a symbolic language or code is known as ______.", a: "Decoding", b: "Encoding", c: "Feedback", d: "Filtering", ans: "b"},
-            {q: "The response or reaction given by the receiver back to the sender is termed as ______.", a: "Noise", b: "Feedback", c: "Context", d: "Channel", ans: "b"},
-            {q: "Any disturbance or barrier that degrades or interferes with the transmission of a message is called ______.", a: "Medium", b: "Noise", c: "Decoder", d: "Protocol", ans: "b"},
-            {q: "Which type of communication involves using spoken or written words to share information?", a: "Non-verbal", b: "Verbal", c: "Visual", d: "Paralinguistic", ans: "b"},
-            {q: "Body movements, facial expressions, eye contact, and gestures fall under ______ communication.", a: "Verbal", b: "Non-verbal", c: "Written", d: "Formal", ans: "b"},
-            {q: "The study of body language, postures, gestures, and facial expressions is technically called ______.", a: "Proxemics", b: "Kinesics", c: "Chronemics", d: "Haptics", ans: "b"},
-            {q: "The study of how space and distance between people affect communication is known as ______.", a: "Kinesics", b: "Proxemics", c: "Haptics", d: "Chronemics", ans: "b"},
-            {q: "Communication through touch (e.g., handshakes, pats on the back) is studied under ______.", a: "Proxemics", b: "Haptics", c: "Chronemics", d: "Vocalics", ans: "b"},
-            {q: "The study of how time is used and perceived in non-verbal communication is called ______.", a: "Kinesics", b: "Chronemics", c: "Haptics", d: "Proxemics", ans: "b"},
-            {q: "Tone of voice, pitch, speed of speaking, and volume are elements of ______.", a: "Verbal Text", b: "Paralanguage / Vocalics", c: "Kinesics", d: "Chronemics", ans: "b"},
-            {q: "Which of the following is considered an official, documented channel of communication in companies?", a: "Grapevine", b: "Formal Communication", c: "Informal chat", d: "Rumor mill", ans: "b"},
-            {q: "Informal, unstructured communication inside an organization is popularly known as ______.", a: "Vertical channel", b: "Grapevine", c: "Horizontal matrix", d: "Statutory flow", ans: "b"},
-            {q: "When a manager issues an instruction or policy guidelines to subordinates, it is ______ communication.", a: "Downward", b: "Upward", c: "Horizontal", d: "External", ans: "b"},
-            {q: "When an employee submits a progress report or grievance to higher management, it is ______ communication.", a: "Downward", b: "Upward", c: "Horizontal", d: "Lateral", ans: "b"},
-            {q: "Communication taking place between peers or employees working at the same hierarchy level is ______.", a: "Downward", b: "Horizontal / Lateral", c: "Upward", d: "Diagonal", ans: "b"},
-            {q: "Communication that crosses both functional sections and organizational hierarchies is called ______.", a: "Vertical", b: "Diagonal / Cross-functional", c: "Horizontal", d: "Linear", ans: "b"},
-            {q: "Physical barriers to communication include which of the following?", a: "Emotional stress", b: "Distance and loud background noise", c: "Language differences", d: "Cultural bias", ans: "b"},
-            {q: "An individual's personal biases, stereotypes, or emotional state create ______ barriers.", a: "Physical", b: "Psychological / Emotional", c: "Technical", d: "Environmental", ans: "b"},
-            {q: "Barriers caused due to differences in vocabulary, grammar, languages, or jargon are called ______.", a: "Psychological", b: "Semantic / Linguistic", c: "Socio-cultural", d: "Organizational", ans: "b"},
-            {q: "Using overly complex words or industry-specific technical jargon can act as a ______ barrier.", a: "Physical", b: "Semantic", c: "Mechanical", d: "Chronemic", ans: "b"},
-            {q: "Which of the following is an effective way to minimize or overcome communication barriers?", a: "Using ambiguous text", b: "Active listening and seeking clarification", c: "Ignoring feedback", d: "Speaking rapidly", ans: "b"},
-            {q: "Hearing is a passive physical process, whereas Listening is an ______ mental process.", a: "Involuntary", b: "Active and cognitive", c: "Accidental", d: "Subconscious", ans: "b"},
-            {q: "An active listener does which of the following?", a: "Interrupts frequently", b: "Maintains eye contact and nods appropriately", c: "Formulates counter-arguments while listening", d: "Looks around the room constantly", ans: "b"},
-            {q: "Listening to a speech or pitch specifically to evaluate, judge, and analyze the logic is ______ listening.", a: "Appreciative", b: "Critical / Evaluative", c: "Empathetic", d: "Passive", ans: "b"},
-            {q: "Listening with the intent to deeply understand and share the speaker's emotions and feelings is ______.", a: "Informational", b: "Empathetic", c: "Critical", d: "Superficial", ans: "b"},
-            {q: "The acronym used to describe the 7 fundamental principles of effective communication is the ______.", a: "5Ws", b: "7 Cs of Communication", c: "SMART rules", d: "PDCA cycle", ans: "b"},
-            {q: "In the 7 Cs, 'Concision' or being 'Concise' means ______.", a: "Providing lengthy details", b: "Expressing ideas in the fewest words possible without losing impact", c: "Using abstract symbols", d: "Repeating data for clarity", ans: "b"},
-            {q: "Which 'C' states that all facts, figures, and grammar in the message must be accurate?", a: "Clarity", b: "Correctness", c: "Completeness", d: "Consideration", ans: "b"},
-            {q: "The principle of 'Consideration' emphasizes adopting a ______ approach towards the audience.", a: "Self-centered", b: "You-attitude", c: "Neutral-attitude", d: "Critical-attitude", ans: "b"},
-            {q: "A professional business email should always contain a clear, relevant ______ line.", a: "Signature", b: "Subject", c: "Salutation", d: "Disclaimer", ans: "b"},
-            {q: "What does the abbreviation 'Bcc' stand for in corporate email clients?", a: "Business Carbon Copy", b: "Blind Carbon Copy", c: "Brief Core Communication", d: "Backup Carbon Copy", ans: "b"},
-            {q: "Writing an entire email or chat message in ALL CAPITAL LETTERS is considered ______ in digital etiquette.", a: "Highly professional", b: "Rude or equivalent to shouting", c: "Urgent", d: "Creative", ans: "b"},
-            {q: "A short text appended at the end of an email containing contact info and designation is called a ______.", a: "Header", b: "Signature Block", c: "Salutation", d: "Eclosures", ans: "b"},
-            {q: "Which of the following is considered an appropriate formal salutation for a business letter?", a: "Hey dude,", b: "Dear Sir/Madam,", c: "Yo,", d: "What's up,", ans: "b"},
-            {q: "During a professional presentation, the slide content should ideally consist of ______.", a: "Full paragraphs copied directly", b: "Key bullet points and visual aids", c: "No text at all", d: "Random decorative images", ans: "b"},
-            {q: "What is the primary purpose of a Group Discussion (GD) in professional recruitment?", a: "To prove oneself as the loudest speaker", b: "To evaluate interpersonal, leadership, and team skills", c: "To argue and defeat others", d: "To test individual spelling memory", ans: "b"},
-            {q: "If you disagree with another participant in a Group Discussion, you should say ______.", a: "You are completely wrong.", b: "I see your point, but I respectfully look at it differently because...", c: "Shut up and listen to me.", d: "Your data makes no sense.", ans: "b"},
-            {q: "Before a job interview, conducting thorough research about the company is an example of ______.", a: "Wasting time", b: "Proactive interview preparation", c: "Over-confidence", d: "Informal networking", ans: "b"},
-            {q: "During an interview, your posture should ideally be ______.", a: "Slouched back comfortably", b: "Straight up but relaxed, leaning slightly forward", c: "Stiff with crossed arms", d: "Constantly moving", ans: "b"},
-            {q: "Which type of report is prepared at fixed, regular intervals (e.g., weekly, monthly)?", a: "Special Report", b: "Periodic / Routine Report", c: "Informal Memo", d: "Ad-hoc Report", ans: "b"},
-            {q: "The list of topics or items to be discussed systematically in an upcoming meeting is called the ______.", a: "Minutes", b: "Agenda", c: "Circular", d: "Notice", ans: "b"},
-            {q: "The official written record of discussions, decisions, and resolutions passed in a meeting is called ______.", a: "Memorandum", b: "Minutes of the Meeting", c: "Agenda sheet", d: "Prospectus", ans: "b"},
-            {q: "A brief, informal internal written message shared within the same office building is a ______.", a: "Business Letter", b: "Memorandum (Memo)", c: "Press Release", d: "Tender Notice", ans: "b"},
-            {q: "Proxemics states that the 'Intimate Zone' typically ranges from ______.", a: "4 feet to 12 feet", b: "0 to 18 inches", c: "12 feet to 25 feet", d: "4 inches to 4 feet", ans: "b"},
-            {q: "Interpersonal communication involves communication between ______.", a: "An individual and a mass audience", b: "Two or more individuals face-to-face", c: "An individual with themselves", d: "Computers via routers", ans: "b"},
-            {q: "Intrapersonal communication refers to communication with ______.", a: "External clients", b: "Oneself (internal thinking/journaling)", c: "Board of Directors", d: "Media reporters", ans: "b"},
-            {q: "Which of the following describes high-quality feedback?", a: "Vague and delayed", b: "Specific, constructive, and timely", c: "Negative and destructive", d: "One-word evaluations", ans: "b"},
-            {q: "The final step in the communication loop or process that completes the circuit is ______.", a: "Transmission", b: "Feedback verification", c: "Decoding symbols", d: "Media selection", ans: "b"}
+        // 50 Engineering Mathematics - 1 Dataset (M1)
+        const m1Dataset = [
+            {q: "If A is an orthogonal matrix, then its determinant |A| is equal to?", a: "0", b: "±1", c: "Infinity", d: "2", ans: "b"},
+            {q: "The rank of a null matrix is always?", a: "1", b: "0", c: "Undefined", d: "Minus infinity", ans: "b"},
+            {q: "Every square matrix satisfies its own characteristic equation. This theorem is named?", a: "Euler's Theorem", b: "Cayley-Hamilton Theorem", c: "Taylor's Theorem", d: "Maclaurin Theorem", ans: "b"},
+            {q: "If λ is an eigenvalue of an invertible matrix A, then the eigenvalue of A⁻¹ is?", a: "λ²", b: "1/λ", c: "-λ", d: "√λ", ans: "b"},
+            {q: "A square matrix A is called skew-symmetric if?", a: "Aᵀ = A", b: "Aᵀ = -A", c: "A⁻¹ = A", d: "Aᵀ = A⁻¹", ans: "b"},
+            {q: "The nth derivative of e^(ax) is?", a: "a e^(ax)", b: "a^n e^(ax)", c: "n! e^(ax)", d: "e^(ax)/a^n", ans: "b"},
+            {q: "Leibnitz's theorem is used to find the nth derivative of?", a: "Sum of two functions", b: "Product of two functions", c: "Quotient of two functions", d: "Logarithmic functions", ans: "b"},
+            {q: "The expansion of f(x) in powers of x (around x=0) is called?", a: "Taylor's Series", b: "Maclaurin's Series", c: "Fourier Series", d: "Laurent's Series", ans: "b"},
+            {q: "If u is a homogeneous function of x and y of degree n, then by Euler's Theorem, x(∂u/∂x) + y(∂u/∂y) = ?", a: "0", b: "nu", c: "(n-1)u", d: "n(n-1)u", ans: "b"},
+            {q: "If x = r cosθ and y = r sinθ, then the Jacobian J(x,y / r,θ) is?", a: "1", b: "r", c: "1/r", d: "r²", ans: "b"},
+            {q: "The value of lim (x→0) (singx/x) in indeterminate forms is?", a: "0", b: "1", c: "Undefined", d: "Infinity", ans: "b"},
+            {q: "If z = x + iy, then the value of |e^z| is?", a: "e^x", b: "e^y", c: "e^(x+y)", d: "1", ans: "a"},
+            {q: "According to De Moivre's Theorem, (cosθ + i sinθ)^n = ?", a: "cosθ^n + i sinθ^n", b: "cos(nθ) + i sin(nθ)", c: "n(cosθ + i sinθ)", d: "cos(nθ) - i sin(nθ)", ans: "b"},
+            {q: "The roots of the equation x^2 + 1 = 0 are?", a: "±1", b: "±i", c: "0", d: "Real and distinct", ans: "b"},
+            {q: "The product of all characteristic roots (eigenvalues) of a matrix is equal to?", a: "Trace of matrix", b: "Determinant of matrix", c: "Rank of matrix", d: "0", ans: "b"},
+            {q: "The sum of the diagonal elements of a square matrix is called?", a: "Determinant", b: "Trace", c: "Rank", d: "Eigenvector", ans: "b"},
+            {q: "If two rows of a square matrix are identical, its determinant value is?", a: "1", b: "0", c: "-1", d: "Infinite", ans: "b"},
+            {q: "The nth derivative of log(x) is?", a: "1/x^n", b: "(-1)^(n-1) * (n-1)! / x^n", c: "(-1)^n * n! / x^n", d: "n!/x", ans: "b"},
+            {q: "If z = f(x,y), then ∂²z/∂x∂y is equal to?", a: "∂²z/∂y²", b: "∂²z/∂y∂x", c: "(∂z/∂x) * (∂z/∂y)", d: "0", ans: "b"},
+            {q: "A system of linear equations AX = B is consistent if?", a: "Rank(A) ≠ Rank([A|B])", b: "Rank(A) = Rank([A|B])", c: "Rank(A) = 0", d: "|A| = 0", ans: "b"},
+            {q: "An eigenvalue of a symmetric matrix is always?", a: "Imaginary", b: "Real", c: "Zero", d: "Complex number", ans: "b"},
+            {q: "The value of log(-1) in complex numbers is?", a: "0", b: "iπ", c: "1", d: "-1", ans: "b"},
+            {q: "If z = cosh(x) + sinh(x), then z equals?", a: "e^-x", b: "e^x", c: "1", d: "0", ans: "b"},
+            {q: "The value of sin(ix) is equal to?", a: "i sinh(x)", b: "sinh(ix)", c: "i sin(x)", d: "cos(x)", ans: "a"},
+            {q: "The value of cos(ix) is equal to?", a: "i cosh(x)", b: "cosh(x)", c: "-cosh(x)", d: "sin(x)", ans: "b"},
+            {q: "Under what condition does a system AX=0 have a non-trivial solution?", a: "|A| ≠ 0", b: "|A| = 0", c: "A is identity matrix", d: "Rank(A) = number of unknowns", ans: "b"},
+            {q: "The rank of an Identity matrix of order n is?", a: "0", b: "n", c: "1", d: "n-1", ans: "b"},
+            {q: "The condition for a function f(x,y) to have a maximum value at (a,b) is?", a: "rt - p^2 > 0 and r > 0", b: "rt - s^2 > 0 and r < 0", c: "rt - s^2 < 0", d: "rt - s^2 = 0", ans: "b"},
+            {q: "In extreme values of a function, 's' stands for?", a: "∂²f/∂x²", b: "∂²f/∂x∂y", c: "∂²f/∂y²", d: "∂f/∂x", ans: "b"},
+            {q: "In extreme values of a function, 'r' stands for?", a: "∂²f/∂y²", b: "∂²f/∂x²", c: "∂f/∂y", d: "0", ans: "b"},
+            {q: "The stationary points are obtained by equating?", a: "r=0, t=0", b: "∂f/∂x = 0 and ∂f/∂y = 0", c: "rt-s² = 0", d: "None", ans: "b"},
+            {q: "The expansion of cos(x) via Maclaurin's series contains only?", a: "Odd powers of x", b: "Even powers of x", c: "Prime powers of x", d: "Fractional powers", ans: "b"},
+            {q: "The expansion of sin(x) via Maclaurin's series contains only?", a: "Even powers of x", b: "Odd powers of x", c: "Constant terms", d: "Negative powers", ans: "b"},
+            {q: "By L'Hospital's rule, lim(x→0) (tan x / x) is equal to?", a: "0", b: "1", c: "Infinity", d: "2", ans: "b"},
+            {q: "The value of lim(x→0) (1 + x)^(1/x) is equal to?", a: "0", b: "e", c: "1", d: "1/e", ans: "b"},
+            {q: "If A is a matrix of order 3x4, then maximum possible rank of A is?", a: "4", b: "3", c: "7", d: "12", ans: "b"},
+            {q: "If a matrix has eigenvectors, they are always corresponding to?", a: "Rank", b: "Eigenvalues", c: "Trace", d: "Inverse", ans: "b"},
+            {q: "The modulus of complex number z = 3 + 4i is?", a: "7", b: "5", c: "25", d: "1", ans: "b"},
+            {q: "The argument of complex number z = 1 + i is?", a: "π/2", b: "π/4", c: "π/3", d: "π", ans: "b"},
+            {q: "For a unit matrix I, Iᵀ is equal to?", a: "-I", b: "I", c: "0", d: "I⁻¹", ans: "b"},
+            {q: "If a matrix A is upper triangular, its eigenvalues are?", a: "Always 0", b: "Elements of its principal diagonal", c: "Always 1", d: "Reciprocals of diagonal elements", ans: "b"},
+            {q: "The Jacobian of u,v with respect to x,y is denoted as?", a: "∂(x,y)/∂(u,v)", b: "∂(u,v)/∂(x,y)", c: "d(uv)/d(xy)", d: "J(u/v)", ans: "b"},
+            {q: "If J is the Jacobian of (u,v) w.r.t (x,y) and J' is Jacobian of (x,y) w.r.t (u,v), then JJ' = ?", a: "0", b: "1", c: "-1", d: "Infinity", ans: "b"},
+            {q: "The nth derivative of (ax+b)^m when m=n is?", a: "0", b: "n! * a^n", c: "a^n", d: "n!", ans: "b"},
+            {q: "The nth derivative of sin(ax+b) is?", a: "a^n sin(ax+b)", b: "a^n sin(ax+b + nπ/2)", c: "sin(ax+b + nπ/2)", d: "(-1)^n a^n cos(ax+b)", ans: "b"},
+            {q: "The value of cosh²x - sinh²x is?", a: "0", b: "1", c: "-1", d: "cosh(2x)", ans: "b"},
+            {q: "The real part of cos(x+iy) is?", a: "cos x cosh y", b: "-sin x sinh y", c: "cos x sinh y", d: "sin x cosh y", ans: "a"},
+            {q: "The imaginary part of cos(x+iy) is?", a: "cos x cosh y", b: "-sin x sinh y", c: "sin x sinh y", d: "0", ans: "b"},
+            {q: "If A is non-singular square matrix, then |A| is?", a: "= 0", b: "≠ 0", c: "< 0", d: "Undefined", ans: "b"},
+            {q: "Every identity matrix is a special case of?", a: "Null matrix", b: "Diagonal matrix", c: "Skew-symmetric matrix", d: "Non-square matrix", ans: "b"}
         ];
 
         // Global Engine State
@@ -550,13 +560,14 @@
         let isMuted = false;
         let voiceCloseInterval = null;
 
+
         // Auto Joining URL Detector
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const room = urlParams.get('room');
             const sub = urlParams.get('subject');
             
-            if(room && sub === 'communication') {
+            if(room && sub === 'm1') {
                 pendingRoomIdToJoin = room;
                 document.getElementById('prnGatekeeperModal').style.display = 'flex';
             }
@@ -645,7 +656,7 @@
                 if (isValid) {
                     myPrnNumber = dashPrn;
                     gameMode = "solo";
-                    document.getElementById('arenaTitle').innerText = "Communication Solo Mode";
+                    document.getElementById('arenaTitle').innerText = "M1 Solo Mode";
                     document.getElementById('lobbyPanel').style.display = "none";
                     document.getElementById('scoreboard').style.display = "none";
                     document.getElementById('micControlBox').style.display = "none"; // Hide Mic in Solo
@@ -679,11 +690,11 @@
                 document.getElementById('gameOverlay').style.display = "block";
                 document.body.style.overflow = "hidden";
 
-                const inviteUrl = window.location.origin + window.location.pathname + "?room=" + currentRoomId + "&subject=communication";
+                const inviteUrl = window.location.origin + window.location.pathname + "?room=" + currentRoomId + "&subject=m1";
                 
                 firestore.collection("rooms").doc(currentRoomId).set({
                     roomId: currentRoomId,
-                    subject: "communication",
+                    subject: "m1",
                     status: "waiting",
                     hostPrn: myPrnNumber,
                     player2Prn: "", 
@@ -713,7 +724,7 @@
 
             firestore.collection("rooms").doc(roomId).get().then((doc) => {
                 if (doc.exists && doc.data().status === "waiting") {
-                    document.getElementById('arenaTitle').innerText = "Communication Live 1v1 Arena";
+                    document.getElementById('arenaTitle').innerText = "M1 Live 1v1 Arena";
                     document.getElementById('lobbyPanel').style.display = "none";
                     document.getElementById('gameOverlay').style.display = "block";
                     document.body.style.overflow = "hidden";
@@ -723,7 +734,7 @@
                         player2Prn: myPrnNumber
                     });
                 } else {
-                    triggerCustomAlert("EXPIRED ROOM", "यह ROOM अमान्य है या मैच पहले ही समाप्त हो चुका है!", "danger");
+                    triggerCustomAlert("EXPIRED ROOM", "यह रूम कोड अमान्य है या मैच खत्म हो चुका है!", "danger");
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
             }).then(() => {
@@ -750,6 +761,9 @@
                         renderQuizQuestions();
                         // Initialize and Start Agora Voice Chat when room turns active
                         initAgoraVoiceChat(currentRoomId);
+                        // Start AFK monitoring for multiplayer
+                        startAfkMonitoring();
+                        attachAfkActivityListeners();
                     }
                 }
 
@@ -764,133 +778,29 @@
                 if(roomData.status === "finished") {
                     clearInterval(matchTimerInterval);
                     evaluateFinalResults(roomData);
+                    stopAfkMonitoring();
                     
-                    // बदलाव: मैच ख़त्म होने के बाद 30 सेकंड का टाइमर शुरू करें
+                    // मैच ख़त्म होने के बाद 30 सेकंड का रिवर्स टाइमर शुरू करें
                     startVoiceCloseTimeout();
                 }
             });
-        }
-
-        // AGORA ENGINE FUNCTIONS
-        async function initAgoraVoiceChat(channelId) {
-            try {
-                // Show Voice Control Box
-                document.getElementById('micControlBox').style.display = "flex";
-                
-                // Initialize Client Object
-                agoraClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-
-                // Event listener to catch and play Opponent's Audio
-                agoraClient.on("user-published", async (user, mediaType) => {
-                    await agoraClient.subscribe(user, mediaType);
-                    if (mediaType === "audio") {
-                        user.audioTrack.play();
-                    }
-                });
-
-                // Join the Agora Audio Channel (using currentRoomId as channel name)
-                await agoraClient.join(agoraAppId, channelId, null, null);
-
-                // Create local audio stream from user mic
-                localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-
-                // Publish audio so the opponent can hear it
-                await agoraClient.publish([localAudioTrack]);
-                
-                isMuted = false;
-                updateMicUI();
-                console.log("Agora Voice Connected Successfully!");
-            } catch (err) {
-                console.error("Agora mic activation failed:", err);
-            }
-        }
-
-        function toggleMic() {
-            if (!localAudioTrack) return;
-            if (!isMuted) {
-                localAudioTrack.setEnabled(false);
-                isMuted = true;
-            } else {
-                localAudioTrack.setEnabled(true);
-                isMuted = false;
-            }
-            updateMicUI();
-        }
-
-        function updateMicUI() {
-            const btn = document.getElementById('micToggleBtn');
-            const icon = document.getElementById('micIcon');
-            const label = document.getElementById('micStatusLabel');
-
-            if (isMuted) {
-                btn.className = "btn-mic-toggle muted";
-                icon.className = "fa-solid fa-microphone-slash";
-                label.innerText = "Muted";
-                label.style.color = "var(--danger)";
-            } else {
-                btn.className = "btn-mic-toggle";
-                icon.className = "fa-solid fa-microphone";
-                label.innerText = "Voice On";
-                label.style.color = "var(--primary)";
-            }
-        }
-
-        // 30 Seconds Auto Disconnect Engine After Match Ends
-        function startVoiceCloseTimeout() {
-            if (voiceCloseInterval) return; // Prevent double trigger
-
-            let secondsLeftForVoice = 30;
-            const label = document.getElementById('micStatusLabel');
-            
-            if (label) {
-                label.innerText = `Voice closing in ${secondsLeftForVoice}s`;
-                label.style.color = "var(--warning)";
-            }
-
-            voiceCloseInterval = setInterval(() => {
-                secondsLeftForVoice--;
-                
-                if (label) {
-                    label.innerText = `Voice closing in ${secondsLeftForVoice}s`;
-                }
-
-                if (secondsLeftForVoice <= 0) {
-                    clearInterval(voiceCloseInterval);
-                    voiceCloseInterval = null;
-                    
-                    // 30 सेकंड ख़त्म होते ही माइक बंद कर दें
-                    closeAgoraVoiceChat(); 
-                }
-            }, 1000);
-        }
-
-        async function closeAgoraVoiceChat() {
-            document.getElementById('micControlBox').style.display = "none";
-            if (localAudioTrack) {
-                localAudioTrack.close();
-                localAudioTrack = null;
-            }
-            if (agoraClient) {
-                await agoraClient.leave();
-                agoraClient = null;
-            }
         }
 
         function renderQuizQuestions() {
             const area = document.getElementById('dynamicQuizArea');
             area.innerHTML = "";
             
-            commsDataset.forEach((data, index) => {
+            m1Dataset.forEach((data, index) => {
                 const card = document.createElement('div');
                 card.style = "background:var(--surface); border-radius:16px; padding:20px; margin-bottom:20px; border:1px solid var(--border);";
                 
                 card.innerHTML = `
-                    <div style="background:rgba(6, 182, 212, 0.1); padding:4px 12px; border-radius:8px; display:inline-block; margin-bottom:12px; font-size:11px; font-weight:700; color:var(--primary);">Question ${index+1} / 50</div>
+                    <div style="background:rgba(0, 210, 255, 0.1); padding:4px 12px; border-radius:8px; display:inline-block; margin-bottom:12px; font-size:11px; font-weight:700; color:var(--primary);">Question ${index+1} / 50</div>
                     <p style="font-weight:600; font-size:15px; margin-bottom:15px; line-height:1.5;">${data.q}</p>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="a" onclick="transmitRealtimeScore()"> A) ${data.a}</label>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="b" onclick="transmitRealtimeScore()"> B) ${data.b}</label>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="c" onclick="transmitRealtimeScore()"> C) ${data.c}</label>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="d" onclick="transmitRealtimeScore()"> D) ${data.d}</label>
+                    <label class="option-label"><input type="radio" name="m1Q_${index}" value="a" onclick="transmitRealtimeScore()"> A) ${data.a}</label>
+                    <label class="option-label"><input type="radio" name="m1Q_${index}" value="b" onclick="transmitRealtimeScore()"> B) ${data.b}</label>
+                    <label class="option-label"><input type="radio" name="m1Q_${index}" value="c" onclick="transmitRealtimeScore()"> C) ${data.c}</label>
+                    <label class="option-label"><input type="radio" name="m1Q_${index}" value="d" onclick="transmitRealtimeScore()"> D) ${data.d}</label>
                 `;
                 area.appendChild(card);
             });
@@ -900,8 +810,8 @@
             if(gameMode !== "multiplayer") return;
             
             let tempCorrect = 0;
-            commsDataset.forEach((item, index) => {
-                const checked = document.querySelector(`input[name="commQ_${index}"]:checked`);
+            m1Dataset.forEach((item, index) => {
+                const checked = document.querySelector(`input[name="m1Q_${index}"]:checked`);
                 if(checked && checked.value === item.ans) {
                     tempCorrect += 2;
                 }
@@ -931,14 +841,14 @@
 
         function submitGameAnswers() {
             let corr = 0, wrng = 0, skip = 0;
-            commsDataset.forEach((item, index) => {
-                const sel = document.querySelector(`input[name="commQ_${index}"]:checked`);
+            m1Dataset.forEach((item, index) => {
+                const sel = document.querySelector(`input[name="m1Q_${index}"]:checked`);
                 if (!sel) skip++;
                 else if (sel.value === item.ans) corr++;
                 else wrng++;
             });
 
-            const finalPercent = Math.round((corr / commsDataset.length) * 100);
+            const finalPercent = Math.round((corr / m1Dataset.length) * 100);
             document.getElementById('lblCorrectCount').innerText = corr;
             document.getElementById('lblWrongCount').innerText = wrng;
             document.getElementById('lblSkippedCount').innerText = skip;
@@ -976,22 +886,248 @@
         function leaveGame() {
             clearInterval(matchTimerInterval);
             matchTimerInterval = null;
-            
-            // अगर 30 सेकंड वाला वॉयस काउंटडाउन एक्टिव है तो उसे रोकें
-            if (voiceCloseInterval) {
-                clearInterval(voiceCloseInterval);
-                voiceCloseInterval = null;
-            }
-            
-            closeAgoraVoiceChat(); // माइक बंद करें
-            
+            stopAfkMonitoring();
+            if(oppActivityUnsub) { oppActivityUnsub(); oppActivityUnsub = null; }
             if(roomUnsubscribeFunc) { roomUnsubscribeFunc(); roomUnsubscribeFunc = null; }
             document.getElementById('gameOverlay').style.display = 'none';
             document.getElementById('resultModal').style.display = 'none';
+            document.getElementById('afkWarningModal').style.display = 'none';
+            document.getElementById('oppOfflineModal').style.display = 'none';
             document.body.style.overflow = 'auto';
             window.history.replaceState({}, document.title, window.location.pathname);
         }
+
+        // AGORA ENGINE FUNCTIONS
+        async function initAgoraVoiceChat(channelId) {
+            try {
+                document.getElementById('micControlBox').style.display = "flex";
+                agoraClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+                agoraClient.on("user-published", async (user, mediaType) => {
+                    await agoraClient.subscribe(user, mediaType);
+                    if (mediaType === "audio") {
+                        user.audioTrack.play();
+                    }
+                });
+                await agoraClient.join(agoraAppId, channelId, null, null);
+                localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                await agoraClient.publish([localAudioTrack]);
+                isMuted = false;
+                updateMicUI();
+                console.log("Agora Voice Connected Successfully!");
+            } catch (err) {
+                console.error("Agora mic activation failed:", err);
+            }
+        }
+
+        function toggleMic() {
+            if (!localAudioTrack) return;
+            if (!isMuted) {
+                localAudioTrack.setEnabled(false);
+                isMuted = true;
+            } else {
+                localAudioTrack.setEnabled(true);
+                isMuted = false;
+            }
+            updateMicUI();
+        }
+
+        function updateMicUI() {
+            const btn = document.getElementById('micToggleBtn');
+            const icon = document.getElementById('micIcon');
+            const label = document.getElementById('micStatusLabel');
+            if (isMuted) {
+                btn.className = "btn-mic-toggle muted";
+                icon.className = "fa-solid fa-microphone-slash";
+                label.innerText = "Muted";
+                label.style.color = "var(--danger)";
+            } else {
+                btn.className = "btn-mic-toggle";
+                icon.className = "fa-solid fa-microphone";
+                label.innerText = "Voice On";
+                label.style.color = "var(--primary)";
+            }
+        }
+
+        function startVoiceCloseTimeout() {
+            if (voiceCloseInterval) return; 
+            let secondsLeftForVoice = 30;
+            const label = document.getElementById('micStatusLabel');
+            if (label) {
+                label.innerText = `Closing in ${secondsLeftForVoice}s`;
+                label.style.color = "var(--warning)";
+            }
+            voiceCloseInterval = setInterval(() => {
+                secondsLeftForVoice--;
+                if (label) {
+                    label.innerText = `Closing in ${secondsLeftForVoice}s`;
+                }
+                if (secondsLeftForVoice <= 0) {
+                    clearInterval(voiceCloseInterval);
+                    voiceCloseInterval = null;
+                    closeAgoraVoiceChat(); 
+                }
+            }, 1000);
+        }
+
+        async function closeAgoraVoiceChat() {
+            document.getElementById('micControlBox').style.display = "none";
+            if (localAudioTrack) {
+                localAudioTrack.close();
+                localAudioTrack = null;
+            }
+            if (agoraClient) {
+                await agoraClient.leave();
+                agoraClient = null;
+            }
+        }
+
+        // ============================================================
+        // AFK (INACTIVE) DETECTION SYSTEM
+        // ============================================================
+        let afkIdleTimer = null;       // 1 min idle → show warning
+        let afkCountdownTimer = null;  // 30 sec countdown before auto-submit
+        let afkCountdownLeft = 30;
+        let afkSystemActive = false;
+
+        // Start AFK monitoring (call when multiplayer game starts)
+        function startAfkMonitoring() {
+            afkSystemActive = true;
+            resetAfkTimer();
+
+            // Listen to opponent's lastActive in Firestore
+            listenOpponentActivity();
+        }
+
+        // Reset everything on any user interaction
+        function resetAfkTimer() {
+            if (!afkSystemActive) return;
+
+            // Hide warning modal if open
+            const modal = document.getElementById('afkWarningModal');
+            if (modal.style.display === 'flex') {
+                modal.style.display = 'none';
+            }
+
+            // Clear existing timers
+            clearTimeout(afkIdleTimer);
+            clearInterval(afkCountdownTimer);
+            afkCountdownLeft = 30;
+
+            // Update Firestore with my lastActive timestamp
+            if (currentRoomId) {
+                const field = (myRole === 'host') ? 'hostLastActive' : 'player2LastActive';
+                firestore.collection('rooms').doc(currentRoomId).update({
+                    [field]: Date.now()
+                }).catch(() => {});
+            }
+
+            // After 60 seconds of no activity → show 30s warning
+            afkIdleTimer = setTimeout(() => {
+                showAfkWarning();
+            }, 60000);
+        }
+
+        function showAfkWarning() {
+            if (!afkSystemActive) return;
+            const modal = document.getElementById('afkWarningModal');
+            modal.style.display = 'flex';
+            afkCountdownLeft = 30;
+            document.getElementById('afkCountdownCircle').innerText = afkCountdownLeft;
+
+            afkCountdownTimer = setInterval(() => {
+                afkCountdownLeft--;
+                document.getElementById('afkCountdownCircle').innerText = afkCountdownLeft;
+
+                if (afkCountdownLeft <= 0) {
+                    clearInterval(afkCountdownTimer);
+                    modal.style.display = 'none';
+                    stopAfkMonitoring();
+                    // Mark as inactive in DB then auto-submit
+                    if (currentRoomId) {
+                        const field = (myRole === 'host') ? 'hostLastActive' : 'player2LastActive';
+                        firestore.collection('rooms').doc(currentRoomId).update({
+                            [field]: 0  // 0 = explicitly offline
+                        }).catch(() => {});
+                    }
+                    submitGameAnswers();
+                }
+            }, 1000);
+        }
+
+        function stopAfkMonitoring() {
+            afkSystemActive = false;
+            clearTimeout(afkIdleTimer);
+            clearInterval(afkCountdownTimer);
+        }
+
+        // Watch opponent's lastActive field
+        let oppActivityUnsub = null;
+        function listenOpponentActivity() {
+            if (!currentRoomId) return;
+            oppActivityUnsub = firestore.collection('rooms').doc(currentRoomId).onSnapshot((doc) => {
+                if (!doc.exists || !afkSystemActive) return;
+                const data = doc.data();
+                const oppField = (myRole === 'host') ? 'player2LastActive' : 'hostLastActive';
+                const oppLastActive = data[oppField];
+
+                if (oppLastActive === undefined) return; // not set yet
+
+                const now = Date.now();
+                // If opponent explicitly set to 0 (auto-submitted) or 90s+ inactive
+                if (oppLastActive === 0 || (oppLastActive > 0 && now - oppLastActive > 90000)) {
+                    showOppOfflineModal();
+                }
+            });
+        }
+
+        function showOppOfflineModal() {
+            const modal = document.getElementById('oppOfflineModal');
+            if (modal.style.display === 'flex') return; // already showing
+            modal.style.display = 'flex';
+        }
+
+        function closeOppOfflineModal() {
+            document.getElementById('oppOfflineModal').style.display = 'none';
+        }
+
+        // Attach activity listeners to the game overlay
+        function attachAfkActivityListeners() {
+            const overlay = document.getElementById('gameOverlay');
+            if (!overlay) return;
+            ['click', 'touchstart', 'keydown', 'mousemove', 'scroll'].forEach(evt => {
+                overlay.addEventListener(evt, () => {
+                    if (afkSystemActive) resetAfkTimer();
+                }, { passive: true });
+            });
+        }
+
     </script>
+
+    <!-- AFK WARNING MODAL -->
+    <div id="afkWarningModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; flex-direction:column;">
+        <div style="background:#131c2e; border:2px solid #f59e0b; border-radius:24px; padding:35px 30px; text-align:center; max-width:340px; width:90%; animation: popUp 0.3s ease;">
+            <div style="font-size:48px; margin-bottom:10px;">⚠️</div>
+            <h2 style="color:#f59e0b; font-size:20px; font-weight:900; margin-bottom:8px;">क्या आप अभी भी यहाँ हैं?</h2>
+            <p style="color:#94a3b8; font-size:13px; margin-bottom:20px;">कोई activity नहीं मिली। <br>Game auto-submit होने वाला है!</p>
+            <div id="afkCountdownCircle" style="width:80px; height:80px; border-radius:50%; border:4px solid #f59e0b; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:32px; font-weight:900; color:#f59e0b; background:#0b0f19;">30</div>
+            <button onclick="resetAfkTimer()" style="background:linear-gradient(135deg,#f59e0b,#d97706); border:none; color:#fff; font-weight:800; font-size:15px; padding:14px 40px; border-radius:30px; cursor:pointer; width:100%;">
+                <i class="fa-solid fa-hand-pointer"></i> मैं यहाँ हूँ!
+            </button>
+        </div>
+    </div>
+
+    <!-- OPPONENT OFFLINE POPUP -->
+    <div id="oppOfflineModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9998; align-items:center; justify-content:center;">
+        <div style="background:#131c2e; border:2px solid #ef4444; border-radius:24px; padding:35px 30px; text-align:center; max-width:340px; width:90%; animation: popUp 0.3s ease;">
+            <div style="font-size:48px; margin-bottom:10px;">🔴</div>
+            <h2 style="color:#ef4444; font-size:20px; font-weight:900; margin-bottom:8px;">Opponent Offline!</h2>
+            <p id="oppOfflineMsg" style="color:#94a3b8; font-size:13px; margin-bottom:20px;">आपका opponent काफी देर से inactive है। <br>उन्होंने game छोड़ दिया लगता है।</p>
+            <button onclick="closeOppOfflineModal()" style="background:linear-gradient(135deg,#ef4444,#b91c1c); border:none; color:#fff; font-weight:800; font-size:15px; padding:14px 40px; border-radius:30px; cursor:pointer; width:100%;">
+                OK, Continue Playing
+            </button>
+        </div>
+    </div>
+
 
     <!-- ========== IDLE WARNING OVERLAY (shown to idle user) ========== -->
     <div id="idleWarningOverlay" class="idle-warning-overlay">

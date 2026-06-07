@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Communication Arena | Study Buddy Premium</title>
+    <title>Graphics Arena | Study Buddy Premium</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -18,12 +18,12 @@
             --bg: #0b0f19;
             --surface: #131c2e;
             --border: #222f47;
-            --primary: #06b6d4; /* Communication Color: Cyan */
-            --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            --primary: #f97316; /* Graphics Color: Orange */
+            --primary-gradient: linear-gradient(135deg, #f97316 0%, #d97706 100%);
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --text: #f1f5f9;
+            --text: #f1f5fa;
             --text-muted: #64748b;
         }
 
@@ -93,8 +93,8 @@
         }
 
         .card-icon-wrapper {
-            background: rgba(6, 182, 212, 0.1);
-            border: 1px solid rgba(6, 182, 212, 0.2);
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.2);
             width: 50px;
             height: 50px;
             border-radius: 14px;
@@ -117,7 +117,7 @@
 
         .btn-solo { background: #1e293b; border: 1px solid #334155; }
         .btn-solo:hover { background: #334155; }
-        .btn-battle { background: var(--primary-gradient); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3); }
+        .btn-battle { background: var(--primary-gradient); box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3); }
 
         /* Overlays */
         .game-overlay {
@@ -163,7 +163,7 @@
             border-radius: 14px; font-size: 16px; font-weight: 700; border: none; cursor: pointer;
         }
 
-        /* PRN Verification Gatekeeper Modal (For Player 2) */
+        /* PRN Verification Gatekeeper Modal */
         .auth-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(11, 15, 25, 0.97); z-index: 20000; justify-content: center; align-items: center; padding: 20px;
@@ -211,35 +211,54 @@
             font-weight: 700; cursor: pointer; color: #fff; transition: background 0.2s;
         }
         .btn-alert-close.danger { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        .btn-alert-close.warning { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); }
+        .btn-alert-close.warning { background: linear-gradient(135deg, #f97316 0%, #c2410c 100%); }
 
-        /* MIC BUTTON STYLE (TOP-LEFT) */
+        /* NEW HIGH-END MIC BUTTON CONTAINER (TOP-LEFT) */
         .mic-control-box {
             display: none;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             background: #1e293b;
             border: 1px solid var(--border);
-            padding: 6px 14px;
-            border-radius: 20px;
+            padding: 6px 16px 6px 8px;
+            border-radius: 30px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
+        
+        /* PREMIUM GLOW MIC CONTROLLER BUTTON (ORANGE THEME) */
         .btn-mic-toggle {
-            background: var(--primary-gradient);
-            border: none;
-            color: #fff;
-            width: 30px;
-            height: 30px;
+            background: #0f172a;
+            border: 2px solid #f97316;
+            color: #f97316;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
         }
+        .btn-mic-toggle i {
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        .btn-mic-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 18px rgba(249, 115, 22, 0.7);
+        }
+        
+        /* MUTED STATE (DANGER RED GLOW) */
         .btn-mic-toggle.muted {
-            background: var(--danger);
+            border-color: var(--danger);
+            color: var(--danger);
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+        }
+        .btn-mic-toggle.muted:hover {
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.7);
         }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -363,9 +382,9 @@
         </div>
 
         <div class="card-info">
-            <div class="card-icon-wrapper"><i class="fa-solid fa-comments" style="color:var(--primary);"></i></div>
+            <div class="card-icon-wrapper"><i class="fa-solid fa-compass-drafting" style="color:var(--primary);"></i></div>
             <div class="card-text">
-                <h4>Communication Skills</h4>
+                <h4>Engineering Graphics</h4>
                 <p>50 Questions • 10 Minutes</p>
             </div>
         </div>
@@ -384,9 +403,9 @@
                     <button id="micToggleBtn" onclick="toggleMic()" class="btn-mic-toggle">
                         <i id="micIcon" class="fa-solid fa-microphone"></i>
                     </button>
-                    <span id="micStatusLabel" style="color: var(--primary);">Voice On</span>
+                    <span id="micStatusLabel" style="color: #f97316;">Voice On</span>
                 </div>
-                <h3 id="arenaTitle" style="font-size:16px;">Communication Arena</h3>
+                <h3 id="arenaTitle" style="font-size:16px;">Graphics Arena</h3>
             </div>
             
             <div id="liveTimer" style="background:var(--danger); padding:5px 14px; border-radius:20px; font-weight:700; font-size:13px;">10:00</div>
@@ -402,7 +421,7 @@
                     <input type="text" id="inviteUrlInput" readonly>
                     <button onclick="copyInviteLink()" class="btn-copy"><i class="fa-solid fa-copy"></i></button>
                 </div>
-                <p style="font-size:11px; color:#22d3ee; margin-top:12px;">जैसे ही आपका दोस्त लिंक से 16-अंकीय PRN वेरीफाई करेगा, मैच शुरू हो जाएगा।</p>
+                <p style="font-size:11px; color:#f97316; margin-top:12px;">जैसे ही आपका दोस्त लिंक से 16-अंकीय PRN वेरीफाई करेगा, मैच शुरू हो जाएगा।</p>
             </div>
         </div>
 
@@ -421,7 +440,7 @@
 
     <div id="prnGatekeeperModal" class="auth-modal">
         <div class="auth-card">
-            <div style="background:rgba(6, 182, 212, 0.1); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
+            <div style="background:rgba(249, 115, 22, 0.1); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
                 <i class="fa-solid fa-shield-halved" style="color:var(--primary); font-size:24px;"></i>
             </div>
             <h3 style="margin-bottom:5px;">Enter PRN to Join</h3>
@@ -480,58 +499,58 @@
         firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
 
-        // 50 Communication Skills Dataset
-        const commsDataset = [
-            {q: "Communication is a ______ process of exchanging information, ideas, and feelings.", a: "One-way", b: "Two-way", c: "Three-way", d: "Static", ans: "b"},
-            {q: "The person who converts a thought into a message and initiates communication is called the ______.", a: "Receiver", b: "Sender", c: "Decoder", d: "Channel", ans: "b"},
-            {q: "Transforming internal ideas and thoughts into a symbolic language or code is known as ______.", a: "Decoding", b: "Encoding", c: "Feedback", d: "Filtering", ans: "b"},
-            {q: "The response or reaction given by the receiver back to the sender is termed as ______.", a: "Noise", b: "Feedback", c: "Context", d: "Channel", ans: "b"},
-            {q: "Any disturbance or barrier that degrades or interferes with the transmission of a message is called ______.", a: "Medium", b: "Noise", c: "Decoder", d: "Protocol", ans: "b"},
-            {q: "Which type of communication involves using spoken or written words to share information?", a: "Non-verbal", b: "Verbal", c: "Visual", d: "Paralinguistic", ans: "b"},
-            {q: "Body movements, facial expressions, eye contact, and gestures fall under ______ communication.", a: "Verbal", b: "Non-verbal", c: "Written", d: "Formal", ans: "b"},
-            {q: "The study of body language, postures, gestures, and facial expressions is technically called ______.", a: "Proxemics", b: "Kinesics", c: "Chronemics", d: "Haptics", ans: "b"},
-            {q: "The study of how space and distance between people affect communication is known as ______.", a: "Kinesics", b: "Proxemics", c: "Haptics", d: "Chronemics", ans: "b"},
-            {q: "Communication through touch (e.g., handshakes, pats on the back) is studied under ______.", a: "Proxemics", b: "Haptics", c: "Chronemics", d: "Vocalics", ans: "b"},
-            {q: "The study of how time is used and perceived in non-verbal communication is called ______.", a: "Kinesics", b: "Chronemics", c: "Haptics", d: "Proxemics", ans: "b"},
-            {q: "Tone of voice, pitch, speed of speaking, and volume are elements of ______.", a: "Verbal Text", b: "Paralanguage / Vocalics", c: "Kinesics", d: "Chronemics", ans: "b"},
-            {q: "Which of the following is considered an official, documented channel of communication in companies?", a: "Grapevine", b: "Formal Communication", c: "Informal chat", d: "Rumor mill", ans: "b"},
-            {q: "Informal, unstructured communication inside an organization is popularly known as ______.", a: "Vertical channel", b: "Grapevine", c: "Horizontal matrix", d: "Statutory flow", ans: "b"},
-            {q: "When a manager issues an instruction or policy guidelines to subordinates, it is ______ communication.", a: "Downward", b: "Upward", c: "Horizontal", d: "External", ans: "b"},
-            {q: "When an employee submits a progress report or grievance to higher management, it is ______ communication.", a: "Downward", b: "Upward", c: "Horizontal", d: "Lateral", ans: "b"},
-            {q: "Communication taking place between peers or employees working at the same hierarchy level is ______.", a: "Downward", b: "Horizontal / Lateral", c: "Upward", d: "Diagonal", ans: "b"},
-            {q: "Communication that crosses both functional sections and organizational hierarchies is called ______.", a: "Vertical", b: "Diagonal / Cross-functional", c: "Horizontal", d: "Linear", ans: "b"},
-            {q: "Physical barriers to communication include which of the following?", a: "Emotional stress", b: "Distance and loud background noise", c: "Language differences", d: "Cultural bias", ans: "b"},
-            {q: "An individual's personal biases, stereotypes, or emotional state create ______ barriers.", a: "Physical", b: "Psychological / Emotional", c: "Technical", d: "Environmental", ans: "b"},
-            {q: "Barriers caused due to differences in vocabulary, grammar, languages, or jargon are called ______.", a: "Psychological", b: "Semantic / Linguistic", c: "Socio-cultural", d: "Organizational", ans: "b"},
-            {q: "Using overly complex words or industry-specific technical jargon can act as a ______ barrier.", a: "Physical", b: "Semantic", c: "Mechanical", d: "Chronemic", ans: "b"},
-            {q: "Which of the following is an effective way to minimize or overcome communication barriers?", a: "Using ambiguous text", b: "Active listening and seeking clarification", c: "Ignoring feedback", d: "Speaking rapidly", ans: "b"},
-            {q: "Hearing is a passive physical process, whereas Listening is an ______ mental process.", a: "Involuntary", b: "Active and cognitive", c: "Accidental", d: "Subconscious", ans: "b"},
-            {q: "An active listener does which of the following?", a: "Interrupts frequently", b: "Maintains eye contact and nods appropriately", c: "Formulates counter-arguments while listening", d: "Looks around the room constantly", ans: "b"},
-            {q: "Listening to a speech or pitch specifically to evaluate, judge, and analyze the logic is ______ listening.", a: "Appreciative", b: "Critical / Evaluative", c: "Empathetic", d: "Passive", ans: "b"},
-            {q: "Listening with the intent to deeply understand and share the speaker's emotions and feelings is ______.", a: "Informational", b: "Empathetic", c: "Critical", d: "Superficial", ans: "b"},
-            {q: "The acronym used to describe the 7 fundamental principles of effective communication is the ______.", a: "5Ws", b: "7 Cs of Communication", c: "SMART rules", d: "PDCA cycle", ans: "b"},
-            {q: "In the 7 Cs, 'Concision' or being 'Concise' means ______.", a: "Providing lengthy details", b: "Expressing ideas in the fewest words possible without losing impact", c: "Using abstract symbols", d: "Repeating data for clarity", ans: "b"},
-            {q: "Which 'C' states that all facts, figures, and grammar in the message must be accurate?", a: "Clarity", b: "Correctness", c: "Completeness", d: "Consideration", ans: "b"},
-            {q: "The principle of 'Consideration' emphasizes adopting a ______ approach towards the audience.", a: "Self-centered", b: "You-attitude", c: "Neutral-attitude", d: "Critical-attitude", ans: "b"},
-            {q: "A professional business email should always contain a clear, relevant ______ line.", a: "Signature", b: "Subject", c: "Salutation", d: "Disclaimer", ans: "b"},
-            {q: "What does the abbreviation 'Bcc' stand for in corporate email clients?", a: "Business Carbon Copy", b: "Blind Carbon Copy", c: "Brief Core Communication", d: "Backup Carbon Copy", ans: "b"},
-            {q: "Writing an entire email or chat message in ALL CAPITAL LETTERS is considered ______ in digital etiquette.", a: "Highly professional", b: "Rude or equivalent to shouting", c: "Urgent", d: "Creative", ans: "b"},
-            {q: "A short text appended at the end of an email containing contact info and designation is called a ______.", a: "Header", b: "Signature Block", c: "Salutation", d: "Eclosures", ans: "b"},
-            {q: "Which of the following is considered an appropriate formal salutation for a business letter?", a: "Hey dude,", b: "Dear Sir/Madam,", c: "Yo,", d: "What's up,", ans: "b"},
-            {q: "During a professional presentation, the slide content should ideally consist of ______.", a: "Full paragraphs copied directly", b: "Key bullet points and visual aids", c: "No text at all", d: "Random decorative images", ans: "b"},
-            {q: "What is the primary purpose of a Group Discussion (GD) in professional recruitment?", a: "To prove oneself as the loudest speaker", b: "To evaluate interpersonal, leadership, and team skills", c: "To argue and defeat others", d: "To test individual spelling memory", ans: "b"},
-            {q: "If you disagree with another participant in a Group Discussion, you should say ______.", a: "You are completely wrong.", b: "I see your point, but I respectfully look at it differently because...", c: "Shut up and listen to me.", d: "Your data makes no sense.", ans: "b"},
-            {q: "Before a job interview, conducting thorough research about the company is an example of ______.", a: "Wasting time", b: "Proactive interview preparation", c: "Over-confidence", d: "Informal networking", ans: "b"},
-            {q: "During an interview, your posture should ideally be ______.", a: "Slouched back comfortably", b: "Straight up but relaxed, leaning slightly forward", c: "Stiff with crossed arms", d: "Constantly moving", ans: "b"},
-            {q: "Which type of report is prepared at fixed, regular intervals (e.g., weekly, monthly)?", a: "Special Report", b: "Periodic / Routine Report", c: "Informal Memo", d: "Ad-hoc Report", ans: "b"},
-            {q: "The list of topics or items to be discussed systematically in an upcoming meeting is called the ______.", a: "Minutes", b: "Agenda", c: "Circular", d: "Notice", ans: "b"},
-            {q: "The official written record of discussions, decisions, and resolutions passed in a meeting is called ______.", a: "Memorandum", b: "Minutes of the Meeting", c: "Agenda sheet", d: "Prospectus", ans: "b"},
-            {q: "A brief, informal internal written message shared within the same office building is a ______.", a: "Business Letter", b: "Memorandum (Memo)", c: "Press Release", d: "Tender Notice", ans: "b"},
-            {q: "Proxemics states that the 'Intimate Zone' typically ranges from ______.", a: "4 feet to 12 feet", b: "0 to 18 inches", c: "12 feet to 25 feet", d: "4 inches to 4 feet", ans: "b"},
-            {q: "Interpersonal communication involves communication between ______.", a: "An individual and a mass audience", b: "Two or more individuals face-to-face", c: "An individual with themselves", d: "Computers via routers", ans: "b"},
-            {q: "Intrapersonal communication refers to communication with ______.", a: "External clients", b: "Oneself (internal thinking/journaling)", c: "Board of Directors", d: "Media reporters", ans: "b"},
-            {q: "Which of the following describes high-quality feedback?", a: "Vague and delayed", b: "Specific, constructive, and timely", c: "Negative and destructive", d: "One-word evaluations", ans: "b"},
-            {q: "The final step in the communication loop or process that completes the circuit is ______.", a: "Transmission", b: "Feedback verification", c: "Decoding symbols", d: "Media selection", ans: "b"}
+        // 50 Engineering Graphics Dataset
+        const graphicsDataset = [
+            {q: "Which of the following drawing tool is used to draw parallel lines accurately and quickly?", a: "Set-square", b: "T-square", c: "French curve", d: "Large bow divider", ans: "b"},
+            {q: "The standard size of an A0 drawing sheet specified by BIS is ______ mm.", a: "594 x 841", b: "841 x 1189", c: "420 x 594", d: "297 x 420", ans: "b"},
+            {q: "Which line type is strictly used to represent hidden edges or invisible contours in drawing?", a: "Continuous Thick Line", b: "Dashed Thin Line", c: "Chain Thin Line", d: "Continuous Thin wavy Line", ans: "b"},
+            {q: "A line with long dashes and alternating short dots/dashes is used to indicate what?", a: "Dimension line", b: "Center line or Axis", c: "Section border line", d: "Extension line", ans: "b"},
+            {q: "Which of the following pencil grades is the hardest among these?", a: "HB", b: "4H", c: "2H", d: "2B", ans: "b"},
+            {q: "For lettering and dimensioning on an engineering drawing, which pencil grade is highly recommended?", a: "6H", b: "H or HB", c: "4B", d: "3B", ans: "b"},
+            {q: "The Representative Fraction (RF) of a scale is mathematically defined as ______.", a: "Actual size / Drawing size", b: "Drawing size / Actual size", c: "Drawing size x Actual size", d: "Length of scale / Max length", ans: "b"},
+            {q: "If a 5-meter actual length is represented by a 25 cm line on paper, what is its RF?", a: "1:5", b: "1:20", c: "1:50", d: "1:200", ans: "b"},
+            {q: "Which scale type allows reading three consecutive dimensions like meters, decimeters, and centimeters?", a: "Plain Scale", b: "Diagonal Scale", c: "Vernier Scale", d: "Comparative Scale", ans: "b"},
+            {q: "When a drawing is made to the exact same size as the actual physical object, the scale ratio is ______.", a: "1:2", b: "1:1", c: "2:1", d: "1:10", ans: "b"},
+            {q: "An RF scale of 5:1 represents which type of engineering scale?", a: "Reduced Scale", b: "Enlarged Scale", c: "Full-size Scale", d: "Vernier matrix Scale", ans: "b"},
+            {q: "The path or locus formed by a point moving along a plane such that its distance from a fixed point (focus) and a fixed line (directrix) is always equal is called a ______.", a: "Ellipse", b: "Parabola", c: "Hyperbola", d: "Cycloid", ans: "b"},
+            {q: "If the eccentricity (e) of a conic section curve is strictly less than 1 (e < 1), the curve is an ______.", a: "Parabola", b: "Ellipse", c: "Hyperbola", d: "Circle", ans: "b"},
+            {q: "The curve generated by a fixed point on the circumference of a circle as it rolls along a straight line without slipping is known as a ______.", a: "Involute", b: "Cycloid", c: "Epicycloid", d: "Spiral", ans: "b"},
+            {q: "The curve generated by a point on a taut string as it unwinds or unwraps from around a fixed polygon or circle is called an ______.", a: "Helix", b: "Involute", c: "Cycloid", d: "Hyperbola", ans: "b"},
+            {q: "In a First Angle Projection system, where is the object assumed to be placed?", a: "Behind the vertical plane", b: "Between the observer and planes of projection", c: "Behind the profile plane", d: "Below the horizontal plane", ans: "b"},
+            {q: "In Third Angle Projection, the top view (plan) is always projected ______ the front view.", a: "Below", b: "Above", c: "Left side of", d: "Right side of", ans: "b"},
+            {q: "In engineering drawings, symbolic representation of Third Angle projection shows the frustum of a cone with its small circle facing ______.", a: "Away from side view", b: "Towards the left / front side", c: "Downwards always", d: "Inside the larger circle", ans: "b"},
+            {q: "The front view of a physical object is projected onto which standard plane?", a: "Horizontal Plane (HP)", b: "Vertical Plane (VP)", c: "Profile Plane (PP)", d: "Auxiliary Plane", ans: "b"},
+            {q: "The top view of a geometric object is projected onto which standard plane?", a: "Vertical Plane (VP)", b: "Horizontal Plane (HP)", c: "Auxiliary Plane", d: "Profile Plane (PP)", ans: "b"},
+            {q: "If a straight line is parallel to the HP and perpendicular to the VP, its front view appears as a ______.", a: "True Length Line", b: "Point", c: "Inclined Line", d: "Apparent short Line", ans: "b"},
+            {q: "When a straight line is inclined to the HP and parallel to the VP, its true length can be measured directly in its ______ view.", a: "Top View", b: "Front View", c: "Side View", d: "Isometric View", ans: "b"},
+            {q: "The point at which a line intersect or meets the Vertical Plane (VP) when extended is called its ______.", a: "Horizontal Trace (HT)", b: "Vertical Trace (VT)", c: "Profile Intersection", d: "Origin Point", ans: "b"},
+            {q: "If a line is contained entirely within both the HP and VP, its views will lie directly on the ______ line.", a: "Auxiliary Axis", b: "XY Reference Line", c: "Trace Origin", d: "Center focal line", ans: "b"},
+            {q: "If a thin flat plane is perpendicular to the VP and parallel to the HP, its front view appears as a ______.", a: "True Shape Plane", b: "Horizontal Straight Line", c: "Reduced Shape Plane", d: "Point", ans: "b"},
+            {q: "True shape of an inclined plane can be seen clearly only by projecting it onto an ______ plane.", a: "Horizontal Plane", b: "Auxiliary Plane", c: "Vertical Plane", d: "Profile Plane", ans: "b"},
+            {q: "A solid object bounded by six identical, equal square faces is called a ______.", a: "Tetrahedron", b: "Cube / Hexahedron", c: "Octahedron", d: "Prism", ans: "b"},
+            {q: "A solid solid having a regular polygon base and triangular faces meeting at a common apex point is a ______.", a: "Prism", b: "Pyramid", c: "Cylinder", d: "Cone", ans: "b"},
+            {q: "A solid generated by revolving a right-angled triangle around one of its perpendicular sides is called a ______.", a: "Cylinder", b: "Cone", c: "Sphere", d: "Torus", ans: "b"},
+            {q: "If a cylinder is resting on its circular base on the HP, its front view will appear as a ______.", a: "Circle", b: "Rectangle", c: "Ellipse", d: "Triangle", ans: "b"},
+            {q: "When a regular hexagonal pyramid is cut by a plane parallel to its base, the remaining top section is called a ______ pyramid.", a: "Truncated", b: "Frustum of", c: "Oblique", d: "Sectioned", ans: "b"},
+            {q: "Section lines or hatching lines are drawn inclined at an angle of ______ to the reference line.", a: "30 degrees", b: "45 degrees", c: "60 degrees", d: "90 degrees", ans: "b"},
+            {q: "In an Isometric Projection, all three principal layout axes are inclined to each other at an angle of ______.", a: "90 degrees", b: "120 degrees", c: "60 degrees", d: "150 degrees", ans: "b"},
+            {q: "Isometric lines are drawn at an angle of ______ degrees relative to the horizontal reference line.", a: "45", b: "30", c: "60", d: "0", ans: "b"},
+            {q: "The ratio of Isometric length to the actual True length of an object is approximately ______.", a: "1.0", b: "0.816", c: "0.707", d: "0.577", ans: "b"},
+            {q: "In isometric drawings, a true circle is projected and appears visually as an ______.", a: "Involute", b: "Ellipse", c: "Parabola", d: "Semicircle", ans: "b"},
+            {q: "Which method is commonly used to draw isometric circles on paper?", a: "Conic method", b: "Four-Center Method", c: "Universal scale method", d: "French curve tracing", ans: "b"},
+            {q: "Unfolding or unrolling the entire outer surface skin of a 3D solid onto a single flat plane is called ______.", a: "Isometric Unfolding", b: "Development of Surfaces", c: "Orthographic Sectioning", d: "Perspective Layout", ans: "b"},
+            {q: "The development method used specifically for lateral surfaces of prisms and cylinders is the ______ method.", a: "Radial Line", b: "Parallel Line", c: "Triangulation", d: "Approximate", ans: "b"},
+            {q: "The lateral surface development of a right circular cone is drawn using the ______ method.", a: "Parallel Line", b: "Radial Line", c: "Triangulation", d: "Box Method", ans: "b"},
+            {q: "The development of a complete uncut cylinder surface onto a flat sheet forms a perfect ______.", a: "Sector of circle", b: "Rectangle", c: "Triangle", d: "Square", ans: "b"},
+            {q: "The development of a complete uncut right circular cone onto a flat sheet forms a ______.", a: "Triangle", b: "Sector of a Circle", c: "Trapezoid", d: "Rectangle", ans: "b"},
+            {q: "Which line type is used to limit or bound a partial or broken view in engineering drafting?", a: "Dashed Thin Line", b: "Continuous Thin Freehand/Wavy Line", c: "Chain Thick Line", d: "Double dashed line", ans: "b"},
+            {q: "Dimension lines should be placed at least ______ mm away from the object outline profiles.", a: "2 mm", b: "8 mm", c: "20 mm", d: "1 mm", ans: "b"},
+            {q: "In the Aligned system of dimensioning, dimensions must be placed ______ the dimension line.", a: "Below", b: "Above and perpendicular to", c: "In the middle by breaking", d: "At the arrowheads tip", ans: "b"},
+            {q: "In a unidirectional dimensioning layout system, all dimension numbers are written ______.", a: "Parallel to dimension lines", b: "Upright so they can be read from bottom of sheet", c: "From the right hand side only", d: "Vertically upwards", ans: "b"},
+            {q: "The standard ratio of arrowhead length to its width in engineering graphics dimensioning is ______.", a: "1:1", b: "3:1", c: "2:1", d: "4:1", ans: "b"},
+            {q: "What does the symbol 'Ø' placed before a dimension number indicate?", a: "Radius", b: "Diameter", c: "Spherical Radius", d: "Square edge", ans: "b"},
+            {q: "Which scale format has no units written on it explicitly but is written as a fraction ratio?", a: "Engineer's Scale", b: "Representative Fraction (RF)", c: "Graphical Scale", d: "Linear text Scale", ans: "b"},
+            {q: "The trace of a flat plane on the vertical projection plane (VP) is called its ______.", a: "Horizontal Trace", b: "Vertical Trace", c: "Profile Line", d: "Axial Vector", ans: "b"}
         ];
 
         // Global Engine State
@@ -556,7 +575,7 @@
             const room = urlParams.get('room');
             const sub = urlParams.get('subject');
             
-            if(room && sub === 'communication') {
+            if(room && sub === 'graphics') {
                 pendingRoomIdToJoin = room;
                 document.getElementById('prnGatekeeperModal').style.display = 'flex';
             }
@@ -645,7 +664,7 @@
                 if (isValid) {
                     myPrnNumber = dashPrn;
                     gameMode = "solo";
-                    document.getElementById('arenaTitle').innerText = "Communication Solo Mode";
+                    document.getElementById('arenaTitle').innerText = "Graphics Solo Mode";
                     document.getElementById('lobbyPanel').style.display = "none";
                     document.getElementById('scoreboard').style.display = "none";
                     document.getElementById('micControlBox').style.display = "none"; // Hide Mic in Solo
@@ -679,11 +698,11 @@
                 document.getElementById('gameOverlay').style.display = "block";
                 document.body.style.overflow = "hidden";
 
-                const inviteUrl = window.location.origin + window.location.pathname + "?room=" + currentRoomId + "&subject=communication";
+                const inviteUrl = window.location.origin + window.location.pathname + "?room=" + currentRoomId + "&subject=graphics";
                 
                 firestore.collection("rooms").doc(currentRoomId).set({
                     roomId: currentRoomId,
-                    subject: "communication",
+                    subject: "graphics",
                     status: "waiting",
                     hostPrn: myPrnNumber,
                     player2Prn: "", 
@@ -713,7 +732,7 @@
 
             firestore.collection("rooms").doc(roomId).get().then((doc) => {
                 if (doc.exists && doc.data().status === "waiting") {
-                    document.getElementById('arenaTitle').innerText = "Communication Live 1v1 Arena";
+                    document.getElementById('arenaTitle').innerText = "Graphics Live 1v1 Arena";
                     document.getElementById('lobbyPanel').style.display = "none";
                     document.getElementById('gameOverlay').style.display = "block";
                     document.body.style.overflow = "hidden";
@@ -723,7 +742,7 @@
                         player2Prn: myPrnNumber
                     });
                 } else {
-                    triggerCustomAlert("EXPIRED ROOM", "यह ROOM अमान्य है या मैच पहले ही समाप्त हो चुका है!", "danger");
+                    triggerCustomAlert("EXPIRED ROOM", "यह रूम कोड अमान्य है या मैच खत्म हो चुका है!", "danger");
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
             }).then(() => {
@@ -765,7 +784,7 @@
                     clearInterval(matchTimerInterval);
                     evaluateFinalResults(roomData);
                     
-                    // बदलाव: मैच ख़त्म होने के बाद 30 सेकंड का टाइमर शुरू करें
+                    // मैच ख़त्म होने के बाद 30 सेकंड का रिवर्स टाइमर शुरू करें
                     startVoiceCloseTimeout();
                 }
             });
@@ -837,13 +856,13 @@
 
         // 30 Seconds Auto Disconnect Engine After Match Ends
         function startVoiceCloseTimeout() {
-            if (voiceCloseInterval) return; // Prevent double trigger
+            if (voiceCloseInterval) return; 
 
             let secondsLeftForVoice = 30;
             const label = document.getElementById('micStatusLabel');
             
             if (label) {
-                label.innerText = `Voice closing in ${secondsLeftForVoice}s`;
+                label.innerText = `Closing in ${secondsLeftForVoice}s`;
                 label.style.color = "var(--warning)";
             }
 
@@ -851,14 +870,14 @@
                 secondsLeftForVoice--;
                 
                 if (label) {
-                    label.innerText = `Voice closing in ${secondsLeftForVoice}s`;
+                    label.innerText = `Closing in ${secondsLeftForVoice}s`;
                 }
 
                 if (secondsLeftForVoice <= 0) {
                     clearInterval(voiceCloseInterval);
                     voiceCloseInterval = null;
                     
-                    // 30 सेकंड ख़त्म होते ही माइक बंद कर दें
+                    // 30 सेकंड ख़त्म होते ही माइक और चैनल बंद कर दें
                     closeAgoraVoiceChat(); 
                 }
             }, 1000);
@@ -880,28 +899,32 @@
             const area = document.getElementById('dynamicQuizArea');
             area.innerHTML = "";
             
-            commsDataset.forEach((data, index) => {
+            graphicsDataset.forEach((data, index) => {
                 const card = document.createElement('div');
                 card.style = "background:var(--surface); border-radius:16px; padding:20px; margin-bottom:20px; border:1px solid var(--border);";
                 
                 card.innerHTML = `
-                    <div style="background:rgba(6, 182, 212, 0.1); padding:4px 12px; border-radius:8px; display:inline-block; margin-bottom:12px; font-size:11px; font-weight:700; color:var(--primary);">Question ${index+1} / 50</div>
-                    <p style="font-weight:600; font-size:15px; margin-bottom:15px; line-height:1.5;">${data.q}</p>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="a" onclick="transmitRealtimeScore()"> A) ${data.a}</label>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="b" onclick="transmitRealtimeScore()"> B) ${data.b}</label>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="c" onclick="transmitRealtimeScore()"> C) ${data.c}</label>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="d" onclick="transmitRealtimeScore()"> D) ${data.d}</label>
+                    <div style="background:rgba(249, 115, 22, 0.1); padding:4px 12px; border-radius:8px; display:inline-block; margin-bottom:12px; font-size:11px; font-weight:700; color:var(--primary);">Question ${index+1} / 50</div>
+                    <p style="font-weight:600; font-size:15px; margin-bottom:15px; line-height:1.5; white-space: pre-wrap;">${escapeHtml(data.q)}</p>
+                    <label class="option-label"><input type="radio" name="graphQ_${index}" value="a" onclick="transmitRealtimeScore()"> A) ${escapeHtml(data.a)}</label>
+                    <label class="option-label"><input type="radio" name="graphQ_${index}" value="b" onclick="transmitRealtimeScore()"> B) ${escapeHtml(data.b)}</label>
+                    <label class="option-label"><input type="radio" name="graphQ_${index}" value="c" onclick="transmitRealtimeScore()"> C) ${escapeHtml(data.c)}</label>
+                    <label class="option-label"><input type="radio" name="graphQ_${index}" value="d" onclick="transmitRealtimeScore()"> D) ${escapeHtml(data.d)}</label>
                 `;
                 area.appendChild(card);
             });
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
         function transmitRealtimeScore() {
             if(gameMode !== "multiplayer") return;
             
             let tempCorrect = 0;
-            commsDataset.forEach((item, index) => {
-                const checked = document.querySelector(`input[name="commQ_${index}"]:checked`);
+            graphicsDataset.forEach((item, index) => {
+                const checked = document.querySelector(`input[name="graphQ_${index}"]:checked`);
                 if(checked && checked.value === item.ans) {
                     tempCorrect += 2;
                 }
@@ -931,14 +954,14 @@
 
         function submitGameAnswers() {
             let corr = 0, wrng = 0, skip = 0;
-            commsDataset.forEach((item, index) => {
-                const sel = document.querySelector(`input[name="commQ_${index}"]:checked`);
+            graphicsDataset.forEach((item, index) => {
+                const sel = document.querySelector(`input[name="graphQ_${index}"]:checked`);
                 if (!sel) skip++;
                 else if (sel.value === item.ans) corr++;
                 else wrng++;
             });
 
-            const finalPercent = Math.round((corr / commsDataset.length) * 100);
+            const finalPercent = Math.round((corr / graphicsDataset.length) * 100);
             document.getElementById('lblCorrectCount').innerText = corr;
             document.getElementById('lblWrongCount').innerText = wrng;
             document.getElementById('lblSkippedCount').innerText = skip;
@@ -977,13 +1000,13 @@
             clearInterval(matchTimerInterval);
             matchTimerInterval = null;
             
-            // अगर 30 सेकंड वाला वॉयस काउंटडाउन एक्टिव है तो उसे रोकें
+            // अगर 30 सेकंड वाला वॉयस काउंटडाउन एक्टिव है तो उसे बंद करें
             if (voiceCloseInterval) {
                 clearInterval(voiceCloseInterval);
                 voiceCloseInterval = null;
             }
             
-            closeAgoraVoiceChat(); // माइक बंद करें
+            closeAgoraVoiceChat(); // माइक और चैनल क्लोज करें
             
             if(roomUnsubscribeFunc) { roomUnsubscribeFunc(); roomUnsubscribeFunc = null; }
             document.getElementById('gameOverlay').style.display = 'none';

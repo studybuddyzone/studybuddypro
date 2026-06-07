@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Communication Arena | Study Buddy Premium</title>
+    <title>Physics Arena | Study Buddy Premium</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -18,12 +18,12 @@
             --bg: #0b0f19;
             --surface: #131c2e;
             --border: #222f47;
-            --primary: #06b6d4; /* Communication Color: Cyan */
-            --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            --primary: #3b82f6; /* Physics Color: Vibrant Blue */
+            --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --text: #f1f5f9;
+            --text: #f1f5fa;
             --text-muted: #64748b;
         }
 
@@ -93,8 +93,8 @@
         }
 
         .card-icon-wrapper {
-            background: rgba(6, 182, 212, 0.1);
-            border: 1px solid rgba(6, 182, 212, 0.2);
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
             width: 50px;
             height: 50px;
             border-radius: 14px;
@@ -117,7 +117,7 @@
 
         .btn-solo { background: #1e293b; border: 1px solid #334155; }
         .btn-solo:hover { background: #334155; }
-        .btn-battle { background: var(--primary-gradient); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3); }
+        .btn-battle { background: var(--primary-gradient); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
 
         /* Overlays */
         .game-overlay {
@@ -163,7 +163,7 @@
             border-radius: 14px; font-size: 16px; font-weight: 700; border: none; cursor: pointer;
         }
 
-        /* PRN Verification Gatekeeper Modal (For Player 2) */
+        /* PRN Verification Gatekeeper Modal */
         .auth-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(11, 15, 25, 0.97); z-index: 20000; justify-content: center; align-items: center; padding: 20px;
@@ -211,35 +211,54 @@
             font-weight: 700; cursor: pointer; color: #fff; transition: background 0.2s;
         }
         .btn-alert-close.danger { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-        .btn-alert-close.warning { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); }
+        .btn-alert-close.warning { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
 
-        /* MIC BUTTON STYLE (TOP-LEFT) */
+        /* NEW HIGH-END MIC BUTTON CONTAINER (TOP-LEFT) */
         .mic-control-box {
             display: none;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             background: #1e293b;
             border: 1px solid var(--border);
-            padding: 6px 14px;
-            border-radius: 20px;
+            padding: 6px 16px 6px 8px;
+            border-radius: 30px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
+        
+        /* PREMIUM GLOW MIC CONTROLLER BUTTON (BLUE THEME) */
         .btn-mic-toggle {
-            background: var(--primary-gradient);
-            border: none;
-            color: #fff;
-            width: 30px;
-            height: 30px;
+            background: #0f172a;
+            border: 2px solid #3b82f6;
+            color: #3b82f6;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
         }
+        .btn-mic-toggle i {
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        .btn-mic-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 18px rgba(59, 130, 246, 0.7);
+        }
+        
+        /* MUTED STATE (DANGER RED GLOW) */
         .btn-mic-toggle.muted {
-            background: var(--danger);
+            border-color: var(--danger);
+            color: var(--danger);
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+        }
+        .btn-mic-toggle.muted:hover {
+            box-shadow: 0 0 18px rgba(239, 68, 68, 0.7);
         }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -363,9 +382,9 @@
         </div>
 
         <div class="card-info">
-            <div class="card-icon-wrapper"><i class="fa-solid fa-comments" style="color:var(--primary);"></i></div>
+            <div class="card-icon-wrapper"><i class="fa-solid fa-atom" style="color:var(--primary);"></i></div>
             <div class="card-text">
-                <h4>Communication Skills</h4>
+                <h4>Engineering Physics</h4>
                 <p>50 Questions • 10 Minutes</p>
             </div>
         </div>
@@ -384,9 +403,9 @@
                     <button id="micToggleBtn" onclick="toggleMic()" class="btn-mic-toggle">
                         <i id="micIcon" class="fa-solid fa-microphone"></i>
                     </button>
-                    <span id="micStatusLabel" style="color: var(--primary);">Voice On</span>
+                    <span id="micStatusLabel" style="color: #3b82f6;">Voice On</span>
                 </div>
-                <h3 id="arenaTitle" style="font-size:16px;">Communication Arena</h3>
+                <h3 id="arenaTitle" style="font-size:16px;">Physics Arena</h3>
             </div>
             
             <div id="liveTimer" style="background:var(--danger); padding:5px 14px; border-radius:20px; font-weight:700; font-size:13px;">10:00</div>
@@ -402,7 +421,7 @@
                     <input type="text" id="inviteUrlInput" readonly>
                     <button onclick="copyInviteLink()" class="btn-copy"><i class="fa-solid fa-copy"></i></button>
                 </div>
-                <p style="font-size:11px; color:#22d3ee; margin-top:12px;">जैसे ही आपका दोस्त लिंक से 16-अंकीय PRN वेरीफाई करेगा, मैच शुरू हो जाएगा।</p>
+                <p style="font-size:11px; color:#3b82f6; margin-top:12px;">जैसे ही आपका दोस्त लिंक से 16-अंकीय PRN वेरीफाई करेगा, मैच शुरू हो जाएगा।</p>
             </div>
         </div>
 
@@ -421,7 +440,7 @@
 
     <div id="prnGatekeeperModal" class="auth-modal">
         <div class="auth-card">
-            <div style="background:rgba(6, 182, 212, 0.1); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
+            <div style="background:rgba(59, 130, 246, 0.1); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;">
                 <i class="fa-solid fa-shield-halved" style="color:var(--primary); font-size:24px;"></i>
             </div>
             <h3 style="margin-bottom:5px;">Enter PRN to Join</h3>
@@ -480,58 +499,11 @@
         firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
 
-        // 50 Communication Skills Dataset
-        const commsDataset = [
-            {q: "Communication is a ______ process of exchanging information, ideas, and feelings.", a: "One-way", b: "Two-way", c: "Three-way", d: "Static", ans: "b"},
-            {q: "The person who converts a thought into a message and initiates communication is called the ______.", a: "Receiver", b: "Sender", c: "Decoder", d: "Channel", ans: "b"},
-            {q: "Transforming internal ideas and thoughts into a symbolic language or code is known as ______.", a: "Decoding", b: "Encoding", c: "Feedback", d: "Filtering", ans: "b"},
-            {q: "The response or reaction given by the receiver back to the sender is termed as ______.", a: "Noise", b: "Feedback", c: "Context", d: "Channel", ans: "b"},
-            {q: "Any disturbance or barrier that degrades or interferes with the transmission of a message is called ______.", a: "Medium", b: "Noise", c: "Decoder", d: "Protocol", ans: "b"},
-            {q: "Which type of communication involves using spoken or written words to share information?", a: "Non-verbal", b: "Verbal", c: "Visual", d: "Paralinguistic", ans: "b"},
-            {q: "Body movements, facial expressions, eye contact, and gestures fall under ______ communication.", a: "Verbal", b: "Non-verbal", c: "Written", d: "Formal", ans: "b"},
-            {q: "The study of body language, postures, gestures, and facial expressions is technically called ______.", a: "Proxemics", b: "Kinesics", c: "Chronemics", d: "Haptics", ans: "b"},
-            {q: "The study of how space and distance between people affect communication is known as ______.", a: "Kinesics", b: "Proxemics", c: "Haptics", d: "Chronemics", ans: "b"},
-            {q: "Communication through touch (e.g., handshakes, pats on the back) is studied under ______.", a: "Proxemics", b: "Haptics", c: "Chronemics", d: "Vocalics", ans: "b"},
-            {q: "The study of how time is used and perceived in non-verbal communication is called ______.", a: "Kinesics", b: "Chronemics", c: "Haptics", d: "Proxemics", ans: "b"},
-            {q: "Tone of voice, pitch, speed of speaking, and volume are elements of ______.", a: "Verbal Text", b: "Paralanguage / Vocalics", c: "Kinesics", d: "Chronemics", ans: "b"},
-            {q: "Which of the following is considered an official, documented channel of communication in companies?", a: "Grapevine", b: "Formal Communication", c: "Informal chat", d: "Rumor mill", ans: "b"},
-            {q: "Informal, unstructured communication inside an organization is popularly known as ______.", a: "Vertical channel", b: "Grapevine", c: "Horizontal matrix", d: "Statutory flow", ans: "b"},
-            {q: "When a manager issues an instruction or policy guidelines to subordinates, it is ______ communication.", a: "Downward", b: "Upward", c: "Horizontal", d: "External", ans: "b"},
-            {q: "When an employee submits a progress report or grievance to higher management, it is ______ communication.", a: "Downward", b: "Upward", c: "Horizontal", d: "Lateral", ans: "b"},
-            {q: "Communication taking place between peers or employees working at the same hierarchy level is ______.", a: "Downward", b: "Horizontal / Lateral", c: "Upward", d: "Diagonal", ans: "b"},
-            {q: "Communication that crosses both functional sections and organizational hierarchies is called ______.", a: "Vertical", b: "Diagonal / Cross-functional", c: "Horizontal", d: "Linear", ans: "b"},
-            {q: "Physical barriers to communication include which of the following?", a: "Emotional stress", b: "Distance and loud background noise", c: "Language differences", d: "Cultural bias", ans: "b"},
-            {q: "An individual's personal biases, stereotypes, or emotional state create ______ barriers.", a: "Physical", b: "Psychological / Emotional", c: "Technical", d: "Environmental", ans: "b"},
-            {q: "Barriers caused due to differences in vocabulary, grammar, languages, or jargon are called ______.", a: "Psychological", b: "Semantic / Linguistic", c: "Socio-cultural", d: "Organizational", ans: "b"},
-            {q: "Using overly complex words or industry-specific technical jargon can act as a ______ barrier.", a: "Physical", b: "Semantic", c: "Mechanical", d: "Chronemic", ans: "b"},
-            {q: "Which of the following is an effective way to minimize or overcome communication barriers?", a: "Using ambiguous text", b: "Active listening and seeking clarification", c: "Ignoring feedback", d: "Speaking rapidly", ans: "b"},
-            {q: "Hearing is a passive physical process, whereas Listening is an ______ mental process.", a: "Involuntary", b: "Active and cognitive", c: "Accidental", d: "Subconscious", ans: "b"},
-            {q: "An active listener does which of the following?", a: "Interrupts frequently", b: "Maintains eye contact and nods appropriately", c: "Formulates counter-arguments while listening", d: "Looks around the room constantly", ans: "b"},
-            {q: "Listening to a speech or pitch specifically to evaluate, judge, and analyze the logic is ______ listening.", a: "Appreciative", b: "Critical / Evaluative", c: "Empathetic", d: "Passive", ans: "b"},
-            {q: "Listening with the intent to deeply understand and share the speaker's emotions and feelings is ______.", a: "Informational", b: "Empathetic", c: "Critical", d: "Superficial", ans: "b"},
-            {q: "The acronym used to describe the 7 fundamental principles of effective communication is the ______.", a: "5Ws", b: "7 Cs of Communication", c: "SMART rules", d: "PDCA cycle", ans: "b"},
-            {q: "In the 7 Cs, 'Concision' or being 'Concise' means ______.", a: "Providing lengthy details", b: "Expressing ideas in the fewest words possible without losing impact", c: "Using abstract symbols", d: "Repeating data for clarity", ans: "b"},
-            {q: "Which 'C' states that all facts, figures, and grammar in the message must be accurate?", a: "Clarity", b: "Correctness", c: "Completeness", d: "Consideration", ans: "b"},
-            {q: "The principle of 'Consideration' emphasizes adopting a ______ approach towards the audience.", a: "Self-centered", b: "You-attitude", c: "Neutral-attitude", d: "Critical-attitude", ans: "b"},
-            {q: "A professional business email should always contain a clear, relevant ______ line.", a: "Signature", b: "Subject", c: "Salutation", d: "Disclaimer", ans: "b"},
-            {q: "What does the abbreviation 'Bcc' stand for in corporate email clients?", a: "Business Carbon Copy", b: "Blind Carbon Copy", c: "Brief Core Communication", d: "Backup Carbon Copy", ans: "b"},
-            {q: "Writing an entire email or chat message in ALL CAPITAL LETTERS is considered ______ in digital etiquette.", a: "Highly professional", b: "Rude or equivalent to shouting", c: "Urgent", d: "Creative", ans: "b"},
-            {q: "A short text appended at the end of an email containing contact info and designation is called a ______.", a: "Header", b: "Signature Block", c: "Salutation", d: "Eclosures", ans: "b"},
-            {q: "Which of the following is considered an appropriate formal salutation for a business letter?", a: "Hey dude,", b: "Dear Sir/Madam,", c: "Yo,", d: "What's up,", ans: "b"},
-            {q: "During a professional presentation, the slide content should ideally consist of ______.", a: "Full paragraphs copied directly", b: "Key bullet points and visual aids", c: "No text at all", d: "Random decorative images", ans: "b"},
-            {q: "What is the primary purpose of a Group Discussion (GD) in professional recruitment?", a: "To prove oneself as the loudest speaker", b: "To evaluate interpersonal, leadership, and team skills", c: "To argue and defeat others", d: "To test individual spelling memory", ans: "b"},
-            {q: "If you disagree with another participant in a Group Discussion, you should say ______.", a: "You are completely wrong.", b: "I see your point, but I respectfully look at it differently because...", c: "Shut up and listen to me.", d: "Your data makes no sense.", ans: "b"},
-            {q: "Before a job interview, conducting thorough research about the company is an example of ______.", a: "Wasting time", b: "Proactive interview preparation", c: "Over-confidence", d: "Informal networking", ans: "b"},
-            {q: "During an interview, your posture should ideally be ______.", a: "Slouched back comfortably", b: "Straight up but relaxed, leaning slightly forward", c: "Stiff with crossed arms", d: "Constantly moving", ans: "b"},
-            {q: "Which type of report is prepared at fixed, regular intervals (e.g., weekly, monthly)?", a: "Special Report", b: "Periodic / Routine Report", c: "Informal Memo", d: "Ad-hoc Report", ans: "b"},
-            {q: "The list of topics or items to be discussed systematically in an upcoming meeting is called the ______.", a: "Minutes", b: "Agenda", c: "Circular", d: "Notice", ans: "b"},
-            {q: "The official written record of discussions, decisions, and resolutions passed in a meeting is called ______.", a: "Memorandum", b: "Minutes of the Meeting", c: "Agenda sheet", d: "Prospectus", ans: "b"},
-            {q: "A brief, informal internal written message shared within the same office building is a ______.", a: "Business Letter", b: "Memorandum (Memo)", c: "Press Release", d: "Tender Notice", ans: "b"},
-            {q: "Proxemics states that the 'Intimate Zone' typically ranges from ______.", a: "4 feet to 12 feet", b: "0 to 18 inches", c: "12 feet to 25 feet", d: "4 inches to 4 feet", ans: "b"},
-            {q: "Interpersonal communication involves communication between ______.", a: "An individual and a mass audience", b: "Two or more individuals face-to-face", c: "An individual with themselves", d: "Computers via routers", ans: "b"},
-            {q: "Intrapersonal communication refers to communication with ______.", a: "External clients", b: "Oneself (internal thinking/journaling)", c: "Board of Directors", d: "Media reporters", ans: "b"},
-            {q: "Which of the following describes high-quality feedback?", a: "Vague and delayed", b: "Specific, constructive, and timely", c: "Negative and destructive", d: "One-word evaluations", ans: "b"},
-            {q: "The final step in the communication loop or process that completes the circuit is ______.", a: "Transmission", b: "Feedback verification", c: "Decoding symbols", d: "Media selection", ans: "b"}
+        // Placeholder for 50 Engineering Physics Dataset (आप यहाँ अपने प्रशनों की लिस्ट पेस्ट कर सकते हैं)
+        const physicsDataset = [
+            {q: "Which of the following describes the nature of ultrasonic waves?", a: "Electromagnetic", b: "Longitudinal mechanical", c: "Transverse mechanical", d: "Magnetic", ans: "b"},
+            {q: "The phenomenon used in the production of ultrasonic waves by a piezoelectric crystal is ______.", a: "Magnetostriction effect", b: "Inverse piezoelectric effect", c: "Doppler effect", d: "Joule effect", ans: "b"}
+            // बाकी के प्रशन यहाँ जोड़े जा सकते हैं...
         ];
 
         // Global Engine State
@@ -556,7 +528,7 @@
             const room = urlParams.get('room');
             const sub = urlParams.get('subject');
             
-            if(room && sub === 'communication') {
+            if(room && sub === 'physics') {
                 pendingRoomIdToJoin = room;
                 document.getElementById('prnGatekeeperModal').style.display = 'flex';
             }
@@ -645,7 +617,7 @@
                 if (isValid) {
                     myPrnNumber = dashPrn;
                     gameMode = "solo";
-                    document.getElementById('arenaTitle').innerText = "Communication Solo Mode";
+                    document.getElementById('arenaTitle').innerText = "Physics Solo Mode";
                     document.getElementById('lobbyPanel').style.display = "none";
                     document.getElementById('scoreboard').style.display = "none";
                     document.getElementById('micControlBox').style.display = "none"; // Hide Mic in Solo
@@ -679,11 +651,11 @@
                 document.getElementById('gameOverlay').style.display = "block";
                 document.body.style.overflow = "hidden";
 
-                const inviteUrl = window.location.origin + window.location.pathname + "?room=" + currentRoomId + "&subject=communication";
+                const inviteUrl = window.location.origin + window.location.pathname + "?room=" + currentRoomId + "&subject=physics";
                 
                 firestore.collection("rooms").doc(currentRoomId).set({
                     roomId: currentRoomId,
-                    subject: "communication",
+                    subject: "physics",
                     status: "waiting",
                     hostPrn: myPrnNumber,
                     player2Prn: "", 
@@ -713,7 +685,7 @@
 
             firestore.collection("rooms").doc(roomId).get().then((doc) => {
                 if (doc.exists && doc.data().status === "waiting") {
-                    document.getElementById('arenaTitle').innerText = "Communication Live 1v1 Arena";
+                    document.getElementById('arenaTitle').innerText = "Physics Live 1v1 Arena";
                     document.getElementById('lobbyPanel').style.display = "none";
                     document.getElementById('gameOverlay').style.display = "block";
                     document.body.style.overflow = "hidden";
@@ -723,7 +695,7 @@
                         player2Prn: myPrnNumber
                     });
                 } else {
-                    triggerCustomAlert("EXPIRED ROOM", "यह ROOM अमान्य है या मैच पहले ही समाप्त हो चुका है!", "danger");
+                    triggerCustomAlert("EXPIRED ROOM", "यह रूम कोड अमान्य है या मैच खत्म हो चुका है!", "danger");
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
             }).then(() => {
@@ -765,7 +737,7 @@
                     clearInterval(matchTimerInterval);
                     evaluateFinalResults(roomData);
                     
-                    // बदलाव: मैच ख़त्म होने के बाद 30 सेकंड का टाइमर शुरू करें
+                    // मैच ख़त्म होने के बाद 30 सेकंड का रिवर्स टाइमर शुरू करें
                     startVoiceCloseTimeout();
                 }
             });
@@ -837,13 +809,13 @@
 
         // 30 Seconds Auto Disconnect Engine After Match Ends
         function startVoiceCloseTimeout() {
-            if (voiceCloseInterval) return; // Prevent double trigger
+            if (voiceCloseInterval) return; 
 
             let secondsLeftForVoice = 30;
             const label = document.getElementById('micStatusLabel');
             
             if (label) {
-                label.innerText = `Voice closing in ${secondsLeftForVoice}s`;
+                label.innerText = `Closing in ${secondsLeftForVoice}s`;
                 label.style.color = "var(--warning)";
             }
 
@@ -851,14 +823,14 @@
                 secondsLeftForVoice--;
                 
                 if (label) {
-                    label.innerText = `Voice closing in ${secondsLeftForVoice}s`;
+                    label.innerText = `Closing in ${secondsLeftForVoice}s`;
                 }
 
                 if (secondsLeftForVoice <= 0) {
                     clearInterval(voiceCloseInterval);
                     voiceCloseInterval = null;
                     
-                    // 30 सेकंड ख़त्म होते ही माइक बंद कर दें
+                    // 30 सेकंड ख़त्म होते ही माइक और चैनल बंद कर दें
                     closeAgoraVoiceChat(); 
                 }
             }, 1000);
@@ -880,28 +852,32 @@
             const area = document.getElementById('dynamicQuizArea');
             area.innerHTML = "";
             
-            commsDataset.forEach((data, index) => {
+            physicsDataset.forEach((data, index) => {
                 const card = document.createElement('div');
                 card.style = "background:var(--surface); border-radius:16px; padding:20px; margin-bottom:20px; border:1px solid var(--border);";
                 
                 card.innerHTML = `
-                    <div style="background:rgba(6, 182, 212, 0.1); padding:4px 12px; border-radius:8px; display:inline-block; margin-bottom:12px; font-size:11px; font-weight:700; color:var(--primary);">Question ${index+1} / 50</div>
-                    <p style="font-weight:600; font-size:15px; margin-bottom:15px; line-height:1.5;">${data.q}</p>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="a" onclick="transmitRealtimeScore()"> A) ${data.a}</label>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="b" onclick="transmitRealtimeScore()"> B) ${data.b}</label>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="c" onclick="transmitRealtimeScore()"> C) ${data.c}</label>
-                    <label class="option-label"><input type="radio" name="commQ_${index}" value="d" onclick="transmitRealtimeScore()"> D) ${data.d}</label>
+                    <div style="background:rgba(59, 130, 246, 0.1); padding:4px 12px; border-radius:8px; display:inline-block; margin-bottom:12px; font-size:11px; font-weight:700; color:var(--primary);">Question ${index+1} / 50</div>
+                    <p style="font-weight:600; font-size:15px; margin-bottom:15px; line-height:1.5; white-space: pre-wrap;">${escapeHtml(data.q)}</p>
+                    <label class="option-label"><input type="radio" name="physQ_${index}" value="a" onclick="transmitRealtimeScore()"> A) ${escapeHtml(data.a)}</label>
+                    <label class="option-label"><input type="radio" name="physQ_${index}" value="b" onclick="transmitRealtimeScore()"> B) ${escapeHtml(data.b)}</label>
+                    <label class="option-label"><input type="radio" name="physQ_${index}" value="c" onclick="transmitRealtimeScore()"> C) ${escapeHtml(data.c)}</label>
+                    <label class="option-label"><input type="radio" name="physQ_${index}" value="d" onclick="transmitRealtimeScore()"> D) ${escapeHtml(data.d)}</label>
                 `;
                 area.appendChild(card);
             });
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
         function transmitRealtimeScore() {
             if(gameMode !== "multiplayer") return;
             
             let tempCorrect = 0;
-            commsDataset.forEach((item, index) => {
-                const checked = document.querySelector(`input[name="commQ_${index}"]:checked`);
+            physicsDataset.forEach((item, index) => {
+                const checked = document.querySelector(`input[name="physQ_${index}"]:checked`);
                 if(checked && checked.value === item.ans) {
                     tempCorrect += 2;
                 }
@@ -931,14 +907,14 @@
 
         function submitGameAnswers() {
             let corr = 0, wrng = 0, skip = 0;
-            commsDataset.forEach((item, index) => {
-                const sel = document.querySelector(`input[name="commQ_${index}"]:checked`);
+            physicsDataset.forEach((item, index) => {
+                const sel = document.querySelector(`input[name="physQ_${index}"]:checked`);
                 if (!sel) skip++;
                 else if (sel.value === item.ans) corr++;
                 else wrng++;
             });
 
-            const finalPercent = Math.round((corr / commsDataset.length) * 100);
+            const finalPercent = Math.round((corr / physicsDataset.length) * 100);
             document.getElementById('lblCorrectCount').innerText = corr;
             document.getElementById('lblWrongCount').innerText = wrng;
             document.getElementById('lblSkippedCount').innerText = skip;
@@ -977,13 +953,13 @@
             clearInterval(matchTimerInterval);
             matchTimerInterval = null;
             
-            // अगर 30 सेकंड वाला वॉयस काउंटडाउन एक्टिव है तो उसे रोकें
+            // अगर 30 सेकंड वाला वॉयस काउंटडाउन एक्टिव है तो उसे बंद करें
             if (voiceCloseInterval) {
                 clearInterval(voiceCloseInterval);
                 voiceCloseInterval = null;
             }
             
-            closeAgoraVoiceChat(); // माइक बंद करें
+            closeAgoraVoiceChat(); // माइक और चैनल क्लोज करें
             
             if(roomUnsubscribeFunc) { roomUnsubscribeFunc(); roomUnsubscribeFunc = null; }
             document.getElementById('gameOverlay').style.display = 'none';
