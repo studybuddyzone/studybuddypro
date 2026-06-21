@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Master Panel | Study Zone</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght=600;700;800;900&family=Poppins:wght=400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#0f1117;
+    --card:#1a1d27;
+    --border:#252836;
+    --accent:#6366f1;
+    --green:#22c55e;
+    --red:#ef4444;
+    --warn:#f59e0b;
+    --text:#f1f5f9;
+    --muted:#94a3b8;
+    --silver:#94a3b8;
+    --gold:#f59e0b;
+    --diamond:#22d3ee;
+  }
+  body{
+    font-family:'Poppins',sans-serif;
+    background:var(--bg);color:var(--text);
+    min-height:100vh;
+  }
+  header{
+    background:var(--card);
+    border-bottom:1px solid var(--border);
+    padding:18px 28px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .logo{
+    font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;
+    background:linear-gradient(90deg,var(--accent),var(--diamond));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .admin-badge{
+    background:rgba(99,102,241,0.15);border:1px solid var(--accent);
+    color:var(--accent);padding:4px 14px;border-radius:20px;
+    font-size:12px;font-weight:700;letter-spacing:0.5px;
+  }
+  .stats-bar{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+    padding:24px 28px 0;
+  }
+  .stat{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:16px 20px;
+  }
+  .stat-num{
+    font-family:'Nunito',sans-serif;font-weight:900;font-size:28px;
+  }
+  .stat-label{font-size:12px;color:var(--muted);margin-top:2px;}
+
+  .filter-bar{
+    padding:20px 28px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  }
+  .filter-btn{
+    padding:7px 16px;border-radius:8px;border:1px solid var(--border);
+    background:transparent;color:var(--muted);font-family:'Poppins',sans-serif;
+    font-size:13px;cursor:pointer;font-weight:500;transition:all 0.2s;
+  }
+  .filter-btn.active,.filter-btn:hover{
+    background:var(--accent);border-color:var(--accent);color:#fff;
+  }
+  .refresh-btn{
+    margin-left:auto;padding:7px 16px;border-radius:8px;
+    border:1px solid var(--border);background:transparent;
+    color:var(--muted);font-family:'Poppins',sans-serif;
+    font-size:13px;cursor:pointer;transition:all 0.2s;
+  }
+  .refresh-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+  .requests-grid{
+    padding:20px 28px;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+    gap:16px;
+  }
+  .card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:16px;padding:20px;
+    transition:transform 0.2s;
+    position:relative;overflow:hidden;
+  }
+  .card:hover{transform:translateY(-2px);}
+  .card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  }
+  .card.pending::before{background:var(--warn);}
+  .card.approved::before{background:var(--green);}
+  .card.rejected::before{background:var(--red);}
+
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+  .user-name{font-weight:700;font-size:16px;}
+  .user-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+  .status-pill{
+    padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;
+    letter-spacing:0.5px;white-space:nowrap;
+  }
+  .pill-pending{background:rgba(245,158,11,0.15);color:var(--warn);border:1px solid rgba(245,158,11,0.3);}
+  .pill-approved{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3);}
+  .pill-expired{background:rgba(100,116,139,0.15);color:#94a3b8;border:1px solid rgba(100,116,139,0.3);}
+  .pill-rejected{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+
+  .tier-row{
+    display:flex;align-items:center;gap:8px;margin-bottom:12px;
+    padding:10px 14px;background:#12141e;border-radius:10px;
+  }
+  .tier-badge{
+    padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;
+    letter-spacing:0.5px;
+  }
+  .tb-silver{background:rgba(148,163,184,0.15);color:var(--silver);}
+  .tb-gold{background:rgba(245,158,11,0.15);color:var(--gold);}
+  .tb-diamond{background:rgba(34,211,238,0.15);color:var(--diamond);}
+
+  .amount-info{flex:1;}
+  .amount-main{font-family:'Nunito',sans-serif;font-weight:900;font-size:18px;}
+  .amount-sub{font-size:11px;color:var(--muted);}
+  .amount-enough{color:var(--green);}
+  .amount-partial{color:var(--warn);}
+
+  .progress-bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin:8px 0;}
+  .progress-fill{height:100%;border-radius:99px;transition:width 0.4s;}
+  .fill-full{background:linear-gradient(90deg,#22c55e,#16a34a);}
+  .fill-partial{background:linear-gradient(90deg,#f59e0b,#d97706);}
+
+  .timer{font-size:11px;color:var(--muted);margin-bottom:12px;}
+  .timer.urgent{color:var(--red);}
+
+  .screenshot-thumb{
+    width:100%;height:140px;object-fit:cover;
+    border-radius:8px;margin-bottom:12px;cursor:pointer;
+    border:1px solid var(--border);
+    transition:opacity 0.2s;
+  }
+  .screenshot-thumb:hover{opacity:0.85;}
+
+  .action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .btn-approve,.btn-reject{
+    padding:10px;border:none;border-radius:10px;
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;
+    cursor:pointer;transition:opacity 0.2s,transform 0.1s;
+  }
+  .btn-approve{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;}
+  .btn-reject{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;}
+  .btn-approve:hover,.btn-reject:hover{opacity:0.88;transform:translateY(-1px);}
+  .btn-approve:disabled,.btn-reject:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+
+  .info-chip{
+    display:inline-flex;align-items:center;gap:4px;
+    background:#12141e;border:1px solid var(--border);
+    border-radius:6px;padding:3px 8px;
+    font-size:11px;color:var(--muted);margin:2px 2px 8px 0;
+  }
+
+  .empty-state{
+    grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted);
+  }
+  .empty-icon{font-size:48px;margin-bottom:12px;}
+
+  /* Lightbox */
+  .lightbox{
+    display:none;position:fixed;inset:0;
+    background:rgba(0,0,0,0.92);z-index:999;
+    align-items:center;justify-content:center;
+  }
+  .lightbox.open{display:flex;}
+  .lightbox img{max-width:90%;max-height:90%;border-radius:12px;object-fit:contain;}
+  .lightbox-close{
+    position:absolute;top:20px;right:24px;
+    color:#fff;font-size:32px;cursor:pointer;background:none;border:none;
+  }
+
+  .toast{
+    position:fixed;bottom:24px;right:24px;
+    background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:14px 20px;
+    font-size:14px;font-weight:600;
+    box-shadow:0 8px 32px rgba(0,0,0,0.4);
+    transform:translateY(100px);opacity:0;
+    transition:all 0.3s;z-index:999;
+  }
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast.success{border-left:4px solid var(--green);}
+  .toast.error{border-left:4px solid var(--red);}
+
+  @media(max-width:600px){
+    .stats-bar{grid-template-columns:1fr 1fr;}
+    .requests-grid{padding:16px;}
+    header{padding:14px 16px;}
+    .stats-bar,.filter-bar{padding-left:16px;padding-right:16px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">📋 Admin Master Panel</span>
+  <span class="admin-badge">ADMIN ONLY</span>
+</header>
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-num" id="statTotal" style="color:var(--accent)">0</div>
+    <div class="stat-label">Total Requests</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" id="statPending" style="color:var(--warn)">0</div>
+    <div class="stat-label">Pending</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" id="statApproved" style="color:var(--green)">0</div>
+    <div class="stat-label">Approved</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" id="statRejected" style="color:var(--red)">0</div>
+    <div class="stat-label">Rejected / Expired</div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+  <button class="filter-btn" onclick="setFilter('pending',this)">⏳ Pending</button>
+  <button class="filter-btn" onclick="setFilter('approved',this)">✅ Approved</button>
+  <button class="filter-btn" onclick="setFilter('rejected',this)">❌ Rejected</button>
+  <button class="refresh-btn" onclick="loadRequests()">↻ Refresh</button>
+</div>
+
+<div class="requests-grid" id="requestsGrid">
+  <div class="empty-state">
+    <div class="empty-icon">⏳</div>
+    <div>Loading requests...</div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="Screenshot"/>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, getDocs, doc, updateDoc,
+  setDoc as fsSetDoc, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getDatabase, ref as rtdbRef, update as rtdbUpdate,
+  set as rtdbSet, get as rtdbGet
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// आपका ओरिजिनल कॉन्फ़िगरेशन
+const firebaseConfig = {
+  apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+  authDomain: "students-e5183.firebaseapp.com",
+  databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+  projectId: "students-e5183",
+  storageBucket: "students-e5183.firebasestorage.app",
+  messagingSenderId: "473442117683",
+  appId: "1:473442117683:web:f39adc0665317aa95e9b46",
+  measurementId: "G-DT4XQLZJW3"
+};
+
+const app = initializeApp(firebaseConfig);
+const rtdb = getDatabase(app);   // Realtime DB — role update
+const db = getFirestore(app);
+
+let allRequests = [];
+let currentFilter = 'all';
+
+const TIER_LABELS = { silver:'🥈 Silver', gold:'🥇 Gold', diamond:'💎 Diamond' };
+const TIER_CLASS  = { silver:'tb-silver', gold:'tb-gold', diamond:'tb-diamond' };
+
+window.setFilter = function(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRequests();
+};
+
+window.loadRequests = async function() {
+  document.getElementById('requestsGrid').innerHTML =
+    `<div class="empty-state"><div class="empty-icon">⏳</div><div>Loading requests...</div></div>`;
+
+  try {
+    // सबसे पहले कस्टमाइज्ड ऑर्डर में डेटा लाने की कोशिश करें
+    const q = query(collection(db, 'requests'), orderBy('submittedAt', 'desc'));
+    const snap = await getDocs(q);
+    allRequests = [];
+    snap.forEach(docSnap => {
+      allRequests.push({ key: docSnap.id, ...docSnap.data() });
+    });
+  } catch(e) {
+    console.warn('Ordered query failed, falling back to unordered fetch:', e.message);
+    try {
+      // अगर Index नहीं बना है, तो बिना orderBy के सारा डेटा फेच करें ताकि स्क्रीन खाली न रहे
+      const snap = await getDocs(collection(db, 'requests'));
+      allRequests = [];
+      snap.forEach(docSnap => {
+        allRequests.push({ key: docSnap.id, ...docSnap.data() });
+      });
+      allRequests.sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
+    } catch(e2) {
+      document.getElementById('requestsGrid').innerHTML =
+        `<div class="empty-state"><div class="empty-icon">❌</div><div>Error loading database: ${e2.message}</div></div>`;
+      return;
+    }
+  }
+
+  // पुराने रिक्वेस्ट्स को बिना क्रैश किए सुरक्षित तरीके से ऑटो-रिजेक्ट करें
+  const now = Date.now();
+  for (const r of allRequests) {
+    // Auto-reject pending requests after 24 hours
+    if ((r.status === 'pending' || !r.status) && r.expiresAt && now > r.expiresAt) {
+      try {
+        await autoReject(r);
+        r.status = 'rejected';
+        r.rejectedReason = 'Auto-rejected: 24 hours expired';
+      } catch(err) {
+        console.error("Skipping faulty auto-reject for card:", r.key);
+      }
+    }
+    // Auto-expire premium — if 30 days passed, reset role to 'student'
+    if (r.status === 'approved' && r.premiumUntil && now > r.premiumUntil) {
+      try {
+        await autoExpirePremium(r);
+      } catch(err) {
+        console.error('Skipping faulty auto-expire for:', r.key);
+      }
+    }
+  }
+
+  updateStats();
+  renderRequests();
+};
+
+// Auto-expire premium after 30 days → reset role to 'student'
+async function autoExpirePremium(r) {
+  try {
+    const safeKey = r.safeKey || r.prn;
+    const now = Date.now();
+
+    // Mark request as expired
+    await updateDoc(doc(db, 'requests', r.key), {
+      status: 'expired',
+      expiredAt: now,
+    });
+
+    // Update payments doc
+    if (safeKey) {
+      await updateDoc(doc(db, 'payments', safeKey), {
+        status: 'expired',
+        unlocked: false,
+        expiredAt: now,
+      });
+    }
+
+    // Reset RTDB role → 'student'
+    if (safeKey) {
+      try {
+        await rtdbUpdate(rtdbRef(rtdb, `users/${safeKey}`), {
+          role: 'student',
+          premiumExpiredAt: now,
+        });
+      } catch(e) {
+        console.warn('RTDB expire update failed:', e.message);
+      }
+    }
+
+    // Reset Firestore users doc role
+    if (safeKey) {
+      try {
+        await updateDoc(doc(db, 'users', safeKey), {
+          role: 'student',
+          premiumExpiredAt: now,
+        });
+      } catch(e) {
+        console.warn('Firestore users expire update skipped:', e.message);
+      }
+    }
+
+    console.log(`✅ Auto-expired premium for ${safeKey}`);
+  } catch(e) {
+    console.error('Auto-expire error:', e);
+  }
+}
+
+async function autoReject(r) {
+  try {
+    await updateDoc(doc(db, 'requests', r.key), {
+      status: 'rejected',
+      rejectedReason: 'Auto-rejected after 24 hours',
+      rejectedAt: Date.now()
+    });
+    const safeKey = r.safeKey || r.email || r.emailRaw;
+    if (safeKey) {
+      await updateDoc(doc(db, 'payments', safeKey), {
+        status: 'rejected',
+        rejectedAt: Date.now(),
+      });
+    }
+  } catch(e) {
+    console.error('Auto-reject background error:', e);
+  }
+}
+
+function updateStats() {
+  const pending  = allRequests.filter(r => r.status === 'pending' || !r.status).length;
+  const expired  = allRequests.filter(r => r.status === 'expired').length;
+  const approved = allRequests.filter(r => r.status === 'approved').length;
+  const rejected = allRequests.filter(r => r.status === 'rejected').length;
+  document.getElementById('statTotal').textContent   = allRequests.length;
+  document.getElementById('statPending').textContent  = pending;
+  document.getElementById('statApproved').textContent = approved;
+  document.getElementById('statRejected').textContent = rejected;
+}
+
+function renderRequests() {
+  const grid = document.getElementById('requestsGrid');
+  
+  // फ़िल्टर लॉजिक में सुरक्षा (मिसिंग स्टेटस को 'pending' मानेंगे)
+  const filtered = currentFilter === 'all'
+    ? allRequests
+    : allRequests.filter(r => {
+        const s = r.status || 'pending';
+        return s === currentFilter;
+      });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div>No ${currentFilter === 'all' ? '' : currentFilter} requests found</div></div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(r => {
+    const currentStatus = r.status || 'pending';
+    const now = Date.now();
+    const remaining = r.expiresAt ? (r.expiresAt - now) : 0;
+    const hrs  = Math.max(0, Math.floor(remaining / 3600000));
+    const mins = Math.max(0, Math.floor((remaining % 3600000) / 60000));
+    const timerText = currentStatus === 'pending'
+      ? (remaining > 0 ? `⏰ Auto-reject in ${hrs}h ${mins}m` : '⚠️ Expired — pending action')
+      : '';
+    const timerClass = hrs < 3 ? 'urgent' : '';
+
+    const pct = Math.min(100, Math.round(((r.totalPaid || 0) / (r.requiredAmount || 1)) * 100));
+    const isEnough   = !!r.isEnough;
+    const amountClass = isEnough ? 'amount-enough' : 'amount-partial';
+    const fillClass   = isEnough ? 'fill-full' : 'fill-partial';
+    
+    let date = "Unknown Date";
+    if (r.submittedAt) {
+      try { date = new Date(r.submittedAt).toLocaleString('en-IN'); } catch(e){}
+    }
+    
+    const isPending = currentStatus === 'pending';
+    const screenshotSrc = r.screenshotBase64 || r.screenshotUrl || '';
+    const safeKeyToPass = r.safeKey || r.email || r.emailRaw || '';
+
+    return `
+    <div class="card ${currentStatus}" id="card-${r.key}">
+      <div class="card-top">
+        <div>
+          <div class="user-name">${r.name || 'Anonymous User'}</div>
+          <div class="user-sub">PRN: <strong>${r.prn || '—'}</strong></div>
+          <div class="user-sub">✉️ ${r.email || r.emailRaw || 'No Email Provided'}</div>
+        </div>
+        <span class="status-pill pill-${currentStatus}">
+          ${currentStatus === 'pending' ? '⏳ PENDING' : currentStatus === 'approved' ? '✅ APPROVED' : currentStatus === 'expired' ? '⌛ EXPIRED' : '❌ REJECTED'}
+        </span>
+      </div>
+
+      <div class="tier-row">
+        <span class="tier-badge ${TIER_CLASS[r.tier] || ''}">${TIER_LABELS[r.tier] || r.tier || 'Standard'}</span>
+        <div class="amount-info">
+          <div class="amount-main ${amountClass}">₹${r.totalPaid || 0} <span style="font-size:13px;color:var(--muted)">/ ₹${r.requiredAmount || 0}</span></div>
+          <div class="amount-sub">${isEnough ? '✅ Full payment' : `⚠️ Partial — ₹${(r.requiredAmount || 0) - (r.totalPaid || 0)} remaining`}</div>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill ${fillClass}" style="width:${pct}%"></div>
+      </div>
+
+      ${isPending ? `<div class="timer ${timerClass}">${timerText}</div>` : ''}
+      ${r.rejectedReason ? `<div style="font-size:11px;color:var(--red);margin-bottom:8px;">❌ Reason: ${r.rejectedReason}</div>` : ''}
+
+      ${currentStatus === 'approved' && r.premiumSince && r.premiumUntil ? `
+        <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:11px;line-height:1.8;">
+          <div style="font-weight:700;color:var(--green);margin-bottom:4px;">📅 Premium Validity</div>
+          <div style="color:var(--muted);">🟢 Activated: <strong style="color:var(--text);">${new Date(r.premiumSince).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</strong></div>
+          <div style="color:var(--muted);">🔴 Expires: <strong style="color:var(--text);">${new Date(r.premiumUntil).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</strong></div>
+          <div style="color:var(--muted);">${(() => { const d = Math.ceil((r.premiumUntil - Date.now())/(1000*60*60*24)); return d > 0 ? `⏳ <strong style="color:var(--green);">${d} day${d!==1?'s':''} remaining</strong>` : `⚠️ <strong style="color:var(--red);">Expired</strong>`; })()}</div>
+        </div>
+      ` : ''}
+
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">📅 ${date} • Ref: ${r.key}</div>
+
+      ${screenshotSrc
+        ? `<img class="screenshot-thumb" src="${screenshotSrc}" alt="Payment Screenshot" onclick="openLightbox('${screenshotSrc.startsWith('data:') ? 'base64' : screenshotSrc}', ${screenshotSrc.startsWith('data:') ? JSON.stringify(screenshotSrc) : `'${screenshotSrc}'`})"/>`
+        : `<div style="background:var(--border);border-radius:8px;height:80px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);margin-bottom:12px;">No screenshot uploaded</div>`
+      }
+
+      ${isPending ? `
+      <div class="action-row">
+        <button class="btn-approve" onclick="handleApprove('${r.key}','${safeKeyToPass}','${r.tier || 'silver'}',${isEnough})">
+          ✅ Approve
+        </button>
+        <button class="btn-reject" onclick="handleReject('${r.key}','${safeKeyToPass}')">
+          ❌ Reject
+        </button>
+      </div>
+      ` : ''}
+    </div>`;
+  }).join('');
+}
+
+window.handleApprove = async function(key, safeKey, tier, isEnough) {
+  if (!safeKey) {
+    const customKey = window.prompt("⚠️ safeKey/Email missing for this user. Enter user's Email to update payments node:");
+    if (!customKey) return;
+    safeKey = customKey;
+  }
+  if (!isEnough) {
+    const ok = window.confirm('⚠️ Payment is PARTIAL (not full amount). Are you sure you want to approve anyway?');
+    if (!ok) return;
+  }
+
+  const card = document.getElementById('card-' + key);
+  card.querySelectorAll('button').forEach(b => b.disabled = true);
+
+  try {
+    const now = Date.now();
+    const premiumSince = now;
+    const premiumUntil = now + (30 * 24 * 60 * 60 * 1000); // 30 days
+
+    // 1. Firestore requests update
+    await updateDoc(doc(db, 'requests', key), {
+      status: 'approved',
+      approvedAt: now,
+      premiumSince,
+      premiumUntil,
+    });
+
+    // 2. Firestore payments update
+    await updateDoc(doc(db, 'payments', safeKey), {
+      status: 'approved',
+      unlocked: true,
+      approvedAt: now,
+      premiumSince,
+      premiumUntil,
+      [`tiers.${tier}`]: true,
+    });
+
+    // 3. Realtime DB
+    const tierToRole = { silver: 'silver', gold: 'gold', diamond: 'diamond' };
+    const newRole = tierToRole[tier] || tier;
+    try {
+      // 3a. users/{PRN} — role + premiumSince + premiumUntil merge karo
+      //     existing data preserve karo (name, email, etc.)
+      const snap = await rtdbGet(rtdbRef(rtdb, `users/${safeKey}`));
+      const existing = snap.exists() ? snap.val() : {};
+      await rtdbSet(rtdbRef(rtdb, `users/${safeKey}`), {
+        ...existing,
+        role: newRole,
+        premiumSince,
+        premiumUntil,
+      });
+
+      // 3b. premium/{PRN} — alag premium collection with full details
+      await rtdbSet(rtdbRef(rtdb, `premium/${safeKey}`), {
+        prn: safeKey,
+        name: existing.name || '',
+        email: existing.email || '',
+        role: newRole,
+        tier,
+        premiumSince,
+        premiumUntil,
+        approvedAt: now,
+        status: 'active',
+      });
+
+    } catch(rtdbErr) {
+      console.warn('RTDB update failed:', rtdbErr.message);
+      showToast(`⚠️ Approved but RTDB error: ${rtdbErr.message}`, 'error');
+      setTimeout(loadRequests, 800);
+      return;
+    }
+
+    // 4. Firestore users collection — setDoc with merge
+    try {
+      await fsSetDoc(doc(db, 'users', safeKey), {
+        role: newRole,
+        premiumSince,
+        premiumUntil,
+      }, { merge: true });
+    } catch(fsErr) {
+      console.warn('Firestore users doc skipped:', fsErr.message);
+    }
+
+    showToast(`✅ Approved! ${safeKey} — ${newRole.toUpperCase()} · Expires in 30 days`, 'success');
+    setTimeout(loadRequests, 800);
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+    card.querySelectorAll('button').forEach(b => b.disabled = false);
+  }
+};
+
+window.handleReject = async function(key, safeKey) {
+  if (!safeKey) {
+    const customKey = window.prompt("⚠️ safeKey/Email missing. Enter user's Email to update payments node:");
+    if (!customKey) return;
+    safeKey = customKey;
+  }
+  const reason = window.prompt('Rejection reason (optional):') ?? 'Rejected by admin';
+  const card = document.getElementById('card-' + key);
+  card.querySelectorAll('button').forEach(b => b.disabled = true);
+
+  try {
+    await updateDoc(doc(db, 'requests', key), {
+      status: 'rejected',
+      rejectedReason: reason,
+      rejectedAt: Date.now()
+    });
+    await updateDoc(doc(db, 'payments', safeKey), {
+      status: 'rejected',
+      rejectedAt: Date.now(),
+    });
+
+    showToast(`❌ Rejected — ${safeKey}`, 'error');
+    setTimeout(loadRequests, 800);
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+    card.querySelectorAll('button').forEach(b => b.disabled = false);
+  }
+};
+
+window.openLightbox = function(type, src) {
+  const imgSrc = type === 'base64' ? src : type;
+  document.getElementById('lightboxImg').src = imgSrc;
+  document.getElementById('lightbox').classList.add('open');
+};
+window.closeLightbox = function() {
+  document.getElementById('lightbox').classList.remove('open');
+};
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Auto-refresh every 60 seconds
+loadRequests();
+setInterval(loadRequests, 60000);
+</script>
+</body>
+</html>
