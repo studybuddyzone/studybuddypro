@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Books - Communication Skills | StudyBuddyZone</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+        authDomain: "students-e5183.firebaseapp.com",
+        databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+        projectId: "students-e5183",
+        storageBucket: "students-e5183.firebasestorage.app",
+        messagingSenderId: "473442117683",
+        appId: "1:473442117683:web:f39adc0665317aa95e9b46",
+        measurementId: "G-DT4XQLZJW3"
+    };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const rtdb = firebase.database();
+    const auth = firebase.auth();
+</script>
+<style>
+  :root { --bg:#ffffff; --card-bg:#ffffff; --sidebar-bg:#ffffff; --border:#e5e7eb; --primary:#5c6bc0; --primary-glow:#eef0fb; --text-main:#111111; --text-muted:#6b7280; --hover-bg:#f5f5f5; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; }
+  body { background:var(--bg); color:var(--text-main); min-height:100vh; display:flex; flex-direction:column; align-items:center; }
+  .top-header { width:100%; display:flex; align-items:center; gap:12px; padding:16px 20px; background:#fff; border-bottom:1px solid var(--border); position:fixed; top:0; left:0; z-index:1000; }
+  .menu-btn { font-size:18px; color:var(--text-main); cursor:pointer; width:38px; height:38px; background:var(--hover-bg); border:1px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .back-btn { font-size:20px; color:var(--text-main); cursor:pointer; width:38px; height:38px; background:var(--hover-bg); border:1px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; }
+  .web-title { font-size:18px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .web-title span { color:var(--primary); }
+  .main-content { width:100%; max-width:680px; padding:120px 20px 40px 20px; flex:1; display:flex; flex-direction:column; align-items:center; text-align:center; }
+  .icon-wrap { width:84px; height:84px; border-radius:22px; background:var(--primary-glow); border:1.5px solid #5c6bc030; display:flex; align-items:center; justify-content:center; font-size:36px; color:var(--primary); margin-bottom:22px; }
+  h1 { font-size:21px; font-weight:800; margin-bottom:8px; }
+  .subject-name { font-size:14px; font-weight:700; color:var(--primary); margin-bottom:16px; }
+  p.desc { font-size:13.5px; color:var(--text-muted); line-height:1.6; max-width:420px; margin-bottom:28px; }
+  .back-link { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; background:var(--primary); color:#fff; border-radius:14px; font-size:14px; font-weight:700; text-decoration:none; }
+  .back-link i { font-size:13px; }
+  .footer-note { margin-top:36px; font-size:11px; color:var(--text-muted); }
+
+  /* Profile Sidebar */
+  .sidebar-overlay { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:1999; }
+  .sidebar-overlay.active { display:block; }
+  .sidebar { position:fixed; top:0; left:-300px; width:280px; max-width:85vw; height:100%; background:var(--sidebar-bg); border-right:1px solid var(--border); z-index:2000; transition:left 0.3s cubic-bezier(0.16,1,0.3,1); display:flex; flex-direction:column; padding:20px; overflow-y:auto; }
+  .sidebar.active { left:0; }
+  .close-sidebar-btn { align-self:flex-end; font-size:18px; color:var(--text-muted); cursor:pointer; margin-bottom:14px; }
+  .user-details-card { background:var(--hover-bg); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:18px; }
+  .user-profile-header { display:flex; align-items:center; gap:12px; }
+  .user-profile-header i { font-size:32px; color:var(--primary); }
+  .user-profile-header h4 { font-size:14px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px; }
+  .user-role-badge { font-size:10px; padding:3px 10px; border-radius:6px; font-weight:800; display:inline-block; text-transform:uppercase; color:#fff; background:#64748b; letter-spacing:0.5px; margin-top:4px; }
+  .profile-data-stack { display:flex; flex-direction:column; gap:8px; margin-top:14px; padding-top:14px; border-top:1px dashed var(--border); }
+  .profile-data-item { background:var(--card-bg); border:1px solid var(--border); padding:9px 12px; border-radius:11px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .profile-data-label { font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.3px; }
+  .profile-data-value { font-size:12px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; }
+  .sidebar-back-link { display:flex; align-items:center; gap:10px; padding:11px 14px; margin-top:auto; color:var(--text-main); text-decoration:none; font-size:13px; font-weight:600; border:1px solid var(--border); border-radius:12px; }
+  .sidebar-back-link i { color:var(--primary); }
+  .book-cards-stack { width:100%; display:flex; flex-direction:column; margin-bottom:10px; }
+  .book-card { display:flex; align-items:center; gap:14px; width:100%; padding:18px 16px; border-radius:18px; margin-bottom:14px; text-decoration:none; transition:transform 0.15s ease; box-sizing:border-box; }
+  .book-card:active { transform:scale(0.98); }
+  .book-card-icon { width:50px; height:50px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:21px; flex-shrink:0; }
+  .book-card-text { flex:1; text-align:left; }
+  .book-card-text h4 { font-size:14px; font-weight:800; margin-bottom:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .book-card-text p { font-size:11.5px; line-height:1.4; }
+  .book-card-arrow { font-size:14px; flex-shrink:0; }
+  .book-card-premium { background:linear-gradient(135deg,#fff8e1,#fff3cd); border:1.5px solid #f0c75e; cursor:pointer; }
+  .book-card-premium .book-card-icon { background:linear-gradient(135deg,#f59e0b,#fbbf24); color:#fff; box-shadow:0 4px 10px rgba(245,158,11,0.35); }
+  .book-card-premium .book-card-text h4 { color:#92660b; }
+  .book-card-premium .book-card-text p { color:#a17a1f; }
+  .book-card-premium .book-card-arrow { color:#f59e0b; }
+  .premium-badge { font-size:9px; font-weight:800; background:#f59e0b; color:#fff; padding:2px 7px; border-radius:5px; text-transform:uppercase; letter-spacing:0.4px; }
+  .book-card-soon { background:var(--hover-bg); border:1.5px dashed var(--border); cursor:not-allowed; opacity:0.75; }
+  .book-card-soon .book-card-icon { background:#e5e7eb; color:#9ca3af; }
+  .book-card-soon .book-card-text h4 { color:var(--text-muted); }
+  .book-card-soon .book-card-text p { color:var(--text-muted); }
+  .soon-badge { font-size:9px; font-weight:800; background:#9ca3af; color:#fff; padding:2px 7px; border-radius:5px; text-transform:uppercase; letter-spacing:0.4px; }
+</style>
+</head>
+<body>
+  <div class="top-header">
+    <div class="menu-btn" onclick="openSidebar()"><i class="fa-solid fa-bars"></i></div>
+    <a href="comm-2.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div class="web-title">Study<span>Buddy</span>Zone</div>
+  </div>
+
+  <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+  <nav id="mySidebar" class="sidebar">
+    <div class="close-sidebar-btn" onclick="closeSidebar()"><i class="fa-solid fa-xmark"></i></div>
+    <div class="user-details-card">
+      <div class="user-profile-header">
+        <i class="fa-solid fa-circle-user"></i>
+        <div>
+          <h4 id="menuUserName">Syncing...</h4>
+          <span id="menuUserRole" class="user-role-badge">Fetching...</span>
+        </div>
+      </div>
+      <div class="profile-data-stack">
+        <div class="profile-data-item"><span class="profile-data-label">PRN Number</span><span id="menuUserPRN" class="profile-data-value">-</span></div>
+        <div class="profile-data-item"><span class="profile-data-label">Plan</span><span id="menuUserPlan" class="profile-data-value">-</span></div>
+        <div class="profile-data-item"><span class="profile-data-label">Activation Date</span><span id="menuActivationDate" class="profile-data-value">-</span></div>
+        <div class="profile-data-item"><span class="profile-data-label">Expiry Date</span><span id="menuExpiryDate" class="profile-data-value">-</span></div>
+      </div>
+    </div>
+    <a href="fy.html" class="sidebar-back-link"><i class="fa-solid fa-house"></i> Back to Dashboard</a>
+  </nav>
+
+  <div class="main-content">
+    <div class="icon-wrap"><i class="fa-solid fa-book"></i></div>
+    <h1>Communication Skills Books</h1>
+    <div class="subject-name">Communication Skills</div>
+    <p class="desc">Tap below to open the reference books &amp; study material for Communication Skills.</p>
+
+    <div class="book-cards-stack">
+      <a href="https://drive.google.com/drive/folders/1Grry9V14sw4a_FRauBFcnN2uc0rHRYVG" target="_blank" rel="noopener" class="book-card book-card-premium">
+        <div class="book-card-icon"><i class="fa-solid fa-crown"></i></div>
+        <div class="book-card-text">
+          <h4>Communication Skills Books <span class="premium-badge">Premium</span></h4>
+          <p>Reference books, e-books &amp; study material &middot; tap to open</p>
+        </div>
+        <div class="book-card-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+      </a>
+
+      <div class="book-card book-card-soon">
+        <div class="book-card-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+        <div class="book-card-text">
+          <h4>More Books <span class="soon-badge">Coming Soon</span></h4>
+          <p>Additional book sets will be added here soon</p>
+        </div>
+        <div class="book-card-arrow"><i class="fa-solid fa-lock"></i></div>
+      </div>
+    </div>
+
+    <a href="comm-2.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Communication Skills</a>
+    <div class="footer-note">StudyBuddyZone &middot; B.Tech Semester I</div>
+  </div>
+
+  <script>
+    function openSidebar() { document.getElementById('mySidebar').classList.add('active'); document.getElementById('sidebarOverlay').classList.add('active'); }
+    function closeSidebar() { document.getElementById('mySidebar').classList.remove('active'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+
+    function formatMenuDate(value) {
+        if (!value) return "-";
+        let d;
+        if (typeof value === "number") { d = new Date(value); }
+        else if (!isNaN(value) && value.toString().length >= 10) { d = new Date(parseInt(value)); }
+        else { d = new Date(value); }
+        if (isNaN(d.getTime())) return value.toString();
+        return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function applyMenuRoleStyle(role) {
+        const badge = document.getElementById('menuUserRole');
+        const colors = {
+            master: ['#000000', '#f59e0b'], superadmin: ['#e11d48', '#ffffff'], admin: ['#a855f7', '#ffffff'],
+            moderator: ['#06b6d4', '#ffffff'], diamond: ['#ec4899', '#ffffff'], gold: ['#4f46e5', '#ffffff'],
+            silver: ['#f59e0b', '#ffffff'], student: ['#64748b', '#ffffff'], guest: ['#64748b', '#ffffff']
+        };
+        const c = colors[role] || colors.student;
+        badge.style.background = c[0]; badge.style.color = c[1];
+        badge.innerText = role === 'master' ? 'MASTER VIP' : role.toUpperCase();
+    }
+
+    function fetchMenuPremiumDetails(uid, role) {
+        const planEl = document.getElementById('menuUserPlan');
+        const activationEl = document.getElementById('menuActivationDate');
+        const expiryEl = document.getElementById('menuExpiryDate');
+        const premiumRoles = ['gold', 'diamond', 'silver'];
+        if (!premiumRoles.includes(role)) {
+            planEl.innerText = role.toUpperCase(); activationEl.innerText = '-'; expiryEl.innerText = '-';
+            return;
+        }
+        rtdb.ref('premium').orderByChild('uid').equalTo(uid).once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                const key = Object.keys(snapshot.val())[0];
+                const planData = snapshot.val()[key];
+                const activation = planData.activationDate || planData.activation_date || planData.startDate || planData.activatedOn || planData.activation;
+                const expiry = planData.expiryDate || planData.expiry_date || planData.endDate || planData.expiresOn || planData.expiry;
+                planEl.innerText = (planData.plan || role).toString().toUpperCase();
+                activationEl.innerText = activation ? formatMenuDate(activation) : '-';
+                expiryEl.innerText = expiry ? formatMenuDate(expiry) : '-';
+            } else {
+                planEl.innerText = role.toUpperCase(); activationEl.innerText = '-'; expiryEl.innerText = '-';
+            }
+        }).catch(() => {
+            planEl.innerText = role.toUpperCase(); activationEl.innerText = '-'; expiryEl.innerText = '-';
+        });
+    }
+
+    // Auto-fetch the logged-in user's profile (name, role, PRN, subscription validity)
+    // the moment they land here — same Firebase Auth session carries over from fy.html.
+    auth.onAuthStateChanged((user) => {
+        const nameEl = document.getElementById('menuUserName');
+        const prnEl = document.getElementById('menuUserPRN');
+        if (user) {
+            rtdb.ref('users').orderByChild('uid').equalTo(user.uid).on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const prnKey = Object.keys(snapshot.val())[0];
+                    const userData = snapshot.val()[prnKey];
+                    const role = userData.role ? userData.role.trim().toLowerCase() : 'student';
+                    nameEl.innerText = userData.name || user.email.split('@')[0];
+                    prnEl.innerText = prnKey;
+                    applyMenuRoleStyle(role);
+                    fetchMenuPremiumDetails(user.uid, role);
+                } else {
+                    nameEl.innerText = user.email ? user.email.split('@')[0] : 'Student';
+                    prnEl.innerText = '-';
+                    applyMenuRoleStyle('student');
+                    fetchMenuPremiumDetails(user.uid, 'student');
+                }
+            }, (error) => { console.error('Profile sync issue:', error); });
+        } else {
+            nameEl.innerText = 'Guest User';
+            prnEl.innerText = '-';
+            applyMenuRoleStyle('guest');
+            document.getElementById('menuUserPlan').innerText = '-';
+        }
+    });
+  </script>
+</body>
+</html>
