@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Programming & Problem Solving | StudyBuddyZone</title>
+    <title>Communication Skills | StudyBuddyZone</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -29,7 +29,7 @@
             --bg: #ffffff; --card-bg: #ffffff; --sidebar-bg: #ffffff;
             --border: #e5e7eb; --primary: #5c6bc0; --primary-glow: #eef0fb;
             --accent: #ff7043; --text-main: #111111; --text-muted: #6b7280;
-            --hover-bg: #f5f5f5; --footer-bg: #fafafa; --subject-color: #c62828;
+            --hover-bg: #f5f5f5; --footer-bg: #fafafa; --subject-color: #00838f;
         }
         [data-theme="dark"] {
             --bg: #0a0a0a; --card-bg: #141414; --sidebar-bg: #111111;
@@ -46,11 +46,11 @@
         .web-title span { color:#5c6bc0; }
         .header-action-btn { font-size:17px; color:var(--text-muted); cursor:pointer; width:38px; height:38px; background:var(--hover-bg); border:1px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; outline:none; }
         .main-content { width:100%; max-width:680px; padding:88px 16px 32px 16px; flex:1; }
-        .subject-hero { background:linear-gradient(135deg,#c6282815,#c6282808); border:1px solid #c6282830; border-radius:20px; padding:24px 20px; display:flex; align-items:center; gap:18px; margin-bottom:24px; }
-        .subject-hero-icon { width:64px; height:64px; border-radius:16px; background:#c6282820; border:1.5px solid #c6282840; display:flex; align-items:center; justify-content:center; font-size:28px; color:#c62828; flex-shrink:0; }
+        .subject-hero { background:linear-gradient(135deg,#00838f15,#00838f08); border:1px solid #00838f30; border-radius:20px; padding:24px 20px; display:flex; align-items:center; gap:18px; margin-bottom:24px; }
+        .subject-hero-icon { width:64px; height:64px; border-radius:16px; background:#00838f20; border:1.5px solid #00838f40; display:flex; align-items:center; justify-content:center; font-size:28px; color:#00838f; flex-shrink:0; }
         .subject-hero-text h2 { font-size:20px; font-weight:800; color:var(--text-main); margin-bottom:4px; }
         .subject-hero-text p { font-size:13px; color:var(--text-muted); line-height:1.5; }
-        .subject-badge { display:inline-flex; align-items:center; gap:5px; background:#c6282815; border:1px solid #c6282830; color:#c62828; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; padding:3px 10px; border-radius:20px; margin-top:6px; }
+        .subject-badge { display:inline-flex; align-items:center; gap:5px; background:#00838f15; border:1px solid #00838f30; color:#00838f; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; padding:3px 10px; border-radius:20px; margin-top:6px; }
         .section-label { font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); display:flex; align-items:center; gap:8px; padding:6px 4px 10px 4px; }
         .resource-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:18px 16px; display:flex; align-items:center; gap:16px; cursor:pointer; margin-bottom:12px; text-decoration:none; color:var(--text-main); }
         .resource-card:hover { background:var(--hover-bg); border-color:var(--primary); }
@@ -297,17 +297,17 @@
     <main class="main-content">
 
         <div class="subject-hero">
-            <div class="subject-hero-icon"><i class="fa-solid fa-code"></i></div>
+            <div class="subject-hero-icon"><i class="fa-solid fa-comments"></i></div>
             <div class="subject-hero-text">
-                <h2>Programming & Problem Solving</h2>
-                <p>C Language, Algorithms, Logic & Flowcharts</p>
+                <h2>Communication Skills</h2>
+                <p>Technical Writing, Presentation & Professional English</p>
                 <span class="subject-badge"><i class="fa-solid fa-graduation-cap"></i> AKTU B.Tech FY</span>
             </div>
         </div>
 
         <div class="section-label"><i class="fa-solid fa-layer-group"></i> Study Resources</div>
 
-                <a href="book-pnps.html" class="resource-card">
+                <a href="book-comm.html" class="resource-card">
             <div class="resource-icon" style="background:rgba(92,107,192,0.12);color:#5c6bc0;"><i class="fa-solid fa-book"></i></div>
             <div class="resource-text">
                 <h4>Books</h4>
@@ -316,7 +316,7 @@
             <div class="resource-arrow"><i class="fa-solid fa-chevron-right"></i></div>
         </a>
 
-        <a href="note-pnps.html" class="resource-card">
+        <a href="note-comm.html" class="resource-card">
             <div class="resource-icon" style="background:rgba(102,187,106,0.12);color:#66bb6a;"><i class="fa-solid fa-pen-nib"></i></div>
             <div class="resource-text">
                 <h4>Notes</h4>
@@ -493,7 +493,7 @@
                         // Access granted
                         closePrnModal();
                         showToast('Access Granted ✓', 'Welcome! Loading Answer Keys...');
-                        window.location.href = 'answerkeypnps.html';
+                        window.location.href = 'answerkeycomm.html';
                     } else if (role) {
                         // Role exists but not diamond
                         closePrnModal();

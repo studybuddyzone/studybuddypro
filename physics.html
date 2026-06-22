@@ -296,12 +296,78 @@
         .profile-data-value { font-size:12px; font-weight:800; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; }
         .sidebar-back-link { display:flex; align-items:center; gap:10px; padding:11px 14px; margin-top:auto; color:var(--text-main); text-decoration:none; font-size:13px; font-weight:600; border:1px solid var(--border); border-radius:12px; }
         .sidebar-back-link i { color:var(--primary); }
+
+        /* ===== PREMIUM ACCESS GATE ===== */
+        #premiumGate {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(10, 10, 20, 0.82);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 99999;
+            align-items: center; justify-content: center;
+            padding: 24px;
+        }
+        #premiumGate.active { display: flex; }
+        .gate-card {
+            background: #ffffff; border-radius: 24px;
+            padding: 32px 24px 28px; max-width: 360px; width: 100%;
+            text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+            animation: gateIn 0.35s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes gateIn { from { opacity:0; transform:scale(0.88) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        .gate-icon-wrap {
+            width: 72px; height: 72px; border-radius: 20px; margin: 0 auto 18px;
+            background: linear-gradient(135deg,#fff8e1,#fef3c7);
+            border: 1.5px solid #f0c75e;
+            display: flex; align-items: center; justify-content: center; font-size: 30px; color: #f59e0b;
+        }
+        .gate-title { font-size: 19px; font-weight: 800; color: #111; margin-bottom: 8px; }
+        .gate-sub { font-size: 13px; color: #6b7280; line-height: 1.55; margin-bottom: 24px; }
+        .gate-upgrade-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg,#f59e0b,#d97706);
+            color: #fff; border: none; border-radius: 14px;
+            font-size: 15px; font-weight: 800; cursor: pointer;
+            text-decoration: none; box-sizing: border-box;
+            box-shadow: 0 4px 16px rgba(245,158,11,0.4);
+            margin-bottom: 12px;
+        }
+        .gate-back-btn {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            width: 100%; padding: 11px;
+            background: #f3f4f6; color: #374151; border: none; border-radius: 12px;
+            font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none;
+            box-sizing: border-box;
+        }
+        .gate-role-tag {
+            display: inline-block; margin-bottom: 14px;
+            font-size: 10px; font-weight: 800; padding: 3px 10px;
+            border-radius: 6px; letter-spacing: 0.5px; text-transform: uppercase;
+            background: #fee2e2; color: #dc2626;
+        }
     </style>
 </head>
 <body>
 
     <!-- HEADER -->
     <header class="top-header">
+    <!-- Premium Access Gate (undismissable) -->
+    <div id="premiumGate">
+        <div class="gate-card">
+            <div class="gate-icon-wrap"><i class="fa-solid fa-crown"></i></div>
+            <div class="gate-title">Premium Access Only</div>
+            <div id="gateRoleTag" class="gate-role-tag">Your role: guest</div>
+            <div class="gate-sub">This section is exclusively available for <strong>Gold members and above</strong>. Upgrade your plan to unlock all subjects and study material.</div>
+            <a href="up-premium.html" class="gate-upgrade-btn">
+                <i class="fa-solid fa-crown"></i> Upgrade to Premium
+            </a>
+            <a href="fy.html" class="gate-back-btn">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
         <div class="header-left">
             <div class="menu-btn" onclick="openSidebar()"><i class="fa-solid fa-bars"></i></div>
             <a href="fy.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
@@ -638,6 +704,18 @@
 
         // Auto-fetch logged-in user's profile (name, role, PRN, subscription validity)
         // the moment they arrive here from fy.html — same Firebase Auth session carries over.
+
+        const ALLOWED_ROLES = ['gold','diamond','master','superadmin','admin','moderator'];
+
+        function checkAccessGate(role) {
+            const gate = document.getElementById('premiumGate');
+            if (ALLOWED_ROLES.includes(role)) {
+                gate.classList.remove('active');
+            } else {
+                document.getElementById('gateRoleTag').innerText = 'Your role: ' + role.toUpperCase();
+                gate.classList.add('active');
+            }
+        }
         auth.onAuthStateChanged((user) => {
             const nameEl = document.getElementById('menuUserName');
             const prnEl = document.getElementById('menuUserPRN');
@@ -651,11 +729,13 @@
                         prnEl.innerText = prnKey;
                         applyMenuRoleStyle(role);
                         fetchMenuPremiumDetails(user.uid, role);
+                        checkAccessGate(role);
                     } else {
                         nameEl.innerText = user.email ? user.email.split('@')[0] : 'Student';
                         prnEl.innerText = '-';
                         applyMenuRoleStyle('student');
                         fetchMenuPremiumDetails(user.uid, 'student');
+                        checkAccessGate('student');
                     }
                 }, (error) => { console.error('Profile sync issue:', error); });
             } else {
@@ -663,6 +743,7 @@
                 prnEl.innerText = '-';
                 applyMenuRoleStyle('guest');
                 document.getElementById('menuUserPlan').innerText = '-';
+                checkAccessGate('guest');
             }
         });
     </script>
