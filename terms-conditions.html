@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Terms & Conditions | studybuddypremiumpro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #f8fafc; --card-bg: rgba(255,255,255,0.85); --primary: #0284c7;
+            --primary-glow: rgba(2,132,199,0.15); --accent: #4f46e5; --text-main: #0f172a;
+            --text-muted: #64748b; --border: rgba(0,0,0,0.08); --warn: #f59e0b;
+        }
+        [data-theme="dark"] {
+            --bg-dark: #0b0f19; --card-bg: rgba(20,27,45,0.7); --primary: #38bdf8;
+            --primary-glow: rgba(56,189,248,0.3); --accent: #818cf8; --text-main: #f8fafc;
+            --text-muted: #94a3b8; --border: rgba(255,255,255,0.08); --warn: #fbbf24;
+        }
+        html, body { max-width: 100%; overflow-x: hidden; margin: 0; padding: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 30px 16px 50px; }
+        .bg-glow-1, .bg-glow-2 { position: fixed; width: 450px; height: 450px; border-radius: 50%; filter: blur(130px); opacity: 0.08; z-index: -1; pointer-events: none; }
+        .bg-glow-1 { top: -5%; left: -5%; background: radial-gradient(circle, var(--primary) 0%, transparent 70%); }
+        .bg-glow-2 { bottom: 10%; right: -5%; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); }
+        .theme-btn { position: fixed; top: 16px; right: 16px; z-index: 10; font-size: 16px; color: var(--text-muted); cursor: pointer; width: 40px; height: 40px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .back-btn { display: flex; align-items: center; gap: 8px; color: var(--primary); font-size: 13px; font-weight: 600; text-decoration: none; margin-bottom: 20px; align-self: flex-start; max-width: 680px; width: 100%; padding: 0 4px; }
+        .doc-container { width: 100%; max-width: 680px; }
+        .doc-hero { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 30px 28px 24px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0,0,0,0.04); margin-bottom: 16px; display: flex; align-items: center; gap: 18px; }
+        .hero-icon { width: 56px; height: 56px; border-radius: 16px; background: rgba(2,132,199,0.1); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--primary); flex-shrink: 0; }
+        [data-theme="dark"] .hero-icon { background: rgba(56,189,248,0.15); }
+        .hero-text h1 { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+        .hero-text p { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        .section-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 24px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 8px 24px rgba(0,0,0,0.03); margin-bottom: 12px; }
+        .section-title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .section-title i { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .icon-blue { background: rgba(2,132,199,0.1); color: #0284c7; }
+        .icon-green { background: rgba(16,185,129,0.1); color: #10b981; }
+        .icon-orange { background: rgba(245,158,11,0.1); color: #f59e0b; }
+        .icon-red { background: rgba(239,68,68,0.1); color: #ef4444; }
+        .icon-purple { background: rgba(79,70,229,0.1); color: #4f46e5; }
+        .icon-teal { background: rgba(20,184,166,0.1); color: #14b8a6; }
+        [data-theme="dark"] .icon-blue { background: rgba(56,189,248,0.15); color: #38bdf8; }
+        [data-theme="dark"] .icon-green { background: rgba(52,211,153,0.15); color: #34d399; }
+        [data-theme="dark"] .icon-orange { background: rgba(251,191,36,0.15); color: #fbbf24; }
+        [data-theme="dark"] .icon-red { background: rgba(248,113,113,0.15); color: #f87171; }
+        [data-theme="dark"] .icon-purple { background: rgba(129,140,248,0.15); color: #818cf8; }
+        [data-theme="dark"] .icon-teal { background: rgba(45,212,191,0.15); color: #2dd4bf; }
+        .section-title h2 { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .section-body p { font-size: 13.5px; color: var(--text-muted); line-height: 1.75; margin-bottom: 10px; }
+        .section-body p:last-child { margin-bottom: 0; }
+        .section-body ul { padding-left: 0; list-style: none; }
+        .section-body ul li { font-size: 13.5px; color: var(--text-muted); line-height: 1.75; padding: 6px 0 6px 22px; position: relative; border-bottom: 1px solid var(--border); }
+        .section-body ul li:last-child { border-bottom: none; }
+        .section-body ul li::before { content: ""; position: absolute; left: 0; top: 14px; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+        .info-banner { display: flex; align-items: flex-start; gap: 12px; background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.2); border-radius: 14px; padding: 14px 16px; margin-top: 12px; }
+        [data-theme="dark"] .info-banner { background: rgba(251,191,36,0.07); border-color: rgba(251,191,36,0.2); }
+        .info-banner i { color: var(--warn); margin-top: 2px; font-size: 15px; flex-shrink: 0; }
+        .info-banner p { font-size: 12.5px; color: var(--text-muted); line-height: 1.6; }
+        .updated-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(2,132,199,0.08); border: 1px solid rgba(2,132,199,0.2); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 600; color: var(--primary); margin-bottom: 16px; }
+        .footer-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .footer-nav-link { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; text-decoration: none; color: var(--text-muted); font-size: 12px; font-weight: 600; transition: all 0.2s; }
+        .footer-nav-link:hover { border-color: var(--primary); color: var(--primary); }
+        .footer-note { text-align: center; margin-top: 16px; font-size: 11px; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+    <div class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></div>
+
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Portal</a>
+
+    <div class="doc-container">
+
+        <div class="updated-badge"><i class="fa-solid fa-calendar-check"></i> Last Updated: June 2026</div>
+
+        <div class="doc-hero">
+            <div class="hero-icon"><i class="fa-solid fa-file-contract"></i></div>
+            <div class="hero-text">
+                <h1>Terms & Conditions</h1>
+                <p>studybuddypremiumpro Academic Portal &nbsp;·&nbsp; studybuddyzone.help.in@gmail.com</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-circle-info icon-blue"></i>
+                <h2>Acceptance of Terms</h2>
+            </div>
+            <div class="section-body">
+                <p>These Terms & Conditions ("Terms") govern your access to and use of the studybuddypremiumpro Academic Portal ("the Platform", "we", "us", "our"), owned and operated by <strong>Govind Lahu Ade</strong>, trading as StudyBuddyZone. By creating an account, logging in, or making a payment on this Platform, you agree to be bound by these Terms.</p>
+                <p>If you do not agree with any part of these Terms, please discontinue use of the Platform immediately.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-graduation-cap icon-green"></i>
+                <h2>Nature of Service</h2>
+            </div>
+            <div class="section-body">
+                <p>studybuddypremiumpro provides B.Tech first-year academic study material, notes, MCQ practice tests, and an AI study assistant to registered students. Access to certain premium content and features requires a one-time or subscription payment processed via the PhonePe payment gateway.</p>
+                <ul>
+                    <li>Content is provided for personal academic/educational use only</li>
+                    <li>We do not guarantee specific exam results or grades</li>
+                    <li>Study material is curated to align with AKTU / DBATU first-year curriculum, subject to syllabus changes</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-user-check icon-purple"></i>
+                <h2>Account & Eligibility</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    <li>You must provide accurate name, mobile number, email, and PRN details during registration</li>
+                    <li>You are responsible for maintaining the confidentiality of your login credentials</li>
+                    <li>One account is intended for use by a single student; sharing of premium access is not permitted</li>
+                    <li>We reserve the right to suspend accounts found in violation of these Terms</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-credit-card icon-teal"></i>
+                <h2>Payments & Pricing</h2>
+            </div>
+            <div class="section-body">
+                <p>All paid plans and their current pricing are displayed on the Platform prior to checkout. Payments are processed securely through the <strong>PhonePe Payment Gateway</strong>; we do not store your card, UPI PIN, or net-banking credentials.</p>
+                <p>For details on refunds and cancellations, please refer to our separate Refund Policy and Cancellation Policy pages.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-copyright icon-orange"></i>
+                <h2>Intellectual Property</h2>
+            </div>
+            <div class="section-body">
+                <p>All study material, branding, design, and software on this Platform are the intellectual property of Govind Lahu Ade (StudyBuddyZone) unless otherwise credited. Content may not be copied, redistributed, or resold without written permission.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-scale-balanced icon-red"></i>
+                <h2>Limitation of Liability</h2>
+            </div>
+            <div class="section-body">
+                <p>The Platform is provided on an "as is" basis. We make reasonable efforts to keep content accurate and the service available, but we are not liable for any indirect loss arising from temporary downtime, content errors, or third-party payment gateway issues.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-envelope icon-blue"></i>
+                <h2>Contact</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    <li><strong>Legal Entity / Owner:</strong> Govind Lahu Ade</li>
+                    <li><strong>Email:</strong> studybuddyzone.help.in@gmail.com</li>
+                    <li><strong>Phone:</strong> +91 9049321230</li>
+                    <li><strong>Address:</strong> Nanded City, Maharashtra, India – 431601</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <a href="privacy-policy.html" class="footer-nav-link"><i class="fa-solid fa-shield-halved"></i> Privacy Policy</a>
+            <a href="refund-policy.html" class="footer-nav-link"><i class="fa-solid fa-rotate-left"></i> Refund Policy</a>
+            <a href="cancellation-policy.html" class="footer-nav-link"><i class="fa-solid fa-ban"></i> Cancellation</a>
+            <a href="index.html" class="footer-nav-link"><i class="fa-solid fa-house"></i> Home</a>
+        </div>
+        <div class="footer-note"><i class="fa-solid fa-lock"></i> &nbsp; Payments secured by PhonePe &nbsp;·&nbsp; © 2026 Govind Lahu Ade (StudyBuddyZone)</div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const c = document.documentElement.getAttribute('data-theme');
+            const n = c === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', n);
+            document.getElementById('themeIcon').className = n === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+    </script>
+</body>
+</html>
