@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SY Payment Approval | Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --bg:#f0f2f8; --card-bg:#ffffff; --border:#e5e7eb;
+            --primary:#5c6bc0; --primary-glow:#eef0fb;
+            --text-main:#111111; --text-muted:#6b7280;
+            --hover-bg:#f5f6fa; --input-bg:#f3f4f6;
+            --success:#10b981; --danger:#ef4444; --warn:#f59e0b;
+        }
+        [data-theme="dark"] {
+            --bg:#0a0a0a; --card-bg:#141414; --border:#2a2a2a;
+            --primary:#7986cb; --primary-glow:#1a1c2e;
+            --text-main:#f5f5f5; --text-muted:#888888;
+            --hover-bg:#1a1a1a; --input-bg:#1e1e1e;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; transition:background-color 0.2s,color 0.2s,border-color 0.2s; }
+        body { background:var(--bg); color:var(--text-main); min-height:100vh; }
+
+        /* HEADER */
+        .top-header {
+            position:sticky; top:0; z-index:100;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0 20px; height:56px;
+            background:linear-gradient(135deg,#f59e0b,#ef4444);
+            box-shadow:0 2px 16px rgba(245,158,11,0.3);
+        }
+        .header-left { display:flex; align-items:center; gap:12px; }
+        .back-btn { width:34px; height:34px; border-radius:50%; border:none; background:rgba(255,255,255,0.2); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; cursor:pointer; text-decoration:none; }
+        .header-title { font-size:16px; font-weight:900; color:#fff; }
+        .header-badge { font-size:10px; font-weight:800; background:rgba(255,255,255,0.25); color:#fff; border-radius:20px; padding:3px 10px; }
+        .theme-btn { width:34px; height:34px; border-radius:50%; border:none; background:rgba(255,255,255,0.2); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; }
+
+        /* STATS */
+        .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:16px; max-width:600px; margin:0 auto; }
+        .stat-card { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:14px; text-align:center; }
+        .stat-num { font-size:24px; font-weight:900; margin-bottom:2px; }
+        .stat-num.pending { color:#f59e0b; }
+        .stat-num.approved { color:#10b981; }
+        .stat-num.rejected { color:#ef4444; }
+        .stat-label { font-size:11px; color:var(--text-muted); font-weight:700; }
+
+        /* FILTER TABS */
+        .filter-tabs { display:flex; gap:8px; padding:0 16px 12px 16px; max-width:600px; margin:0 auto; overflow-x:auto; }
+        .filter-tab { padding:7px 16px; border-radius:20px; border:1.5px solid var(--border); font-size:12.5px; font-weight:700; cursor:pointer; background:var(--card-bg); color:var(--text-muted); white-space:nowrap; transition:all 0.15s; }
+        .filter-tab.active { background:#f59e0b; border-color:#f59e0b; color:#fff; }
+
+        .content { max-width:600px; margin:0 auto; padding:0 16px 50px 16px; }
+
+        /* EMPTY */
+        .empty-state { text-align:center; padding:50px 20px; color:var(--text-muted); }
+        .empty-state i { font-size:40px; opacity:0.3; margin-bottom:12px; display:block; }
+        .empty-state p { font-size:14px; font-weight:600; }
+
+        /* REQUEST CARD */
+        .req-card { background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:18px; margin-bottom:12px; position:relative; }
+        .req-card.pending { border-left:4px solid #f59e0b; }
+        .req-card.approved { border-left:4px solid #10b981; opacity:0.8; }
+        .req-card.rejected { border-left:4px solid #ef4444; opacity:0.7; }
+
+        .req-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:12px; }
+        .req-name { font-size:15px; font-weight:800; margin-bottom:2px; }
+        .req-prn { font-size:11.5px; color:var(--text-muted); font-weight:600; }
+        .req-status-chip { font-size:10px; font-weight:800; border-radius:20px; padding:4px 10px; white-space:nowrap; flex-shrink:0; }
+        .chip-pending { background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); }
+        .chip-approved { background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); }
+        .chip-rejected { background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.3); }
+
+        .req-details { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+        .req-detail-chip { display:flex; align-items:center; gap:6px; background:var(--hover-bg); border-radius:8px; padding:5px 10px; font-size:11.5px; font-weight:700; color:var(--text-muted); }
+        .req-detail-chip i { font-size:10px; color:var(--primary); }
+
+        /* SCREENSHOT */
+        .screenshot-row { margin-bottom:14px; }
+        .screenshot-label { font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.4px; }
+        .screenshot-thumb { width:100%; max-height:140px; object-fit:cover; border-radius:10px; border:1px solid var(--border); cursor:pointer; transition:opacity 0.15s; }
+        .screenshot-thumb:hover { opacity:0.85; }
+        .no-screenshot { background:var(--hover-bg); border:1px dashed var(--border); border-radius:10px; padding:18px; text-align:center; font-size:12px; color:var(--text-muted); font-weight:600; }
+
+        /* ACTION BUTTONS */
+        .action-row { display:flex; gap:8px; }
+        .approve-btn { flex:1; padding:11px; border-radius:11px; border:none; background:linear-gradient(135deg,#10b981,#059669); color:#fff; font-size:13px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 3px 12px rgba(16,185,129,0.3); transition:transform 0.15s; }
+        .approve-btn:hover { transform:translateY(-1px); }
+        .approve-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+        .reject-btn { flex:1; padding:11px; border-radius:11px; border:none; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; font-size:13px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 3px 12px rgba(239,68,68,0.25); transition:transform 0.15s; }
+        .reject-btn:hover { transform:translateY(-1px); }
+        .reject-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+        .done-label { text-align:center; font-size:12px; font-weight:700; color:var(--text-muted); padding:8px; }
+
+        /* LIGHTBOX */
+        .lightbox { position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.92); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+        .lightbox.open { opacity:1; pointer-events:all; }
+        .lightbox img { max-width:92vw; max-height:88vh; border-radius:14px; object-fit:contain; }
+        .lightbox-close { position:absolute; top:20px; right:20px; width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+        /* TOAST */
+        .toast { position:fixed; bottom:-80px; left:50%; transform:translateX(-50%); font-size:13px; font-weight:700; padding:12px 20px; border-radius:12px; white-space:nowrap; z-index:10000; display:flex; align-items:center; gap:8px; transition:bottom 0.3s ease; }
+        .toast.success { background:#10b981; color:#fff; }
+        .toast.error { background:#ef4444; color:#fff; }
+        .toast.show { bottom:28px; }
+
+        /* DB UPDATE STATUS */
+        .db-update-tag { font-size:10.5px; font-weight:700; background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.25); border-radius:8px; padding:3px 8px; display:inline-flex; align-items:center; gap:4px; margin-top:8px; }
+        .db-update-tag i { font-size:9px; }
+
+        .loading-state { text-align:center; padding:40px; color:var(--text-muted); }
+        .loading-state i { font-size:28px; margin-bottom:10px; display:block; color:var(--primary); }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="header-left">
+            <a href="premium-get.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+            <span class="header-title">Payment Approval</span>
+            <span class="header-badge">👑 ADMIN</span>
+        </div>
+        <button class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
+    </header>
+
+    <!-- STATS -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-num pending" id="statPending">—</div>
+            <div class="stat-label">⏳ Pending</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num approved" id="statApproved">—</div>
+            <div class="stat-label">✅ Approved</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num rejected" id="statRejected">—</div>
+            <div class="stat-label">❌ Rejected</div>
+        </div>
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="filter-tabs">
+        <div class="filter-tab active" onclick="filterRequests('all', this)">All</div>
+        <div class="filter-tab" onclick="filterRequests('pending', this)">⏳ Pending</div>
+        <div class="filter-tab" onclick="filterRequests('approved', this)">✅ Approved</div>
+        <div class="filter-tab" onclick="filterRequests('rejected', this)">❌ Rejected</div>
+    </div>
+
+    <div class="content">
+        <div class="loading-state" id="loadingState">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            <p>Loading payment requests...</p>
+        </div>
+        <div id="requestsList"></div>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <button class="lightbox-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+        <img id="lightboxImg" src="" alt="Payment Screenshot">
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+            authDomain: "students-e5183.firebaseapp.com",
+            databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+            projectId: "students-e5183",
+            storageBucket: "students-e5183.firebasestorage.app",
+            messagingSenderId: "473442117683",
+            appId: "1:473442117683:web:f39adc0665317aa95e9b46"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const rtdb = firebase.database();
+        const fs = firebase.firestore();
+        window._rtdb = rtdb;
+        window._fs = fs;
+
+        let allRequests = [];
+        let currentFilter = 'all';
+
+        // ✅ Firestore मधून real-time listener — RTDB नाही
+        fs.collection('sy_payment_requests')
+          .orderBy('timestamp', 'desc')
+          .onSnapshot((snapshot) => {
+            allRequests = [];
+            snapshot.forEach(doc => {
+                allRequests.push({ id: doc.id, ...doc.data() });
+            });
+            document.getElementById('loadingState').style.display = 'none';
+            updateStats();
+            renderList();
+        }, (err) => {
+            console.error('Firestore error:', err);
+            document.getElementById('loadingState').innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i><p>Error loading requests</p>';
+        });
+
+        function updateStats() {
+            document.getElementById('statPending').textContent  = allRequests.filter(r => r.status === 'pending').length;
+            document.getElementById('statApproved').textContent = allRequests.filter(r => r.status === 'approved').length;
+            document.getElementById('statRejected').textContent = allRequests.filter(r => r.status === 'rejected').length;
+        }
+
+        function renderList() {
+            const list = document.getElementById('requestsList');
+            const filtered = currentFilter === 'all'
+                ? allRequests
+                : allRequests.filter(r => r.status === currentFilter);
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fa-solid fa-inbox"></i><p>कोई request नहीं मिली।</p></div>`;
+                return;
+            }
+            list.innerHTML = filtered.map(req => buildCard(req)).join('');
+        }
+
+        function buildCard(req) {
+            const chipClass = req.status === 'approved' ? 'chip-approved' : req.status === 'rejected' ? 'chip-rejected' : 'chip-pending';
+            const chipLabel = req.status === 'approved' ? '✅ Approved' : req.status === 'rejected' ? '❌ Rejected' : '⏳ Pending';
+            const date = req.timestamp
+                ? new Date(req.timestamp).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
+                : '—';
+
+            const screenshot = req.screenshot
+                ? `<div class="screenshot-row">
+                    <div class="screenshot-label">Payment Screenshot</div>
+                    <img class="screenshot-thumb" src="${req.screenshot}" alt="screenshot" onclick="openLightbox('${req.screenshot}')">
+                   </div>`
+                : `<div class="screenshot-row"><div class="no-screenshot"><i class="fa-solid fa-image" style="opacity:0.3;margin-right:6px;"></i>Screenshot uploaded नहीं</div></div>`;
+
+            // Show DB update tag if approved
+            const dbUpdateTag = req.status === 'approved'
+                ? `<div class="db-update-tag"><i class="fa-solid fa-database"></i> Branch Unlocked → users/{uid}/branch: ${req.branch} | unlockedBranches/SY/${req.branch}</div>`
+                : '';
+
+            const actions = req.status === 'pending'
+                ? `<div class="action-row">
+                    <button class="approve-btn" onclick="updateRequest('${req.id}', 'approved')" id="approve-${req.id}">
+                        <i class="fa-solid fa-check"></i> Approve
+                    </button>
+                    <button class="reject-btn" onclick="updateRequest('${req.id}', 'rejected')" id="reject-${req.id}">
+                        <i class="fa-solid fa-xmark"></i> Reject
+                    </button>
+                   </div>`
+                : `<div class="done-label">${req.status === 'approved' ? '✅ Approved by Admin' : '❌ Rejected by Admin'}</div>${dbUpdateTag}`;
+
+            return `<div class="req-card ${req.status || 'pending'}" id="card-${req.id}">
+                <div class="req-top">
+                    <div>
+                        <div class="req-name">${req.studentName || 'Unknown Student'}</div>
+                        <div class="req-prn">PRN: ${req.prn || '—'}</div>
+                    </div>
+                    <span class="req-status-chip ${chipClass}">${chipLabel}</span>
+                </div>
+                <div class="req-details">
+                    <div class="req-detail-chip"><i class="fa-solid fa-code-branch"></i> ${req.branchName || req.branch || '—'}</div>
+                    <div class="req-detail-chip"><i class="fa-solid fa-indian-rupee-sign"></i> ₹${req.amount || '30'}</div>
+                    <div class="req-detail-chip"><i class="fa-solid fa-clock"></i> ${date}</div>
+                    <div class="req-detail-chip"><i class="fa-solid fa-mobile"></i> ${req.paymentMethod || '—'}</div>
+                </div>
+                ${screenshot}
+                ${actions}
+            </div>`;
+        }
+
+        window.filterRequests = function(filter, el) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            renderList();
+        };
+
+        // ── APPROVE / REJECT ──
+        window.updateRequest = async function(id, status) {
+            const approveBtn = document.getElementById('approve-' + id);
+            const rejectBtn  = document.getElementById('reject-' + id);
+            if (approveBtn) approveBtn.disabled = true;
+            if (rejectBtn)  rejectBtn.disabled  = true;
+
+            try {
+                // 1. ✅ Firestore मध्ये status update करा
+                await fs.collection('sy_payment_requests').doc(id).update({
+                    status:     status,
+                    reviewedAt: Date.now()
+                });
+
+                // 2. If approved → RTDB users/{uid}/branch आणि users/{uid}/unlockedBranches/SY/{branch} set करा
+                if (status === 'approved') {
+                    // Firestore document मधून data घ्या
+                    const docSnap = await fs.collection('sy_payment_requests').doc(id).get();
+                    const d = docSnap.data();
+
+                    if (d && d.prn && d.branch) {
+                        const unlockData = {
+                            unlockedAt:  Date.now(),
+                            expiresAt:   Date.now() + (365 * 24 * 60 * 60 * 1000), // 1 year
+                            branchName:  d.branchName || d.branch,
+                            studentName: d.studentName || '',
+                            year:        'SY'
+                        };
+
+                        // PRN द्वारे user शोधा RTDB मध्ये
+                        const userSnap = await rtdb.ref('users').orderByChild('prn').equalTo(d.prn).once('value');
+                        if (userSnap.exists()) {
+                            const updates = [];
+                            userSnap.forEach(child => {
+                                const uid = child.key;
+                                // ✅ users/{uid}/branch — role च्या खाली branch key set करा
+                                updates.push(
+                                    rtdb.ref(`users/${uid}/branch`).set(d.branch)
+                                );
+                                // ✅ users/{uid}/unlockedBranches/SY/{branchCode} — expiry सह unlock record
+                                updates.push(
+                                    rtdb.ref(`users/${uid}/unlockedBranches/SY/${d.branch}`).set(unlockData)
+                                );
+                            });
+                            await Promise.all(updates);
+                            showToast('✅ Branch Unlocked — users node updated!', 'success');
+                        } else {
+                            showToast('⚠️ Approved पण PRN user सापडला नाही', 'error');
+                        }
+                    }
+                } else {
+                    showToast('❌ Payment Rejected', 'error');
+                }
+            } catch (err) {
+                showToast('❌ Error: ' + err.message, 'error');
+                if (approveBtn) approveBtn.disabled = false;
+                if (rejectBtn)  rejectBtn.disabled  = false;
+            }
+        };
+
+        window.openLightbox = function(src) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightbox').classList.add('open');
+        };
+        window.closeLightbox = function() {
+            document.getElementById('lightbox').classList.remove('open');
+        };
+    </script>
+
+    <script>
+        document.documentElement.setAttribute('data-theme','light');
+        function toggleTheme() {
+            const cur = document.documentElement.getAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', cur==='dark'?'light':'dark');
+            document.getElementById('themeIcon').className = cur==='dark'?'fa-solid fa-moon':'fa-solid fa-sun';
+        }
+        function showToast(msg, type='success') {
+            const t = document.getElementById('toast');
+            t.className = 'toast ' + type;
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+        window.showToast = showToast;
+    </script>
+</body>
+</html>
