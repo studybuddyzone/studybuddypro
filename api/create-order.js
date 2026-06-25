@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
       customer_phone: "9999999999",
     },
     order_meta: {
-      return_url: "https://studybuddypro-psi.vercel.app/payment-gateway.html?order_id={order_id}&status=paid&prn=" + (body.prn || "") + "&branch=" + (body.branch || ""),
+      return_url: "https://studybuddypro-psi.vercel.app/payment-gateway.html?order_id={order_id}&status=paid",
     },
   });
 
