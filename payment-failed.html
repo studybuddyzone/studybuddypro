@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Payment Failed | StudyBuddyZone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg:#f5f6fa; --card-bg:#ffffff; --border:#e5e7eb;
+            --primary:#5c6bc0; --primary-glow:#eef0fb;
+            --text-main:#111111; --text-muted:#6b7280;
+            --hover-bg:#f0f1f5;
+            --danger:#ef4444; --danger-light:#fee2e2; --danger-dark:#dc2626;
+        }
+        [data-theme="dark"] {
+            --bg:#0a0a0a; --card-bg:#141414; --border:#2a2a2a;
+            --primary:#7986cb; --primary-glow:#1a1c2e;
+            --text-main:#f5f5f5; --text-muted:#888888;
+            --hover-bg:#1a1a1a;
+            --danger:#f87171; --danger-light:#450a0a; --danger-dark:#fca5a5;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; }
+        body {
+            background:var(--bg); color:var(--text-main);
+            min-height:100vh; display:flex; flex-direction:column;
+            align-items:center;
+        }
+
+        /* HEADER */
+        .top-header {
+            width:100%; position:sticky; top:0; z-index:100;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0 20px; height:56px;
+            background:var(--card-bg); border-bottom:1px solid var(--border);
+            box-shadow:0 1px 8px rgba(0,0,0,0.05);
+        }
+        .header-left { display:flex; align-items:center; gap:12px; }
+        .header-title { font-size:16px; font-weight:800; }
+        .theme-btn {
+            width:36px; height:36px; border-radius:50%; border:none;
+            background:var(--hover-bg); color:var(--text-main);
+            display:flex; align-items:center; justify-content:center;
+            font-size:14px; cursor:pointer;
+        }
+
+        /* CONTENT */
+        .content {
+            max-width:420px; width:100%;
+            padding:40px 20px 60px 20px;
+            display:flex; flex-direction:column; align-items:center;
+        }
+
+        /* X ANIMATION */
+        .x-wrap {
+            position:relative;
+            width:110px; height:110px;
+            margin-bottom:28px;
+        }
+        .x-circle {
+            width:110px; height:110px; border-radius:50%;
+            background:linear-gradient(135deg, #ef4444, #dc2626);
+            display:flex; align-items:center; justify-content:center;
+            animation: popIn 0.55s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+            box-shadow: 0 8px 32px rgba(239,68,68,0.35);
+        }
+        .x-circle i { color:#fff; font-size:44px; }
+        .shake-ring {
+            position:absolute; inset:-10px; border-radius:50%;
+            border:3px solid rgba(239,68,68,0.25);
+            animation: shakeRing 0.6s ease 0.4s both;
+        }
+        @keyframes popIn {
+            0%  { transform:scale(0); opacity:0; }
+            70% { transform:scale(1.1); }
+            100%{ transform:scale(1); opacity:1; }
+        }
+        @keyframes shakeRing {
+            0%,100% { transform:rotate(0deg) scale(1.1); }
+            20%     { transform:rotate(-8deg) scale(1.12); }
+            40%     { transform:rotate(8deg) scale(1.12); }
+            60%     { transform:rotate(-5deg) scale(1.11); }
+            80%     { transform:rotate(5deg) scale(1.11); }
+        }
+
+        .fail-title {
+            font-size:26px; font-weight:900;
+            text-align:center; margin-bottom:8px;
+            animation: fadeUp 0.5s ease 0.3s both;
+        }
+        .fail-sub {
+            font-size:14px; color:var(--text-muted);
+            text-align:center; line-height:1.6;
+            margin-bottom:32px;
+            animation: fadeUp 0.5s ease 0.4s both;
+        }
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(14px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        /* DETAIL CARD */
+        .detail-card {
+            width:100%;
+            background:var(--card-bg);
+            border:1px solid var(--border);
+            border-radius:20px;
+            overflow:hidden;
+            margin-bottom:20px;
+            animation: fadeUp 0.5s ease 0.5s both;
+            box-shadow:0 2px 16px rgba(0,0,0,0.04);
+        }
+        .detail-card-header {
+            background:linear-gradient(135deg, #ef4444, #dc2626);
+            padding:16px 20px;
+            display:flex; align-items:center; gap:10px;
+        }
+        .detail-card-header span {
+            font-size:13px; font-weight:800; color:#fff;
+        }
+        .detail-card-header i { color:rgba(255,255,255,0.85); font-size:14px; }
+        .detail-row {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:13px 20px;
+            border-bottom:1px solid var(--border);
+        }
+        .detail-row:last-child { border-bottom:none; }
+        .detail-label { font-size:12px; color:var(--text-muted); font-weight:600; }
+        .detail-value { font-size:13px; font-weight:800; color:var(--text-main); text-align:right; max-width:60%; word-break:break-all; }
+        .detail-value.badge-fail {
+            background:var(--danger-light); color:var(--danger-dark);
+            font-size:11px; font-weight:900;
+            padding:3px 10px; border-radius:20px;
+        }
+
+        /* REASON BOX */
+        .reason-box {
+            width:100%;
+            background:var(--danger-light);
+            border:1.5px solid rgba(239,68,68,0.25);
+            border-left:4px solid #ef4444;
+            border-radius:14px;
+            padding:14px 16px;
+            margin-bottom:24px;
+            animation: fadeUp 0.5s ease 0.55s both;
+        }
+        .reason-box .rb-title {
+            font-size:12px; font-weight:800; color:var(--danger);
+            margin-bottom:6px; display:flex; align-items:center; gap:6px;
+        }
+        .reason-box .rb-text {
+            font-size:12.5px; color:var(--text-muted); line-height:1.6;
+        }
+
+        /* TIPS */
+        .tips-card {
+            width:100%;
+            background:var(--card-bg);
+            border:1px solid var(--border);
+            border-radius:16px;
+            padding:16px 18px;
+            margin-bottom:24px;
+            animation: fadeUp 0.5s ease 0.6s both;
+        }
+        .tips-title {
+            font-size:12px; font-weight:800; color:var(--text-muted);
+            text-transform:uppercase; letter-spacing:0.5px;
+            margin-bottom:12px;
+        }
+        .tip-item {
+            display:flex; align-items:flex-start; gap:10px;
+            margin-bottom:10px;
+        }
+        .tip-item:last-child { margin-bottom:0; }
+        .tip-icon {
+            width:28px; height:28px; border-radius:8px;
+            background:var(--primary-glow);
+            display:flex; align-items:center; justify-content:center;
+            font-size:13px; color:var(--primary); flex-shrink:0;
+        }
+        .tip-text { font-size:12.5px; color:var(--text-muted); line-height:1.5; padding-top:5px; }
+
+        /* BUTTONS */
+        .btn-retry {
+            display:flex; align-items:center; justify-content:center; gap:10px;
+            width:100%; padding:16px;
+            background:linear-gradient(135deg, #7c4dff, #e040fb);
+            color:#fff; font-size:15px; font-weight:800;
+            border:none; border-radius:16px; cursor:pointer;
+            text-decoration:none;
+            box-shadow:0 6px 24px rgba(124,77,255,0.35);
+            transition:transform 0.15s, box-shadow 0.15s;
+            margin-bottom:12px;
+            animation: fadeUp 0.5s ease 0.65s both;
+        }
+        .btn-retry:hover { transform:translateY(-2px); box-shadow:0 10px 32px rgba(124,77,255,0.45); }
+        .btn-secondary {
+            display:flex; align-items:center; justify-content:center; gap:8px;
+            width:100%; padding:14px;
+            background:var(--hover-bg); color:var(--text-muted);
+            font-size:14px; font-weight:700;
+            border:none; border-radius:14px; cursor:pointer;
+            text-decoration:none;
+            transition:background 0.15s;
+            animation: fadeUp 0.5s ease 0.7s both;
+        }
+        .btn-secondary:hover { background:var(--border); }
+
+        /* SUPPORT ROW */
+        .support-row {
+            display:flex; align-items:center; justify-content:center;
+            gap:6px; margin-top:20px;
+            font-size:12px; color:var(--text-muted);
+            animation: fadeUp 0.5s ease 0.75s both;
+        }
+        .support-row a {
+            color:var(--primary); font-weight:700; text-decoration:none;
+        }
+        .support-row a:hover { text-decoration:underline; }
+    </style>
+</head>
+<body>
+    <header class="top-header">
+        <div class="header-left">
+            <span class="header-title">Payment Failed</span>
+        </div>
+        <button class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
+    </header>
+
+    <div class="content">
+
+        <!-- X ICON -->
+        <div class="x-wrap">
+            <div class="shake-ring"></div>
+            <div class="x-circle"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+
+        <div class="fail-title">Payment Failed 😔</div>
+        <div class="fail-sub" id="failSub">
+            कुछ गड़बड़ हो गई। घबराओ मत —<br>
+            पैसे deduct हुए हैं तो 5-7 दिनों में refund होंगे।
+        </div>
+
+        <!-- DETAIL CARD -->
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Transaction Details</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Amount</span>
+                <span class="detail-value">₹30.00</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Status</span>
+                <span class="detail-value badge-fail" id="statusBadge">❌ FAILED</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Student</span>
+                <span class="detail-value" id="detStudentName">—</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">PRN</span>
+                <span class="detail-value" id="detPRN">—</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Order ID</span>
+                <span class="detail-value" id="detOrderId" style="font-size:11px; color:var(--text-muted);">—</span>
+            </div>
+        </div>
+
+        <!-- REASON BOX -->
+        <div class="reason-box" id="reasonBox">
+            <div class="rb-title"><i class="fa-solid fa-circle-info"></i> क्यों fail हुआ?</div>
+            <div class="rb-text" id="reasonText">
+                Payment cancel हुई या network issue था। दोबारा try करो।
+            </div>
+        </div>
+
+        <!-- TIPS -->
+        <div class="tips-card">
+            <div class="tips-title">दोबारा try करने से पहले check करो</div>
+            <div class="tip-item">
+                <div class="tip-icon"><i class="fa-solid fa-wifi"></i></div>
+                <div class="tip-text">Internet connection stable होना चाहिए।</div>
+            </div>
+            <div class="tip-item">
+                <div class="tip-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                <div class="tip-text">Bank account / UPI में sufficient balance हो।</div>
+            </div>
+            <div class="tip-item">
+                <div class="tip-icon"><i class="fa-solid fa-credit-card"></i></div>
+                <div class="tip-text">Card/UPI daily limit check करो।</div>
+            </div>
+            <div class="tip-item">
+                <div class="tip-icon"><i class="fa-solid fa-rotate"></i></div>
+                <div class="tip-text">App force-close मत करो payment के बीच में।</div>
+            </div>
+        </div>
+
+        <!-- BUTTONS -->
+        <a href="#" class="btn-retry" id="retryBtn">
+            <i class="fa-solid fa-rotate-right"></i>
+            फिर से Pay करें — ₹30
+        </a>
+        <a href="index.html" class="btn-secondary">
+            <i class="fa-solid fa-house"></i>
+            Home पर जाएं
+        </a>
+
+        <!-- SUPPORT -->
+        <div class="support-row">
+            <i class="fa-solid fa-headset"></i>
+            Problem है?
+            <a href="https://wa.me/919049321230?text=Payment%20failed%20help%20needed" target="_blank">
+                WhatsApp Support
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        // ── THEME ──
+        document.documentElement.setAttribute('data-theme','light');
+        function toggleTheme() {
+            const cur = document.documentElement.getAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', cur==='dark'?'light':'dark');
+            document.getElementById('themeIcon').className = cur==='dark'?'fa-solid fa-moon':'fa-solid fa-sun';
+        }
+
+        // ── READ URL PARAMS ──
+        const params = new URLSearchParams(window.location.search);
+        const orderId     = params.get('order_id') || params.get('cf_order_id') || '—';
+        const payStatus   = params.get('payment_status') || 'FAILED';
+
+        const studentName = sessionStorage.getItem('sbz_name') || params.get('name') || 'Student';
+        const studentPRN  = sessionStorage.getItem('sbz_prn')  || params.get('prn')  || '—';
+        const branchName  = sessionStorage.getItem('sbz_branchName') || params.get('branchName') || 'Branch';
+        const branchCode  = sessionStorage.getItem('sbz_branch') || params.get('branch') || '';
+
+        // Fill details
+        document.getElementById('detStudentName').textContent = studentName;
+        document.getElementById('detPRN').textContent         = studentPRN !== '—' ? 'PRN: ' + studentPRN : '—';
+        document.getElementById('detOrderId').textContent     = orderId;
+
+        // Status badge & reason
+        const statusEl = document.getElementById('statusBadge');
+        const reasonEl = document.getElementById('reasonText');
+        const subEl    = document.getElementById('failSub');
+        const status   = payStatus.toUpperCase();
+
+        if (status === 'CANCELLED' || status === 'USER_DROPPED') {
+            statusEl.textContent = '⚠️ CANCELLED';
+            reasonEl.textContent = 'Payment बीच में cancel हो गई। अगर balance deduct हुआ है तो 5-7 दिनों में refund आएगा।';
+            subEl.innerHTML = `<strong>${studentName}</strong>, payment cancel हो गई।<br>फिर से try करो, कोई issue नहीं!`;
+        } else if (status === 'PENDING') {
+            statusEl.textContent = '⏳ PENDING';
+            statusEl.style.background = '#fef3c7';
+            statusEl.style.color = '#92400e';
+            reasonEl.textContent = 'Payment pending है। थोड़ी देर में automatically update होगा। अगर 1 घंटे बाद भी pending है तो support से contact करो।';
+            subEl.innerHTML = `<strong>${studentName}</strong>, payment pending state में है।<br>1-2 घंटे wait करो।`;
+        } else {
+            statusEl.textContent = '❌ FAILED';
+            reasonEl.textContent = 'Bank या payment gateway से transaction decline हुई। Balance, limit या network issue हो सकता है। फिर से try करो।';
+            subEl.innerHTML = `<strong>${studentName}</strong>, payment fail हो गई।<br>घबराओ मत — फिर से try करो!`;
+        }
+
+        // Retry button — pass back all params so payment-gateway pre-fills
+        const retryBtn = document.getElementById('retryBtn');
+        const retryParams = new URLSearchParams({
+            prn: studentPRN,
+            name: studentName,
+            branch: branchCode,
+            branchName: branchName
+        });
+        retryBtn.href = 'payment-gateway.html?' + retryParams.toString();
+    </script>
+</body>
+</html>
