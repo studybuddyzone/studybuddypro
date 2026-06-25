@@ -12,18 +12,18 @@ module.exports = async (req, res) => {
     order_amount: body.amount || 30,
     order_currency: "INR",
     customer_details: {
-      customer_id: body.prn,           // Student ka actual PRN
-      customer_name: body.name,        // Student ka actual Name
-      customer_email: body.prn + "@studybuddypro.com",
-      customer_phone: "9999999999",    // Phone nahi hai toh default
+      customer_id: body.prn || "TEST001",
+      customer_name: body.name || "Student",
+      customer_email: "student@studybuddypro.com",
+      customer_phone: "9999999999",
     },
     order_meta: {
-      return_url: "https://studybuddypro-psi.vercel.app/payment-gateway.html?order_id={order_id}&status=paid&prn=" + (body.prn || "") + "&branch=" + (body.branch || ""),
+      return_url: "https://studybuddypro-psi.vercel.app/payment-gateway.html?order_id={order_id}&status=paid",
     },
   });
 
   const options = {
-    hostname: "api.cashfree.com",
+    hostname: "sandbox.cashfree.com",
     path: "/pg/orders",
     method: "POST",
     headers: {
