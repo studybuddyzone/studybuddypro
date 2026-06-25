@@ -512,7 +512,7 @@
         document.head.appendChild(cfScript);
 
         async function payOnline() {
-          const cashfree = Cashfree({ mode: "sandbox" });
+          const cashfree = Cashfree({ mode: "production" });
           const btn = document.getElementById('onlinePayBtn');
           btn.disabled = true;
           btn.innerHTML = '⏳ Loading...';
