@@ -167,14 +167,17 @@
   .t-silver .tier-section{border-color:#cbd5e1;background:#f8fafc;}
   .t-silver .tier-name-big{color:var(--silver);}
   .t-silver .tier-amount{color:var(--silver);}
+  .t-silver .receipt-header{background:linear-gradient(135deg,#16a34a 0%,#15803d 50%,#166534 100%);}
   /* Gold */
   .t-gold .tier-section{border-color:#fcd34d;background:#fffbeb;}
   .t-gold .tier-name-big{color:var(--gold);}
   .t-gold .tier-amount{color:var(--gold);}
+  .t-gold .receipt-header{background:linear-gradient(135deg,#dc2626 0%,#b91c1c 50%,#991b1b 100%);}
   /* Diamond */
   .t-diamond .tier-section{border-color:#a5f3fc;background:#ecfeff;}
   .t-diamond .tier-name-big{color:var(--diamond);}
   .t-diamond .tier-amount{color:var(--diamond);}
+  .t-diamond .receipt-header{background:linear-gradient(135deg,#92400e 0%,#d97706 30%,#f59e0b 55%,#b45309 80%,#78350f 100%);}
 
   /* Features list */
   .features{margin-bottom:24px;}
@@ -309,12 +312,12 @@ const db = getFirestore(app);
 const TIER_INFO = {
   silver: {
     icon: '🥈', name: 'SILVER TIER', color: 't-silver',
-    features: ['Handwritten Notes', 'Previous Year Questions (PYQs)', 'Solo MCQ Practice'],
+    features: ['Handwritten Notes', 'Previous Year Questions (PYQs)', 'Question Bank', 'Solo MCQ Practice'],
     price: 20
   },
   gold: {
     icon: '🥇', name: 'GOLD TIER', color: 't-gold',
-    features: ['All Silver features', 'Battle Arena Access', 'Competitive Zone','Questions bank', 'Exclusive Content'],
+    features: ['All Silver features', 'Battle Arena Access', 'Competitive Zone', 'Exclusive Content'],
     price: 50
   },
   diamond: {
