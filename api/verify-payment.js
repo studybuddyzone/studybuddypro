@@ -4,7 +4,7 @@ const https = require("https");
 async function verifyCashfreeOrder(orderId) {
   return new Promise((resolve, reject) => {
     const req = https.request({
-      hostname: "sandbox.cashfree.com",
+      hostname: "api.cashfree.com",
       path: `/pg/orders/${orderId}`,
       method: "GET",
       headers: {
