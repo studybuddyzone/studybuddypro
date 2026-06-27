@@ -623,7 +623,7 @@ window.initiateCashfreePayment = async function() {
     const data = await res.json();
     if (!data.payment_session_id) throw new Error(data.message || 'Order creation failed');
 
-    const cashfree = await load({ mode: 'production' });
+    const cashfree = await Cashfree({ mode: 'production' });
     cashfree.checkout({ paymentSessionId: data.payment_session_id, redirectTarget: '_self' });
 
   } catch (err) {
