@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Study Zone | SY AIML | StudyBuddy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --bg:#ffffff; --card-bg:#ffffff; --sidebar-bg:#ffffff;
+            --border:#e5e7eb; --primary:#5c6bc0; --primary-glow:#eef0fb;
+            --accent:#ff7043; --text-main:#111111; --text-muted:#6b7280;
+            --noti-bg:#f9fafb; --noti-border:#e5e7eb; --hover-bg:#f5f5f5;
+            --footer-bg:#fafafa; --gold:#d4a017; --gold-glow:rgba(212,160,23,0.12);
+        }
+        [data-theme="dark"] {
+            --bg:#0a0a0a; --card-bg:#141414; --sidebar-bg:#111111;
+            --border:#2a2a2a; --primary:#7986cb; --primary-glow:#1a1c2e;
+            --accent:#ff7043; --text-main:#f5f5f5; --text-muted:#888888;
+            --noti-bg:#141414; --noti-border:#2a2a2a; --hover-bg:#1a1a1a;
+            --footer-bg:#0d0d0d; --gold:#f0b429; --gold-glow:rgba(240,180,41,0.1);
+        }
+        * { margin:0; padding:0; box-sizing:border-box !important; font-family:'Plus Jakarta Sans',sans-serif; transition:background-color 0.2s ease,border-color 0.2s ease,color 0.2s ease; }
+
+        /* MAINTENANCE */
+        #maintenanceOverlay { display:none; position:fixed; inset:0; z-index:99999; background:#070a13; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px; }
+        #maintenanceOverlay.show { display:flex; }
+        .maint-overlay-icon { font-size:72px; color:#f59e0b; filter:drop-shadow(0 0 30px rgba(245,158,11,0.5)); margin-bottom:24px; animation:maintPulse 2s ease-in-out infinite; }
+        @keyframes maintPulse { 0%,100%{filter:drop-shadow(0 0 20px rgba(245,158,11,0.4));transform:scale(1);}50%{filter:drop-shadow(0 0 50px rgba(245,158,11,0.8));transform:scale(1.05);} }
+        .maint-overlay-title { font-size:36px; font-weight:800; color:#fff; background:linear-gradient(135deg,#f59e0b,#ef4444); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:12px; }
+        .maint-overlay-subtitle { font-size:15px; color:#94a3b8; max-width:420px; line-height:1.7; margin-bottom:30px; }
+        .maint-overlay-badge { background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); color:#f59e0b; padding:10px 24px; border-radius:50px; font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; animation:badgeBlink 1.5s ease-in-out infinite; }
+        @keyframes badgeBlink { 0%,100%{opacity:1;}50%{opacity:0.6;} }
+        .maint-overlay-dots { display:flex; gap:8px; margin-top:40px; }
+        .maint-dot { width:8px; height:8px; border-radius:50%; background:#f59e0b; animation:dotBounce 1.4s ease-in-out infinite; }
+        .maint-dot:nth-child(2){animation-delay:.2s;background:#fb923c;}
+        .maint-dot:nth-child(3){animation-delay:.4s;background:#ef4444;}
+        @keyframes dotBounce { 0%,80%,100%{transform:scale(0.8);opacity:0.5;}40%{transform:scale(1.3);opacity:1;} }
+
+        body { background-color:var(--bg); color:var(--text-main); min-height:100vh; display:flex; flex-direction:column; align-items:center; overflow-x:hidden; }
+
+        /* HEADER */
+        .top-header { width:100%; display:flex; align-items:center; justify-content:space-between; padding:16px 40px; background:var(--sidebar-bg); border-bottom:1px solid var(--border); position:fixed; top:0; left:0; z-index:1000; }
+        .header-left { display:flex; align-items:center; min-width:0; gap:12px; width:100%; }
+        .back-btn { font-size:17px; color:var(--text-main); width:36px; height:36px; background:var(--hover-bg); border:1px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none; flex-shrink:0; transition:background 0.15s,transform 0.15s; }
+        .back-btn:hover { background:var(--border); transform:scale(1.05); }
+        .menu-btn { font-size:22px; color:var(--text-main); cursor:pointer; flex-shrink:0; }
+        .web-title { font-size:19px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-grow:1; }
+        .web-title span { color:#5c6bc0; }
+        .header-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .header-action-btn { font-size:17px; color:var(--text-muted); cursor:pointer; width:38px; height:38px; background:var(--hover-bg); border:1px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; outline:none; }
+        .header-profile-btn { width:36px; height:36px; border-radius:50%; background:var(--primary-glow); color:var(--primary); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; transition:background 0.15s,transform 0.15s; text-decoration:none; }
+        .header-profile-btn:hover { background:var(--border); transform:scale(1.07); }
+        @media(max-width:600px){ .top-header{padding:13px 14px;} .web-title{font-size:16px;} .header-action-btn,.back-btn{width:34px;height:34px;font-size:14px;} }
+
+        /* TICKER */
+        .premium-ticker-wrapper { width:100%; max-width:1160px; margin:82px auto 0 auto; padding:0 20px; }
+        @media(max-width:600px){ .premium-ticker-wrapper{margin-top:74px;padding:0 12px;} }
+        .premium-ticker-container { width:100%; background:var(--noti-bg); border:1px solid var(--noti-border); border-radius:12px; padding:10px 16px; display:flex; align-items:center; overflow:hidden; }
+        .ticker-badge { background:linear-gradient(135deg,var(--primary),var(--accent)); color:white; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase; display:flex; align-items:center; gap:6px; margin-right:15px; white-space:nowrap; }
+        .ticker-marquee-box { flex-grow:1; overflow:hidden; position:relative; height:20px; display:flex; align-items:center; }
+        .marquee-text-content { display:inline-block; white-space:nowrap; font-size:13px; font-weight:500; color:var(--text-main); position:absolute; padding-left:100%; animation:marqueeAnim 4s linear infinite; }
+        @keyframes marqueeAnim { 0%{transform:translate3d(0,0,0);}100%{transform:translate3d(-100%,0,0);} }
+        .premium-ticker-container:hover .marquee-text-content { animation-play-state:paused; }
+
+        /* SIDEBAR */
+        .sidebar { position:fixed; top:0; left:-320px; width:320px; height:100%; background:var(--sidebar-bg); border-right:1px solid var(--border); z-index:2000; transition:left 0.3s cubic-bezier(0.16,1,0.3,1); display:flex; flex-direction:column; padding:20px; }
+        .sidebar.active { left:0; }
+        .close-sidebar-btn { align-self:flex-end; font-size:20px; color:var(--text-muted); cursor:pointer; margin-bottom:15px; }
+        .user-details-card { background:var(--hover-bg); border:1px solid var(--border); border-radius:14px; padding:15px; margin-bottom:25px; }
+        .user-profile-header { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+        .user-profile-header i { font-size:32px; color:var(--primary); }
+        .user-profile-header h4 { font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+        .user-role-badge { font-size:11px; padding:4px 12px; border-radius:6px; font-weight:800; display:inline-block; text-transform:uppercase; color:white; background:#64748b; letter-spacing:0.5px; }
+        .sidebar-menu-items { list-style:none; display:flex; flex-direction:column; gap:6px; }
+        .menu-item-link { display:flex; align-items:center; gap:15px; padding:12px 16px; color:var(--text-main); text-decoration:none; font-size:14.5px; font-weight:500; border-radius:10px; cursor:pointer; }
+        .menu-item-link i { font-size:16px; color:var(--text-muted); width:20px; }
+        .menu-item-link:hover { background:var(--primary-glow); color:var(--primary); }
+        .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:1999; }
+
+        /* MAIN */
+        .main-content { width:100%; max-width:900px; margin-top:30px; padding:25px 20px 40px 20px; flex-grow:1; }
+
+        /* BRANCH HERO */
+        .branch-hero { display:flex; align-items:center; gap:18px; background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:22px 24px; margin-bottom:20px; position:relative; overflow:hidden; }
+        .branch-hero::before { content:''; position:absolute; top:-40px; right:-40px; width:140px; height:140px; border-radius:50%; background:var(--primary-glow); pointer-events:none; }
+        .branch-hero-icon { width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; background:#fce4ec; color:#e91e63; box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+        [data-theme="dark"] .branch-hero-icon { background:rgba(233,30,99,0.15); color:#f48fb1; }
+        .branch-hero-title { font-size:19px; font-weight:800; margin-bottom:4px; letter-spacing:-0.3px; }
+        .branch-hero-sub { font-size:12px; color:var(--text-muted); font-weight:500; }
+        .branch-hero-badge { font-size:10.5px; font-weight:700; background:var(--primary-glow); color:var(--primary); border-radius:20px; padding:4px 12px; margin-top:8px; display:inline-block; text-transform:uppercase; letter-spacing:0.5px; }
+
+        /* GOLD INFO BANNER */
+        .gold-info-banner {
+            display:flex; align-items:flex-start; gap:13px;
+            background:linear-gradient(135deg, rgba(212,160,23,0.09), rgba(240,180,41,0.05));
+            border:1px solid rgba(212,160,23,0.35);
+            border-left:4px solid var(--gold);
+            border-radius:14px; padding:14px 16px; margin-bottom:20px;
+        }
+        .gold-info-icon { color:var(--gold); font-size:18px; flex-shrink:0; margin-top:1px; }
+        .gold-info-text { font-size:12.5px; color:var(--text-muted); line-height:1.7; }
+        .gold-info-text strong { color:var(--text-main); font-weight:700; }
+        .gold-info-text .gold-tag {
+            display:inline-flex; align-items:center; gap:4px;
+            background:linear-gradient(135deg,#d4a017,#f0b429);
+            color:#fff; font-size:10.5px; font-weight:800;
+            border-radius:20px; padding:2px 10px; letter-spacing:0.3px;
+            vertical-align:middle; margin:0 2px;
+        }
+
+        /* PAGE HEADING */
+        .page-heading { margin-bottom:16px; }
+        .page-heading h2 { font-size:17px; font-weight:800; margin-bottom:3px; }
+        .page-heading p { font-size:12.5px; color:var(--text-muted); }
+
+        /* GRID */
+        .subjects-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+        @media(max-width:500px) { .subjects-grid { grid-template-columns:1fr; } }
+
+        /* ════ SUBJECT CARD ════ */
+        .subject-card {
+            display:flex; flex-direction:column; align-items:flex-start;
+            background:var(--card-bg); border:1px solid var(--border);
+            border-radius:18px; padding:20px 18px 18px 18px;
+            position:relative; overflow:hidden;
+            transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+        .subject-card.unlocked { cursor:pointer; }
+        .subject-card.unlocked:hover { transform:translateY(-4px); box-shadow:0 10px 30px rgba(92,107,192,0.13); border-color:var(--primary); }
+        .subject-card-icon { width:48px; height:48px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:21px; margin-bottom:14px; flex-shrink:0; }
+        .subject-card-name { font-size:15px; font-weight:800; margin-bottom:5px; letter-spacing:-0.2px; }
+        .subject-card-desc { font-size:12px; color:var(--text-muted); font-weight:500; line-height:1.5; margin-bottom:14px; flex-grow:1; }
+        .subject-card-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .subject-card-badge { font-size:10.5px; font-weight:700; border-radius:7px; padding:4px 10px; display:flex; align-items:center; gap:5px; }
+
+        /* icon colors */
+        .s-third .subject-card-icon { background:#fce4ec; color:#e91e63; }
+        .s-fourth .subject-card-icon { background:#f3e5f5; color:#7b1fa2; }
+        .s-notes .subject-card-icon { background:#e8f5e9; color:#2e7d32; }
+        .s-piqs .subject-card-icon { background:#fce4ec; color:#c2185b; }
+        [data-theme="dark"] .s-third .subject-card-icon { background:rgba(92,107,192,0.15); color:#9fa8da; }
+        [data-theme="dark"] .s-fourth .subject-card-icon { background:rgba(21,101,192,0.15); color:#90caf9; }
+        [data-theme="dark"] .s-notes .subject-card-icon { background:rgba(46,125,50,0.15); color:#a5d6a7; }
+        [data-theme="dark"] .s-piqs .subject-card-icon { background:rgba(194,24,91,0.15); color:#f48fb1; }
+
+        /* ════ GOLD LOCK OVERLAY on card ════ */
+        .card-gold-lock {
+            position:absolute; inset:0; border-radius:18px;
+            background:rgba(var(--bg-rgb,255,255,255), 0.0);
+            backdrop-filter:blur(3.5px);
+            -webkit-backdrop-filter:blur(3.5px);
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            gap:10px; z-index:5; cursor:pointer;
+            border-radius:18px;
+        }
+        [data-theme="dark"] .card-gold-lock { background:rgba(10,10,10,0.0); }
+        .card-gold-lock-inner {
+            background:var(--card-bg);
+            border:1.5px solid rgba(212,160,23,0.45);
+            border-radius:14px; padding:14px 20px;
+            display:flex; flex-direction:column; align-items:center; gap:8px;
+            box-shadow:0 4px 24px rgba(212,160,23,0.18);
+            min-width:150px;
+        }
+        .card-gold-lock-icon {
+            width:40px; height:40px; border-radius:50%;
+            background:linear-gradient(135deg,#d4a017,#f0b429);
+            display:flex; align-items:center; justify-content:center;
+            font-size:17px; color:#fff;
+            box-shadow:0 3px 12px rgba(212,160,23,0.4);
+        }
+        .card-gold-lock-label {
+            font-size:12px; font-weight:800; color:var(--text-main);
+            text-align:center; letter-spacing:0.1px;
+        }
+        .card-gold-lock-tag {
+            display:inline-flex; align-items:center; gap:5px;
+            background:linear-gradient(135deg,#d4a017,#f0b429);
+            color:#fff; font-size:10px; font-weight:800;
+            border-radius:20px; padding:3px 10px; letter-spacing:0.4px;
+        }
+
+        /* ════ CONTENT LIST (unlocked) ════ */
+        .card-content-list { width:100%; display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+        .card-content-item {
+            display:flex; align-items:center; justify-content:space-between;
+            background:var(--hover-bg); border:1px solid var(--border);
+            border-radius:10px; padding:10px 14px;
+            text-decoration:none; color:var(--text-main);
+            font-size:13px; font-weight:600;
+            transition:background 0.15s,border-color 0.15s; gap:10px;
+        }
+        .card-content-item:hover { background:var(--primary-glow); border-color:var(--primary); color:var(--primary); }
+        .card-content-item-left { display:flex; align-items:center; gap:10px; }
+        .card-content-item-left i { font-size:14px; color:var(--text-muted); width:18px; flex-shrink:0; }
+        .card-content-item:hover .card-content-item-left i { color:var(--primary); }
+        .card-content-item-right { font-size:11px; color:var(--text-muted); background:var(--border); border-radius:5px; padding:2px 7px; white-space:nowrap; }
+        .card-loading { font-size:12px; color:var(--text-muted); text-align:center; padding:16px 0; }
+        .card-empty { font-size:12px; color:var(--text-muted); text-align:center; padding:14px 0; opacity:0.7; }
+
+        /* ════ GOLD LOCK BOTTOM SHEET ════ */
+        .gold-sheet-backdrop { position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,0.55); backdrop-filter:blur(3px); opacity:0; pointer-events:none; transition:opacity 0.25s ease; }
+        .gold-sheet-backdrop.open { opacity:1; pointer-events:all; }
+        .gold-popup-sheet {
+            position:fixed; bottom:-100%; left:0; right:0; z-index:9001;
+            background:var(--card-bg); border-radius:24px 24px 0 0;
+            padding:10px 24px 40px 24px;
+            box-shadow:0 -8px 40px rgba(0,0,0,0.18);
+            transition:bottom 0.32s cubic-bezier(0.4,0,0.2,1);
+            max-width:480px; margin:0 auto;
+        }
+        .gold-popup-sheet.open { bottom:0; }
+        .gold-sheet-handle { width:40px; height:4px; border-radius:4px; background:var(--border); margin:0 auto 22px auto; }
+        .gold-sheet-icon {
+            width:68px; height:68px; border-radius:20px;
+            background:linear-gradient(135deg,#d4a017,#f0b429);
+            display:flex; align-items:center; justify-content:center;
+            font-size:28px; color:#fff; margin:0 auto 14px auto;
+            box-shadow:0 6px 24px rgba(212,160,23,0.4);
+        }
+        .gold-sheet-title { font-size:20px; font-weight:800; text-align:center; margin-bottom:6px; letter-spacing:-0.3px; }
+        .gold-sheet-subtitle { font-size:13px; color:var(--gold); font-weight:700; text-align:center; margin-bottom:10px; }
+        .gold-sheet-desc { font-size:12.5px; color:var(--text-muted); text-align:center; line-height:1.7; margin-bottom:22px; }
+        .gold-sheet-features {
+            display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:22px;
+        }
+        .gold-sheet-feature {
+            background:var(--hover-bg); border:1px solid var(--border);
+            border-radius:10px; padding:10px 12px;
+            font-size:12px; font-weight:600; color:var(--text-main);
+            display:flex; align-items:center; gap:8px;
+        }
+        .gold-sheet-feature i { color:var(--gold); font-size:14px; }
+        .gold-sheet-btn-primary {
+            display:flex; align-items:center; justify-content:center; gap:10px;
+            width:100%; padding:15px;
+            background:linear-gradient(135deg,#d4a017,#f0b429);
+            color:#fff; font-size:15px; font-weight:800;
+            border:none; border-radius:14px; cursor:pointer;
+            box-shadow:0 6px 20px rgba(212,160,23,0.4);
+            text-decoration:none; margin-bottom:10px;
+            transition:transform 0.15s,box-shadow 0.15s;
+        }
+        .gold-sheet-btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(212,160,23,0.5); }
+        .gold-sheet-btn-secondary {
+            display:flex; align-items:center; justify-content:center;
+            width:100%; padding:13px;
+            background:var(--hover-bg); color:var(--text-muted);
+            font-size:13.5px; font-weight:700;
+            border:1px solid var(--border); border-radius:14px;
+            cursor:pointer; transition:background 0.15s;
+        }
+        .gold-sheet-btn-secondary:hover { background:var(--border); }
+
+        /* TOAST */
+        .premium-toast { position:fixed; bottom:-100px; right:20px; background:var(--sidebar-bg); border-radius:16px; padding:16px 22px; box-shadow:0 8px 32px rgba(0,0,0,0.15); display:flex; align-items:center; gap:14px; z-index:10000; max-width:440px; width:calc(100% - 40px); opacity:0; transition:all 0.3s; pointer-events:none; border:1px solid var(--border); }
+        .premium-toast.active { bottom:28px; opacity:1; pointer-events:auto; }
+        .toast-error { border-left:5px solid #ef4444; } .toast-error .toast-icon { background:rgba(239,68,68,0.1); color:#ef4444; }
+        .toast-success { border-left:5px solid #10b981; } .toast-success .toast-icon { background:rgba(16,185,129,0.1); color:#10b981; }
+        .toast-gold { border-left:5px solid var(--gold); } .toast-gold .toast-icon { background:var(--gold-glow); color:var(--gold); }
+        .toast-icon { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+        .toast-content h4 { font-weight:700; font-size:13.5px; margin-bottom:2px; }
+        .toast-content p { font-size:12px; color:var(--text-muted); }
+
+        /* PROFILE BOTTOM SHEET */
+        .profile-sheet-backdrop { position:fixed; inset:0; z-index:9500; background:rgba(0,0,0,0.55); backdrop-filter:blur(3px); opacity:0; pointer-events:none; transition:opacity 0.25s ease; }
+        .profile-sheet-backdrop.open { opacity:1; pointer-events:all; }
+        .profile-popup-sheet { position:fixed; bottom:-100%; left:0; right:0; z-index:9501; background:var(--card-bg); border-radius:24px 24px 0 0; padding:10px 24px 40px 24px; box-shadow:0 -8px 40px rgba(0,0,0,0.18); transition:bottom 0.32s cubic-bezier(0.4,0,0.2,1); max-width:480px; margin:0 auto; }
+        .profile-popup-sheet.open { bottom:0; }
+        .profile-sheet-handle { width:40px; height:4px; border-radius:4px; background:var(--border); margin:0 auto 20px auto; }
+        .profile-sheet-avatar { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,var(--primary),#7c4dff); display:flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin:0 auto 14px auto; box-shadow:0 6px 20px rgba(92,107,192,0.35); }
+        .profile-sheet-name { font-size:20px; font-weight:800; text-align:center; margin-bottom:4px; }
+        .profile-sheet-email { font-size:12.5px; color:var(--text-muted); text-align:center; margin-bottom:14px; }
+        .profile-sheet-badges { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+        .profile-sheet-badge { font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px; }
+        .badge-year { background:var(--primary-glow); color:var(--primary); }
+        .badge-branch { background:rgba(124,77,255,0.1); color:#7c4dff; }
+        .badge-gold { background:linear-gradient(135deg,#d4a017,#f0b429); color:#fff; }
+        .badge-free { background:rgba(107,114,128,0.12); color:#6b7280; }
+        .profile-sheet-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+        .profile-info-item { background:var(--hover-bg); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
+        .profile-info-label { font-size:10.5px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+        .profile-info-value { font-size:13.5px; font-weight:700; }
+        .profile-sheet-actions { display:flex; flex-direction:column; gap:10px; }
+        .profile-action-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:13px; font-size:14px; font-weight:700; border-radius:14px; cursor:pointer; text-decoration:none; transition:transform 0.15s ease; }
+        .profile-action-btn:hover { transform:translateY(-1px); }
+        .profile-btn-edit { background:linear-gradient(135deg,var(--primary),#7c4dff); color:#fff; border:none; box-shadow:0 4px 16px rgba(92,107,192,0.3); }
+        .profile-btn-close { background:var(--hover-bg); color:var(--text-muted); border:1px solid var(--border); }
+
+        /* FOOTER */
+        .xevron-footer { width:100%; background:var(--footer-bg); border-top:1px solid var(--border); margin-top:40px; }
+        .footer-inner { max-width:900px; margin:0 auto; padding:24px 20px 20px 20px; display:flex; flex-direction:column; gap:14px; }
+        .footer-bottom-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+        .footer-bottom-left { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-muted); }
+        .footer-dev-badge { font-size:12px; font-weight:800; color:var(--primary); background:var(--hover-bg); border:1px solid var(--border); border-radius:8px; padding:3px 10px; display:flex; align-items:center; gap:5px; }
+        .footer-bottom-right { display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--text-muted); }
+        .footer-dot { opacity:0.4; }
+        .footer-disclaimer { font-size:11.5px; color:var(--text-muted); background:var(--hover-bg); border:1px solid var(--border); border-radius:10px; padding:10px 14px; line-height:1.5; display:flex; align-items:flex-start; gap:9px; }
+        .footer-disclaimer i { font-size:13px; flex-shrink:0; margin-top:1px; color:#f59e0b; }
+    </style>
+</head>
+<body>
+
+    <!-- MAINTENANCE OVERLAY -->
+    <div id="maintenanceOverlay">
+        <div class="maint-overlay-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+        <div class="maint-overlay-title">Under Maintenance</div>
+        <div class="maint-overlay-subtitle">हमारी team इस site को बेहतर बनाने के लिए काम कर रही है।<br>कुछ देर में वापस आएं 🚀</div>
+        <div class="maint-overlay-badge"><i class="fa-solid fa-circle-notch fa-spin"></i> Maintenance in Progress...</div>
+        <div class="maint-overlay-dots"><div class="maint-dot"></div><div class="maint-dot"></div><div class="maint-dot"></div></div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="top-header">
+        <div class="header-left">
+            <a href="second-year.html" class="back-btn" title="Go Back"><i class="fa-solid fa-arrow-left"></i></a>
+            <div class="menu-btn" onclick="openSidebar()"><i class="fa-solid fa-bars"></i></div>
+            <h1 class="web-title" id="headerTitle">SY <span>AIML</span></h1>
+        </div>
+        <div class="header-right">
+            <div class="header-action-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></div>
+            <button onclick="openProfileSheet()" class="header-profile-btn"><i class="fa-solid fa-user-pen"></i></button>
+        </div>
+    </header>
+
+    <!-- TICKER -->
+    <div class="premium-ticker-wrapper">
+        <div class="premium-ticker-container">
+            <div class="ticker-badge"><i class="fa-solid fa-bullhorn"></i> Notice</div>
+            <div class="ticker-marquee-box">
+                <div class="marquee-text-content" id="notificationTickerText">Loading... &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+    <nav id="mySidebar" class="sidebar">
+        <div class="close-sidebar-btn" onclick="closeSidebar()"><i class="fa-solid fa-xmark"></i></div>
+        <div class="user-details-card">
+            <div class="user-profile-header">
+                <i class="fa-solid fa-circle-user" style="color:#5c6bc0;"></i>
+                <div>
+                    <h4 id="menuUserName">Student</h4>
+                    <span id="menuUserRole" class="user-role-badge">AIML</span>
+                </div>
+            </div>
+        </div>
+        <ul class="sidebar-menu-items">
+            <li><a class="menu-item-link" href="second-year.html"><i class="fa-solid fa-arrow-left" style="color:#5c6bc0;"></i> Back to Branches</a></li>
+            <li><a class="menu-item-link" onclick="showToast('Coming Soon','This section will be available soon!',false)"><i class="fa-solid fa-list-check" style="color:#9575cd;"></i>BATTLE ARENA</a></li>
+            <li><a class="menu-item-link" onclick="showToast('Coming Soon','This section will be available soon!',false)"><i class="fa-solid fa-file-invoice" style="color:#42a5f5;"></i>PYQ Section</a></li>
+            <li><a class="menu-item-link" onclick="showToast('Coming Soon','This section will be available soon!',false)"><i class="fa-solid fa-book-open" style="color:#66bb6a;"></i>Notes Section</a></li>
+            <li><a class="menu-item-link" onclick="showToast('Coming Soon','This section will be available soon!',false)"><i class="fa-solid fa-circle-info" style="color:#5c6bc0;"></i>About Us</a></li>
+        </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- BRANCH HERO -->
+        <div class="branch-hero">
+            <div class="branch-hero-icon"><i class="fa-solid fa-robot"></i></div>
+            <div>
+                <div class="branch-hero-title">Artificial Intelligence & Machine Learning</div>
+                <div class="branch-hero-sub">BATU, Lonere &nbsp;|&nbsp; Second Year 2025–26</div>
+                <div class="branch-hero-badge">SY Engineering</div>
+            </div>
+        </div>
+
+        <!-- GOLD INFO BANNER -->
+        <div class="gold-info-banner">
+            <div class="gold-info-icon"><i class="fa-solid fa-crown"></i></div>
+            <div class="gold-info-text">
+                <strong>Gold Membership Required 👑</strong><br>
+                इस page के सभी sections — Same Third, Same Fourth, Notes और PIQs —
+                <span class="gold-tag"><i class="fa-solid fa-crown"></i> Gold</span> members के लिए exclusively unlock हैं।
+                Non-gold users को content access नहीं होगा।
+            </div>
+        </div>
+
+        <div class="page-heading">
+            <h2>Select a Subject or Resource</h2>
+            <p>SY Artificial Intelligence & Machine Learning — Content locked for Gold Members only</p>
+        </div>
+
+        <div class="subjects-grid">
+
+            <!-- SAME THIRD -->
+            <div class="subject-card s-third" id="card-third">
+                <div class="subject-card-icon"><i class="fa-solid fa-brain"></i></div>
+                <div class="subject-card-name">Same Third</div>
+                <div class="subject-card-desc">Mathematics for AI — Semester III common subject materials</div>
+                <div class="subject-card-meta">
+                    <span class="subject-card-badge" style="background:#fce4ec;color:#e91e63;">
+                        <i class="fa-solid fa-book-open"></i> Sem III
+                    </span>
+                </div>
+                <div class="card-content-list" id="thirdContent">
+                    <div class="card-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</div>
+                </div>
+                <!-- GOLD LOCK OVERLAY -->
+                <div class="card-gold-lock" id="lock-third" onclick="openGoldSheet()">
+                    <div class="card-gold-lock-inner">
+                        <div class="card-gold-lock-icon"><i class="fa-solid fa-crown"></i></div>
+                        <div class="card-gold-lock-label">Gold Only</div>
+                        <div class="card-gold-lock-tag"><i class="fa-solid fa-lock"></i> Locked</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAME FOURTH -->
+            <div class="subject-card s-fourth" id="card-fourth">
+                <div class="subject-card-icon"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="subject-card-name">Same Fourth</div>
+                <div class="subject-card-desc">Machine Learning Basics — Semester IV common subject materials</div>
+                <div class="subject-card-meta">
+                    <span class="subject-card-badge" style="background:#f3e5f5;color:#7b1fa2;">
+                        <i class="fa-solid fa-book-open"></i> Sem IV
+                    </span>
+                </div>
+                <div class="card-content-list" id="fourthContent">
+                    <div class="card-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</div>
+                </div>
+                <div class="card-gold-lock" id="lock-fourth" onclick="openGoldSheet()">
+                    <div class="card-gold-lock-inner">
+                        <div class="card-gold-lock-icon"><i class="fa-solid fa-crown"></i></div>
+                        <div class="card-gold-lock-label">Gold Only</div>
+                        <div class="card-gold-lock-tag"><i class="fa-solid fa-lock"></i> Locked</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTES -->
+            <div class="subject-card s-notes" id="card-notes">
+                <div class="subject-card-icon"><i class="fa-solid fa-file-lines"></i></div>
+                <div class="subject-card-name">Notes</div>
+                <div class="subject-card-desc">Handwritten & digital notes for all subjects</div>
+                <div class="subject-card-meta">
+                    <span class="subject-card-badge" style="background:#e8f5e9;color:#2e7d32;">
+                        <i class="fa-solid fa-notes-medical"></i> Study Notes
+                    </span>
+                </div>
+                <div class="card-content-list" id="notesContent">
+                    <div class="card-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</div>
+                </div>
+                <div class="card-gold-lock" id="lock-notes" onclick="openGoldSheet()">
+                    <div class="card-gold-lock-inner">
+                        <div class="card-gold-lock-icon"><i class="fa-solid fa-crown"></i></div>
+                        <div class="card-gold-lock-label">Gold Only</div>
+                        <div class="card-gold-lock-tag"><i class="fa-solid fa-lock"></i> Locked</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PIQs -->
+            <div class="subject-card s-piqs" id="card-piqs">
+                <div class="subject-card-icon"><i class="fa-solid fa-file-invoice"></i></div>
+                <div class="subject-card-name">PIQs</div>
+                <div class="subject-card-desc">Previous Important Questions — exam-focused question bank</div>
+                <div class="subject-card-meta">
+                    <span class="subject-card-badge" style="background:#fce4ec;color:#c2185b;">
+                        <i class="fa-solid fa-star"></i> Important Qs
+                    </span>
+                </div>
+                <div class="card-content-list" id="piqsContent">
+                    <div class="card-loading"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</div>
+                </div>
+                <div class="card-gold-lock" id="lock-piqs" onclick="openGoldSheet()">
+                    <div class="card-gold-lock-inner">
+                        <div class="card-gold-lock-icon"><i class="fa-solid fa-crown"></i></div>
+                        <div class="card-gold-lock-label">Gold Only</div>
+                        <div class="card-gold-lock-tag"><i class="fa-solid fa-lock"></i> Locked</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="xevron-footer">
+        <div class="footer-inner">
+            <div class="footer-disclaimer">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>All study material is provided for academic reference only. studybuddypremiumpro is not liable for any examination outcomes.</span>
+            </div>
+            <div class="footer-bottom-row">
+                <div class="footer-bottom-left">
+                    <span>Developed by</span>
+                    <span class="footer-dev-badge"><i class="fa-solid fa-code"></i> Xevron-Tech</span>
+                </div>
+                <div class="footer-bottom-right">
+                    <i class="fa-solid fa-location-dot"></i><span>Nanded, Maharashtra</span>
+                    <span class="footer-dot">·</span><span>2025–26</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- GOLD LOCK BOTTOM SHEET -->
+    <div class="gold-sheet-backdrop" id="goldBackdrop" onclick="closeGoldSheet()"></div>
+    <div class="gold-popup-sheet" id="goldSheet">
+        <div class="gold-sheet-handle"></div>
+        <div class="gold-sheet-icon"><i class="fa-solid fa-crown"></i></div>
+        <div class="gold-sheet-title">Gold Membership Required 👑</div>
+        <div class="gold-sheet-subtitle">Artificial Intelligence & Machine Learning</div>
+        <div class="gold-sheet-desc">
+            यह content exclusively <strong>Gold Members</strong> के लिए unlock है।<br>
+            Gold membership लेने पर सभी 4 sections — Same Third, Same Fourth, Notes और PIQs — access होंगे।
+        </div>
+        <div class="gold-sheet-features">
+            <div class="gold-sheet-feature"><i class="fa-solid fa-book-open"></i> Same Third</div>
+            <div class="gold-sheet-feature"><i class="fa-solid fa-book-open"></i> Same Fourth</div>
+            <div class="gold-sheet-feature"><i class="fa-solid fa-file-lines"></i> Notes</div>
+            <div class="gold-sheet-feature"><i class="fa-solid fa-star"></i> PIQs</div>
+        </div>
+        <a href="premium-get.html?plan=gold&branch=aiml" class="gold-sheet-btn-primary">
+            <i class="fa-solid fa-crown"></i> Get Gold Membership
+        </a>
+        <button class="gold-sheet-btn-secondary" onclick="closeGoldSheet()">Maybe Later</button>
+    </div>
+
+    <!-- TOAST -->
+    <div id="universalPremiumToast" class="premium-toast toast-success">
+        <div class="toast-icon"><i id="toastIconElement" class="fa-solid fa-circle-check"></i></div>
+        <div class="toast-content">
+            <h4 id="toastHeaderTitle">Success</h4>
+            <p id="toastMessageText">Message</p>
+        </div>
+    </div>
+
+    <!-- PROFILE BOTTOM SHEET -->
+    <div class="profile-sheet-backdrop" id="profileSheetBackdrop" onclick="closeProfileSheet()"></div>
+    <div class="profile-popup-sheet" id="profileSheet">
+        <div class="profile-sheet-handle"></div>
+        <div class="profile-sheet-avatar"><i class="fa-solid fa-user"></i></div>
+        <div class="profile-sheet-name" id="profileSheetName">Loading...</div>
+        <div class="profile-sheet-email" id="profileSheetEmail">—</div>
+        <div class="profile-sheet-badges">
+            <span class="profile-sheet-badge badge-year">Second Year</span>
+            <span class="profile-sheet-badge badge-branch">AIML</span>
+            <span class="profile-sheet-badge badge-gold" id="profileGoldBadge" style="display:none">👑 Gold</span>
+            <span class="profile-sheet-badge badge-free" id="profileFreeBadge">Free</span>
+        </div>
+        <div class="profile-sheet-info-grid">
+            <div class="profile-info-item"><div class="profile-info-label">Year</div><div class="profile-info-value">Second Year</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">Branch</div><div class="profile-info-value">AIML</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">University</div><div class="profile-info-value" style="font-size:11px;">BATU, Lonere</div></div>
+            <div class="profile-info-item"><div class="profile-info-label">Membership</div><div class="profile-info-value" id="profileMembership">Free</div></div>
+        </div>
+        <div class="profile-sheet-actions">
+            <a href="profile-edit.html" class="profile-action-btn profile-btn-edit"><i class="fa-solid fa-user-pen"></i> Edit Profile</a>
+            <button class="profile-action-btn profile-btn-close" onclick="closeProfileSheet()">Close</button>
+        </div>
+    </div>
+
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+            authDomain: "students-e5183.firebaseapp.com",
+            databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+            projectId: "students-e5183",
+            storageBucket: "students-e5183.firebasestorage.app",
+            messagingSenderId: "473442117683",
+            appId: "1:473442117683:web:f39adc0665317aa95e9b46"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const rtdb = firebase.database();
+
+        // ── MAINTENANCE ──
+        rtdb.ref('site_config/maintenance/sy').on('value', snap => {
+            const overlay = document.getElementById('maintenanceOverlay');
+            if (snap.exists() && snap.val() === true) { overlay.classList.add('show'); document.body.style.overflow = 'hidden'; }
+            else { overlay.classList.remove('show'); document.body.style.overflow = ''; }
+        });
+
+        // ── NOTIFICATION TICKER ──
+        rtdb.ref('site_config/notification').on('value', snap => {
+            const t = document.getElementById('notificationTickerText');
+            t.innerHTML = (snap.exists() && snap.val())
+                ? snap.val() + ' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+                : 'Welcome to studybuddypremiumpro! 🎓 Stay tuned for updates. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+        });
+
+        // ── CONTENT RENDERER ──
+        function renderContent(containerId, data, emptyMsg) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            if (!data || Object.keys(data).length === 0) {
+                el.innerHTML = '<div class="card-empty">📭 ' + emptyMsg + '</div>'; return;
+            }
+            el.innerHTML = Object.entries(data).map(([k, v]) => {
+                const title = (typeof v === 'object' ? v.title || v.name || k : v) || k;
+                const url   = (typeof v === 'object' && v.url)  ? v.url  : '#';
+                const type  = (typeof v === 'object' && v.type) ? v.type : 'pdf';
+                const icon  = type === 'video' ? 'fa-play-circle' : 'fa-file-pdf';
+                const lbl   = type === 'video' ? 'Video' : 'PDF';
+                return `<a class="card-content-item" href="${url}" target="_blank" rel="noopener">
+                    <div class="card-content-item-left"><i class="fa-solid ${icon}"></i><span>${title}</span></div>
+                    <span class="card-content-item-right">${lbl}</span></a>`;
+            }).join('');
+        }
+
+        // ── UNLOCK ALL 4 CARDS (Gold user) ──
+        function unlockAllCards() {
+            ['third','fourth','notes','piqs'].forEach(id => {
+                const lock = document.getElementById('lock-' + id);
+                if (lock) lock.remove();
+                const card = document.getElementById('card-' + id);
+                if (card) card.classList.add('unlocked');
+            });
+            // Now fetch Firebase data
+            rtdb.ref('SY/aiml/sem3').on('value', snap => renderContent('thirdContent', snap.val(), 'No Sem III content yet'));
+            rtdb.ref('SY/aiml/sem4').on('value', snap => renderContent('fourthContent', snap.val(), 'No Sem IV content yet'));
+            rtdb.ref('SY/aiml/notes').on('value', snap => renderContent('notesContent', snap.val(), 'No notes uploaded yet'));
+            rtdb.ref('SY/aiml/piqs').on('value', snap => renderContent('piqsContent', snap.val(), 'No PIQs uploaded yet'));
+            // Show gold unlocked toast
+            showToast('👑 Gold Unlocked', 'Welcome! All content is now accessible.', 'gold');
+        }
+
+        // ── AUTH ──
+        firebase.auth().onAuthStateChanged(user => {
+            if (!user) {
+                // Not logged in — keep all locked, hide loading spinners
+                ['thirdContent','fourthContent','notesContent','piqsContent'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = '<div class="card-empty">🔒 Login required</div>';
+                });
+                return;
+            }
+            window._userEmail = user.email || '';
+
+            rtdb.ref('users').orderByChild('uid').equalTo(user.uid).on('value', querySnap => {
+                if (!querySnap.exists()) return;
+                let data = null;
+                querySnap.forEach(child => { data = child.val(); });
+
+                const name = data.name || data.displayName || (user.email ? user.email.split('@')[0] : 'Student');
+                window._userName = name;
+
+                // Role check — gold (case-insensitive)
+                const roleStr = (data.role || '').toString().toLowerCase().trim();
+                // Gold roles: 'gold' + all admin/super roles also get access
+                const goldRoles = ['gold','admin','superadmin','super admin','super-admin','master'];
+                const isGold = goldRoles.includes(roleStr);
+
+                // Update header & sidebar
+                const menuName = document.getElementById('menuUserName');
+                const menuRole = document.getElementById('menuUserRole');
+                const headerTitle = document.getElementById('headerTitle');
+                if (menuName) menuName.textContent = name;
+                if (menuRole) { menuRole.textContent = isGold ? '👑 Gold' : roleStr.toUpperCase() || 'AIML'; menuRole.style.background = isGold ? 'linear-gradient(135deg,#d4a017,#f0b429)' : ''; }
+                if (headerTitle) headerTitle.innerHTML = name + ' — <span>AIML</span>';
+
+                // Update profile sheet
+                const pName  = document.getElementById('profileSheetName');
+                const pEmail = document.getElementById('profileSheetEmail');
+                const pGold  = document.getElementById('profileGoldBadge');
+                const pFree  = document.getElementById('profileFreeBadge');
+                const pMem   = document.getElementById('profileMembership');
+                if (pName)  pName.textContent  = name;
+                if (pEmail) pEmail.textContent = user.email || '—';
+                if (pGold)  pGold.style.display  = isGold ? 'inline-block' : 'none';
+                if (pFree)  pFree.style.display   = isGold ? 'none' : 'inline-block';
+                if (pMem)   pMem.textContent = isGold ? '👑 Gold Member' : 'Free';
+
+                if (isGold) {
+                    unlockAllCards();
+                } else {
+                    // Not gold — show empty state on content areas (locks already visible)
+                    ['thirdContent','fourthContent','notesContent','piqsContent'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.innerHTML = '<div class="card-empty">🔒 Gold members only</div>';
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script>
+        document.documentElement.setAttribute('data-theme','light');
+        function toggleTheme() {
+            const cur = document.documentElement.getAttribute('data-theme');
+            const icon = document.getElementById('themeIcon');
+            if (cur === 'dark') { document.documentElement.setAttribute('data-theme','light'); icon.className = 'fa-solid fa-moon'; }
+            else { document.documentElement.setAttribute('data-theme','dark'); icon.className = 'fa-solid fa-sun'; }
+        }
+        function openSidebar()  { document.getElementById('mySidebar').classList.add('active'); document.getElementById('sidebarOverlay').style.display = 'block'; }
+        function closeSidebar() { document.getElementById('mySidebar').classList.remove('active'); document.getElementById('sidebarOverlay').style.display = 'none'; }
+        function openGoldSheet()  { document.getElementById('goldBackdrop').classList.add('open'); document.getElementById('goldSheet').classList.add('open'); document.body.style.overflow = 'hidden'; }
+        function closeGoldSheet() { document.getElementById('goldBackdrop').classList.remove('open'); document.getElementById('goldSheet').classList.remove('open'); document.body.style.overflow = ''; }
+        function openProfileSheet()  { document.getElementById('profileSheetBackdrop').classList.add('open'); document.getElementById('profileSheet').classList.add('open'); document.body.style.overflow = 'hidden'; }
+        function closeProfileSheet() { document.getElementById('profileSheetBackdrop').classList.remove('open'); document.getElementById('profileSheet').classList.remove('open'); document.body.style.overflow = ''; }
+        function showToast(title, message, type) {
+            const toast = document.getElementById('universalPremiumToast');
+            const icon  = document.getElementById('toastIconElement');
+            document.getElementById('toastHeaderTitle').innerText = title;
+            document.getElementById('toastMessageText').innerText  = message;
+            if (type === 'gold')  { toast.className = 'premium-toast toast-gold active'; icon.className = 'fa-solid fa-crown'; }
+            else if (type === true) { toast.className = 'premium-toast toast-error active'; icon.className = 'fa-solid fa-triangle-exclamation'; }
+            else { toast.className = 'premium-toast toast-success active'; icon.className = 'fa-solid fa-circle-check'; }
+            setTimeout(() => toast.classList.remove('active'), 2800);
+        }
+    </script>
+</body>
+</html>
