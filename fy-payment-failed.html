@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment Failed — StudyBuddyZone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --bg: #0c0707;
+      --card: #130a0a;
+      --border: rgba(255,255,255,0.06);
+      --text: #f5f0f0;
+      --muted: #7a6060;
+      --danger: #f87171;
+      --danger-glow: rgba(248,113,113,0.2);
+      --accent: #ef4444;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      overflow-x: hidden;
+    }
+
+    #particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* ── X Icon ── */
+    .x-wrap {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 4px;
+    }
+    .x-ring {
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(239,68,68,0.2);
+      animation: shakeRing 0.7s ease 0.5s both;
+    }
+    .x-circle {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 40px rgba(239,68,68,0.35);
+      transform: scale(0);
+      animation: popIn 0.55s cubic-bezier(0.16,1,.3,1) forwards;
+    }
+    .x-circle svg {
+      width: 44px; height: 44px;
+      stroke: #fff;
+      stroke-width: 3;
+      stroke-linecap: round;
+      fill: none;
+      stroke-dasharray: 80;
+      stroke-dashoffset: 80;
+      animation: drawX 0.4s ease 0.4s forwards;
+    }
+    @keyframes popIn {
+      0%   { transform: scale(0); opacity:0; }
+      70%  { transform: scale(1.1); }
+      100% { transform: scale(1); opacity:1; }
+    }
+    @keyframes shakeRing {
+      0%,100% { transform: rotate(0deg) scale(1.1); }
+      20%     { transform: rotate(-8deg) scale(1.12); }
+      40%     { transform: rotate(8deg) scale(1.12); }
+      60%     { transform: rotate(-5deg) scale(1.11); }
+      80%     { transform: rotate(5deg) scale(1.11); }
+    }
+    @keyframes drawX {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* ── Heading ── */
+    .heading {
+      text-align: center;
+      animation: fadeUp 0.5s ease 0.35s both;
+    }
+    .heading h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fca5a5, #f87171);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+    .heading p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── Detail card ── */
+    .detail-card {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease 0.45s both;
+    }
+    .detail-card-header {
+      padding: 14px 20px;
+      background: rgba(239,68,68,0.08);
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--danger);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .detail-value { font-size: 13px; font-weight: 700; color: var(--text); text-align: right; max-width: 60%; word-break: break-all; }
+
+    .fail-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.25);
+      color: var(--danger);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+    .pending-pill {
+      background: rgba(251,191,36,0.1);
+      border-color: rgba(251,191,36,0.25);
+      color: #fbbf24;
+    }
+
+    /* ── Reason box ── */
+    .reason-box {
+      width: 100%;
+      background: rgba(239,68,68,0.05);
+      border: 1px solid rgba(239,68,68,0.15);
+      border-left: 3px solid var(--accent);
+      border-radius: 14px;
+      padding: 14px 16px;
+      animation: fadeUp 0.5s ease 0.5s both;
+    }
+    .reason-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--danger);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .reason-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── Tips ── */
+    .tips-card {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      animation: fadeUp 0.5s ease 0.55s both;
+    }
+    .tips-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+    .tip-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .tip-item:last-child { margin-bottom: 0; }
+    .tip-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: rgba(239,68,68,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .tip-text { font-size: 12.5px; color: var(--muted); line-height: 1.5; padding-top: 5px; }
+
+    /* ── Buttons ── */
+    .btn-retry {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(239,68,68,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      animation: fadeUp 0.5s ease 0.6s both;
+    }
+    .btn-retry:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(239,68,68,0.45); }
+
+    .btn-home {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, color 0.15s;
+      animation: fadeUp 0.5s ease 0.65s both;
+    }
+    .btn-home:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+
+    .support-row {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      animation: fadeUp 0.5s ease 0.7s both;
+    }
+    .support-row a { color: #f87171; font-weight: 600; text-decoration: none; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<div class="page">
+  <div class="x-wrap">
+    <div class="x-ring"></div>
+    <div class="x-circle">
+      <svg viewBox="0 0 52 52">
+        <line x1="16" y1="16" x2="36" y2="36"/>
+        <line x1="36" y1="16" x2="16" y2="36"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="heading">
+    <h1>Payment Failed 😔</h1>
+    <p id="subText">Kuch gadbad ho gayi. Ghabrao mat —<br/>retry karo, account safe hai.</p>
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-card-header">⚠ Transaction Details</div>
+    <div class="detail-row">
+      <span class="detail-label">Status</span>
+      <span class="detail-value"><span class="fail-pill" id="statusPill">❌ FAILED</span></span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">PRN</span>
+      <span class="detail-value" id="detPRN">—</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Order ID</span>
+      <span class="detail-value" id="detOrder" style="font-size:11px;color:var(--muted);">—</span>
+    </div>
+  </div>
+
+  <div class="reason-box">
+    <div class="reason-title">⚡ Kyun fail hua?</div>
+    <div class="reason-text" id="reasonText">Payment cancel hui ya network issue tha. Dobara try karo.</div>
+  </div>
+
+  <div class="tips-card">
+    <div class="tips-title">Retry karne se pehle check karo</div>
+    <div class="tip-item">
+      <div class="tip-icon">📶</div>
+      <div class="tip-text">Internet connection stable hona chahiye.</div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-icon">💰</div>
+      <div class="tip-text">Bank account / UPI mein sufficient balance ho.</div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-icon">💳</div>
+      <div class="tip-text">Card/UPI daily limit check karo.</div>
+    </div>
+    <div class="tip-item">
+      <div class="tip-icon">🔄</div>
+      <div class="tip-text">Payment ke beech mein app force-close mat karo.</div>
+    </div>
+  </div>
+
+  <a href="/payment.html" class="btn-retry" id="retryBtn">🔁 Fir se Pay Karo</a>
+  <a href="/index.html" class="btn-home">🏠 Home par jao</a>
+
+  <div class="support-row">
+    Problem hai? <a href="https://wa.me/919049321230?text=FY1%20Payment%20failed%20help%20needed" target="_blank">WhatsApp Support</a>
+  </div>
+</div>
+
+<script>
+  const p       = new URLSearchParams(location.search);
+  const prn     = p.get('prn')            || '—';
+  const orderId = p.get('order_id')       || '—';
+  const status  = (p.get('error') || p.get('payment_status') || 'failed').toUpperCase();
+
+  document.getElementById('detPRN').textContent   = prn;
+  document.getElementById('detOrder').textContent = orderId;
+
+  const pill    = document.getElementById('statusPill');
+  const reason  = document.getElementById('reasonText');
+  const subText = document.getElementById('subText');
+
+  if (status === 'CANCELLED' || status === 'USER_DROPPED' || status === 'PAYMENT_FAILED') {
+    pill.textContent = '⚠️ CANCELLED';
+    reason.textContent = 'Payment beech mein cancel ho gayi. Agar balance deduct hua hai to 5-7 dinon mein refund aayega.';
+    subText.innerHTML = 'Payment cancel ho gayi.<br/>Fir se try karo, koi issue nahi!';
+  } else if (status === 'PENDING') {
+    pill.textContent = '⏳ PENDING';
+    pill.classList.add('pending-pill');
+    reason.textContent = 'Payment pending hai. Thodi der mein automatically update hoga. Agar 1 ghante baad bhi pending hai to support se contact karo.';
+    subText.innerHTML = 'Payment pending state mein hai.<br/>1-2 ghante wait karo.';
+  } else {
+    pill.textContent = '❌ FAILED';
+    reason.textContent = 'Bank ya payment gateway se transaction decline hui. Balance, limit ya network issue ho sakta hai. Fir se try karo.';
+  }
+
+  // Retry with PRN pre-filled
+  const retryBtn = document.getElementById('retryBtn');
+  if (prn !== '—') retryBtn.href = `/payment.html?prn=${prn}`;
+
+  // ── Particles ──
+  const canvas = document.getElementById('particles');
+  const ctx    = canvas.getContext('2d');
+  let W, H, dots = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (let i = 0; i < 40; i++) {
+    dots.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: Math.random() * 1.2 + 0.3,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      a: Math.random() * 0.3 + 0.08
+    });
+  }
+
+  (function animate() {
+    ctx.clearRect(0, 0, W, H);
+    dots.forEach(d => {
+      d.x += d.vx; d.y += d.vy;
+      if (d.x < 0) d.x = W; if (d.x > W) d.x = 0;
+      if (d.y < 0) d.y = H; if (d.y > H) d.y = 0;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(239,68,68,${d.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  })();
+</script>
+</body>
+</html>
