@@ -137,6 +137,16 @@
         .branch-select:focus { outline:none; border-color:#7c4dff; box-shadow:0 0 0 3px rgba(124,77,255,0.15); }
         .branch-select:disabled { opacity:0.5; cursor:not-allowed; }
 
+        /* SKIP BOX */
+        .skip-box {
+            background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.25);
+            border-radius:12px; padding:12px 14px; margin-bottom:16px; display:none;
+        }
+        .skip-box.show { display:block; }
+        .skip-box label { display:flex; align-items:center; gap:10px; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--text-main); line-height:1.5; }
+        .skip-box input[type="checkbox"] { width:19px; height:19px; accent-color:#10b981; flex-shrink:0; cursor:pointer; }
+        .skip-box .skip-price-tag { color:#10b981; font-weight:800; }
+
         /* WARNING BOX */
         .warning-box {
             display:flex; align-items:flex-start; gap:10px;
@@ -229,7 +239,7 @@
     <div class="hero">
         <div class="hero-crown"><i class="fa-solid fa-crown"></i></div>
         <div class="hero-title">Unlock Your Branch 🚀</div>
-        <div class="hero-sub">Notes, PYQs, MCQs — सब कुछ एक जगह<br>सिर्फ ₹30 में • 1 साल तक valid</div>
+        <div class="hero-sub">Notes, PYQs, MCQs — सब कुछ एक जगह<br>सिर्फ ₹39 में • 1 साल तक valid</div>
     </div>
 
     <!-- CONTENT -->
@@ -260,7 +270,7 @@
         <div class="price-card">
             <div class="price-left">
                 <div class="price-label">Branch Unlock Price</div>
-                <div class="price-amount">₹30</div>
+                <div class="price-amount">₹39</div>
             </div>
             <div class="price-right">
                 <div class="validity-chip">📅 1 Year Valid</div>
@@ -305,10 +315,18 @@
             <option value="prod">Production Engineering</option>
         </select>
 
+        <!-- SKIP BRANCH (only shown if student already owns a branch) -->
+        <div class="skip-box" id="skipBranchBox">
+            <label>
+                <input type="checkbox" id="skipBranchCheckbox" onchange="toggleBranchSkip()">
+                <span>मेरे पास पहले से <strong id="existingBranchLabel">Branch</strong> है — दोबारा नहीं लेनी। Skip करें <span class="skip-price-tag">(सिर्फ ₹5)</span></span>
+            </label>
+        </div>
+
         <!-- WARNING -->
         <div class="warning-box">
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <p>एक बार branch select करने के बाद <strong>change नहीं होगी</strong>। Branch बदलनी हो तो दोबारा ₹30 payment करनी पड़ेगी।</p>
+            <p>एक बार branch select करने के बाद <strong>change नहीं होगी</strong>। Branch बदलनी हो तो दोबारा ₹39 payment करनी पड़ेगी।</p>
         </div>
 
         <!-- PAY BUTTON -->
@@ -401,15 +419,54 @@
         let verifiedPRN = null;
         let verifiedStudentName = null;
         let verifiedUid = null;
+        let existingBranch = '';   // branch code already owned by this student (if any)
+        let existingRole = '';     // current subscription role already owned by this student (if any)
+        let branchSkipped = false; // true if student ticked "already have this branch"
+
+        function branchCodeToLabel(code) {
+            const sel = document.getElementById('branchSelect');
+            for (const opt of sel.options) { if (opt.value === code) return opt.text; }
+            return code;
+        }
+
+        function toggleBranchSkip() {
+            branchSkipped = document.getElementById('skipBranchCheckbox').checked;
+            const sel = document.getElementById('branchSelect');
+            if (branchSkipped) {
+                sel.dataset.savedValue = sel.value;
+                sel.value = '';
+                sel.disabled = true;
+            } else {
+                sel.disabled = !verifiedPRN;
+                if (sel.dataset.savedValue) sel.value = sel.dataset.savedValue;
+            }
+            updatePriceUI();
+        }
+
+        function updatePriceUI() {
+            const priceEl = document.querySelector('.price-amount');
+            const amount = branchSkipped ? 5 : 39;
+            priceEl.textContent = '₹' + amount;
+            const payBtn = document.getElementById('payBtn');
+            if (!payBtn.disabled) {
+                payBtn.innerHTML = '<i class="fa-solid fa-crown"></i> ' + (branchSkipped ? 'Continue करें — ₹5' : 'Unlock Now — ₹39');
+            }
+        }
 
         function resetPrnStatus() {
             verifiedPRN = null;
             verifiedStudentName = null;
             verifiedUid = null;
+            existingBranch = '';
+            existingRole = '';
+            branchSkipped = false;
             document.getElementById('prnStatus').textContent = '';
             document.getElementById('prnStatus').className = 'prn-status';
             document.getElementById('prnVerifiedCard').classList.remove('show');
             document.getElementById('branchSelect').disabled = true;
+            document.getElementById('skipBranchBox').classList.remove('show');
+            document.getElementById('skipBranchCheckbox').checked = false;
+            updatePriceUI();
             const btn = document.getElementById('payBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-lock"></i> PRN Verify करें पहले';
@@ -447,13 +504,8 @@
                 verifiedPRN = prn;
                 verifiedStudentName = studentData.name || studentData.displayName || 'Student';
                 verifiedUid = studentUid;
-
-                // ── Check if branch already unlocked ──
-                // Sirf branch exist karna enough hai — premiumUntil check nahi karte
-                // kyunki student/existing users ka premiumUntil set nahi hota
-                const existingBranch     = studentData.branch || null;
-                const existingBranchName = studentData.branchName || null;
-                const branchStillValid   = !!existingBranch;
+                existingBranch = (studentData.branch || '').toLowerCase();
+                existingRole = (studentData.role || '').toLowerCase();
 
                 statusEl.textContent = '✅ PRN Verified!';
                 statusEl.className = 'prn-status success';
@@ -462,39 +514,27 @@
                 document.getElementById('prnStudentSub').textContent = 'PRN: ' + prn + ' • Verified ✅';
                 document.getElementById('prnVerifiedCard').classList.add('show');
 
+                // Enable branch select and restore pre-selected branch if any
                 const branchSel = document.getElementById('branchSelect');
-                const payBtn    = document.getElementById('payBtn');
-
-                if (branchStillValid) {
-                    // Branch already unlocked — disable select, show info, go to subscription-only flow
-                    branchSel.disabled = true;
-                    branchSel.value    = existingBranch;
-
-                    // Show a green notice instead of warning
-                    document.querySelector('.warning-box').innerHTML = `
-                        <i class="fa-solid fa-circle-check" style="color:#10b981; margin-top:1px; flex-shrink:0;"></i>
-                        <p>तुम्हारी <strong>${existingBranchName || existingBranch}</strong> branch पहले से unlock है ✅<br>
-                        सिर्फ <strong>Subscription Plan</strong> select करो — branch payment नहीं होगी।</p>`;
-                    document.querySelector('.warning-box').style.cssText =
-                        'display:flex;align-items:flex-start;gap:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-left:4px solid #10b981;border-radius:12px;padding:12px 14px;margin-bottom:20px;';
-
-                    payBtn.disabled = false;
-                    payBtn.innerHTML = '<i class="fa-solid fa-crown"></i> Subscription Renew करें';
-
-                    // Store flag for handlePayment
-                    payBtn.dataset.branchOwned = 'true';
-                    payBtn.dataset.existingBranch     = existingBranch;
-                    payBtn.dataset.existingBranchName = existingBranchName || existingBranch;
-                } else {
-                    // Normal flow — branch not yet purchased
-                    branchSel.disabled = false;
-                    if (branchSel.dataset.preSelected && !branchSel.value) {
-                        branchSel.value = branchSel.dataset.preSelected;
-                    }
-                    payBtn.disabled = false;
-                    payBtn.innerHTML = '<i class="fa-solid fa-crown"></i> Unlock Now — ₹30';
-                    payBtn.dataset.branchOwned = 'false';
+                branchSel.disabled = false;
+                if (branchSel.dataset.preSelected && !branchSel.value) {
+                    branchSel.value = branchSel.dataset.preSelected;
                 }
+
+                // Show "already have this branch — skip" option only if student already owns a branch
+                const skipBox = document.getElementById('skipBranchBox');
+                if (existingBranch) {
+                    document.getElementById('existingBranchLabel').textContent = branchCodeToLabel(existingBranch);
+                    skipBox.classList.add('show');
+                } else {
+                    skipBox.classList.remove('show');
+                    document.getElementById('skipBranchCheckbox').checked = false;
+                    branchSkipped = false;
+                }
+
+                const payBtn = document.getElementById('payBtn');
+                payBtn.disabled = false;
+                updatePriceUI();
             }, (err) => {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Verify';
@@ -504,28 +544,26 @@
 
         function handlePayment() {
             if (!verifiedPRN) { showToast('पहले PRN verify करें।'); return; }
-            const payBtn      = document.getElementById('payBtn');
-            const branchOwned = payBtn.dataset.branchOwned === 'true';
 
             let branch, branchText;
-            if (branchOwned) {
-                branch     = payBtn.dataset.existingBranch;
-                branchText = payBtn.dataset.existingBranchName;
+            if (branchSkipped) {
+                if (!existingBranch) { showToast('आपकी existing branch जानकारी नहीं मिली।'); return; }
+                branch = existingBranch;
+                branchText = branchCodeToLabel(existingBranch);
             } else {
                 branch = document.getElementById('branchSelect').value;
-                if (!branch) { showToast('पहले अपनी branch select करें।'); return; }
+                if (!branch) { showToast('पहले अपनी branch select करें या ऊपर Skip करें।'); return; }
                 branchText = document.getElementById('branchSelect').options[document.getElementById('branchSelect').selectedIndex].text;
             }
 
-            const urlParams = new URLSearchParams({
-                branch:      branch,
-                branchName:  branchText,
-                prn:         verifiedPRN,
-                name:        verifiedStudentName,
-                uid:         verifiedUid || '',
-                branchOwned: branchOwned ? '1' : '0'
-            });
-            window.location.href = 'payment-gateway.html?' + urlParams.toString();
+            window.location.href = 'payment-gateway.html'
+                + '?branch=' + branch
+                + '&branchName=' + encodeURIComponent(branchText)
+                + '&prn=' + encodeURIComponent(verifiedPRN)
+                + '&name=' + encodeURIComponent(verifiedStudentName)
+                + '&uid=' + encodeURIComponent(verifiedUid || '')
+                + '&branchOwned=' + (branchSkipped ? 'true' : 'false')
+                + '&existingRole=' + encodeURIComponent(existingRole || '');
         }
 
         // ── ADMIN SHEET ──

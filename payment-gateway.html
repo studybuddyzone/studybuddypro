@@ -48,18 +48,17 @@
         /* STEPS BAR */
         .steps-bar {
             background:var(--card-bg); border-bottom:1px solid var(--border);
-            padding:14px 16px; display:flex; align-items:center; gap:0;
-            overflow-x:auto;
+            padding:14px 20px; display:flex; align-items:center; gap:0;
         }
-        .step { display:flex; align-items:center; gap:6px; flex:1; min-width:0; }
-        .step-num { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; }
+        .step { display:flex; align-items:center; gap:8px; flex:1; }
+        .step-num { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; }
         .step.done .step-num { background:#10b981; color:#fff; }
         .step.active .step-num { background:#7c4dff; color:#fff; box-shadow:0 0 0 3px rgba(124,77,255,0.2); }
         .step.pending .step-num { background:var(--hover-bg); color:var(--text-muted); }
-        .step-label { font-size:10px; font-weight:700; white-space:nowrap; }
+        .step-label { font-size:11px; font-weight:700; }
         .step.done .step-label, .step.active .step-label { color:var(--text-main); }
         .step.pending .step-label { color:var(--text-muted); }
-        .step-divider { flex:0.2; height:2px; background:var(--border); margin:0 2px; border-radius:2px; flex-shrink:0; }
+        .step-divider { flex:0.3; height:2px; background:var(--border); margin:0 4px; border-radius:2px; }
         .step-divider.done { background:#10b981; }
 
         .content { max-width:480px; margin:0 auto; width:100%; padding:20px 16px 50px 16px; flex-grow:1; }
@@ -74,121 +73,55 @@
         .student-info-name { font-size:14px; font-weight:800; margin-bottom:2px; }
         .student-info-prn { font-size:11.5px; color:var(--text-muted); font-weight:600; }
 
-        .section-title { font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.6px; margin:20px 0 10px 0; }
-
-        /* BRANCH OPTION CARDS */
-        .branch-option-cards { display:flex; flex-direction:column; gap:10px; margin-bottom:4px; }
-
-        .branch-opt-card {
-            background:var(--card-bg); border:2px solid var(--border);
-            border-radius:16px; padding:14px 16px;
-            cursor:pointer; transition:all 0.2s;
-            display:flex; align-items:center; gap:14px;
-            position:relative;
-        }
-        .branch-opt-card:hover { border-color:#5c6bc0; }
-        .branch-opt-card.selected { border-color:#5c6bc0; background:rgba(92,107,192,0.05); }
-        /* "keep" = already owned, selected by default */
-        .branch-opt-card.selected.keep-card { border-color:#10b981; background:rgba(16,185,129,0.05); }
-
-        .opt-radio { width:20px; height:20px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; }
-        .branch-opt-card.selected .opt-radio { border-color:#5c6bc0; }
-        .branch-opt-card.selected.keep-card .opt-radio { border-color:#10b981; }
-        .opt-radio-dot { width:10px; height:10px; border-radius:50%; background:#5c6bc0; opacity:0; transition:opacity 0.2s; }
-        .branch-opt-card.selected.keep-card .opt-radio-dot { background:#10b981; }
-        .branch-opt-card.selected .opt-radio-dot { opacity:1; }
-
-        .opt-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
-        .opt-icon-green { background:rgba(16,185,129,0.12); }
-        .opt-icon-blue  { background:rgba(92,107,192,0.12); }
-
-        .opt-info { flex:1; }
-        .opt-name { font-size:14px; font-weight:800; margin-bottom:2px; }
-        .opt-sub  { font-size:11.5px; color:var(--text-muted); font-weight:600; }
-
-        .opt-price { text-align:right; }
-        .opt-price-main { font-size:18px; font-weight:900; }
-        .opt-price-sub  { font-size:10px; color:var(--text-muted); font-weight:600; }
-        .price-green { color:#10b981; }
-        .price-blue  { color:#5c6bc0; }
-
-        .free-tag {
-            position:absolute; top:-1px; right:14px;
-            background:linear-gradient(135deg,#10b981,#059669);
-            color:#fff; font-size:9px; font-weight:800;
-            padding:3px 8px; border-radius:0 0 8px 8px;
-            letter-spacing:0.4px;
-        }
-
-        /* SUBSCRIPTION CARDS */
-        .sub-cards { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
-        .sub-card {
-            background:var(--card-bg); border:2px solid var(--border);
-            border-radius:16px; padding:14px 16px;
-            cursor:pointer; transition:all 0.2s;
-            display:flex; align-items:center; gap:14px;
-            position:relative;
-        }
-        .sub-card:hover { border-color:var(--primary); }
-        .sub-card.selected.silver-card  { border-color:#64748b; background:rgba(100,116,139,0.06); }
-        .sub-card.selected.gold-card    { border-color:#f59e0b; background:rgba(245,158,11,0.06); }
-        .sub-card.selected.diamond-card { border-color:#7c4dff; background:rgba(124,77,255,0.06); }
-
-        .sub-radio { width:20px; height:20px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; }
-        .sub-card.selected.silver-card  .sub-radio { border-color:#64748b; }
-        .sub-card.selected.gold-card    .sub-radio { border-color:#f59e0b; }
-        .sub-card.selected.diamond-card .sub-radio { border-color:#7c4dff; }
-        .sub-radio-dot { width:10px; height:10px; border-radius:50%; opacity:0; transition:opacity 0.2s; }
-        .sub-card.selected .sub-radio-dot { opacity:1; }
-        .sub-card.selected.silver-card  .sub-radio-dot { background:#64748b; }
-        .sub-card.selected.gold-card    .sub-radio-dot { background:#f59e0b; }
-        .sub-card.selected.diamond-card .sub-radio-dot { background:#7c4dff; }
-
-        .sub-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
-        .silver-icon { background:rgba(100,116,139,0.12); }
-        .gold-icon   { background:rgba(245,158,11,0.12); }
-        .diamond-icon{ background:rgba(124,77,255,0.12); }
-
-        .sub-info { flex:1; }
-        .sub-name { font-size:14px; font-weight:800; margin-bottom:2px; }
-        .sub-validity { font-size:11.5px; color:var(--text-muted); font-weight:600; }
-        .sub-price-wrap { text-align:right; }
-        .sub-price { font-size:18px; font-weight:900; }
-        .sub-price-sub { font-size:10px; color:var(--text-muted); font-weight:600; }
-        .silver-price { color:#64748b; }
-        .gold-price   { color:#f59e0b; }
-        .diamond-price{ color:#7c4dff; }
-        .best-value-tag {
-            position:absolute; top:-1px; right:14px;
-            background:linear-gradient(135deg,#7c4dff,#e040fb);
-            color:#fff; font-size:9px; font-weight:800;
-            padding:3px 8px; border-radius:0 0 8px 8px;
-            letter-spacing:0.4px;
-        }
-
-        /* ORDER SUMMARY */
+        /* ORDER CARD */
         .order-card {
             background:var(--card-bg); border:1px solid var(--border);
             border-radius:16px; padding:16px; margin-bottom:16px;
+            display:flex; align-items:center; justify-content:space-between; gap:12px;
         }
-        .order-row {
-            display:flex; align-items:center; justify-content:space-between;
-            padding:8px 0;
-        }
-        .order-row:not(:last-child) { border-bottom:1px dashed var(--border); }
-        .order-row-label { display:flex; align-items:center; gap:8px; }
-        .order-row-icon { width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
-        .icon-branch { background:rgba(92,107,192,0.12); color:#5c6bc0; }
-        .icon-sub    { background:rgba(124,77,255,0.12); color:#7c4dff; }
-        .icon-total  { background:rgba(16,185,129,0.12); color:#10b981; }
-        .order-row-text { font-size:13px; font-weight:700; }
-        .order-row-sub  { font-size:11px; color:var(--text-muted); font-weight:500; }
-        .order-row-price { font-size:15px; font-weight:900; }
-        .price-branch { color:#5c6bc0; }
-        .price-sub    { color:#7c4dff; }
-        .price-total  { font-size:20px; color:#10b981; }
+        .order-left { display:flex; align-items:center; gap:12px; }
+        .order-icon { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,#7c4dff,#e040fb); display:flex; align-items:center; justify-content:center; font-size:18px; color:#fff; flex-shrink:0; }
+        .order-name { font-size:14px; font-weight:800; margin-bottom:2px; }
+        .order-sub { font-size:11.5px; color:var(--text-muted); }
+        .order-price { font-size:22px; font-weight:900; color:#7c4dff; letter-spacing:-0.5px; white-space:nowrap; }
 
-        /* PAY BUTTON */
+        .section-title { font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.6px; margin:20px 0 10px 0; }
+
+        /* SUBSCRIPTION PLANS */
+        .plan-list { display:flex; flex-direction:column; gap:10px; margin-bottom:12px; }
+        .plan-item {
+            display:flex; align-items:center; justify-content:space-between; gap:10px;
+            background:var(--card-bg); border:1.5px solid var(--border); border-radius:14px;
+            padding:12px 14px; cursor:pointer;
+        }
+        .plan-item.selected { border-color:#7c4dff; background:var(--primary-glow); }
+        .plan-left { display:flex; align-items:center; gap:10px; }
+        .plan-left input[type="radio"] { width:18px; height:18px; accent-color:#7c4dff; cursor:pointer; }
+        .plan-name { font-size:13.5px; font-weight:800; }
+        .plan-desc { font-size:11px; color:var(--text-muted); }
+        .plan-price { font-size:15px; font-weight:900; color:#7c4dff; white-space:nowrap; }
+
+        .current-role-note { font-size:11.5px; color:var(--text-muted); font-weight:600; margin-bottom:10px; }
+        .current-role-note strong { color:var(--text-main); }
+
+        .skip-box {
+            background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.25);
+            border-radius:12px; padding:12px 14px; margin-bottom:16px;
+        }
+        .skip-box label { display:flex; align-items:center; gap:10px; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--text-main); line-height:1.5; }
+        .skip-box input[type="checkbox"] { width:19px; height:19px; accent-color:#10b981; flex-shrink:0; cursor:pointer; }
+        .skip-box .skip-price-tag { color:#10b981; font-weight:800; }
+
+        /* TOTAL ROW */
+        .total-row {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:14px 16px; background:var(--card-bg); border:1.5px solid #7c4dff;
+            border-radius:14px; margin-bottom:8px;
+        }
+        .total-row .total-label { font-size:13px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; }
+        .total-row .total-amount { font-size:24px; font-weight:900; color:#7c4dff; }
+
+        /* CONFIRM BUTTON */
         .confirm-btn {
             display:flex; align-items:center; justify-content:center; gap:10px;
             width:100%; padding:16px;
@@ -201,17 +134,26 @@
         }
         .confirm-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 32px rgba(124,77,255,0.45); }
         .confirm-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
         .secure-row { display:flex; align-items:center; justify-content:center; gap:6px; font-size:11.5px; color:var(--text-muted); font-weight:600; margin-bottom:24px; }
         .secure-row i { color:#10b981; }
 
-        /* WHAT YOU GET */
-        .what-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:16px; margin-top:8px; }
-        .what-item { display:flex; align-items:center; gap:10px; padding:6px 0; }
-        .what-item i { color:#10b981; width:16px; flex-shrink:0; }
-        .what-item span { font-size:12.5px; color:var(--text-muted); font-weight:600; }
+        /* NOTICE BOX */
+        .notice-box { display:flex; align-items:flex-start; gap:10px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-left:4px solid #10b981; border-radius:12px; padding:12px 14px; margin-bottom:6px; }
+        .notice-box i { color:#10b981; flex-shrink:0; margin-top:1px; }
+        .notice-box p { font-size:12px; color:var(--text-muted); line-height:1.6; }
+        .notice-box strong { color:var(--text-main); }
 
         /* SUCCESS OVERLAY */
-        .success-overlay { position:fixed; inset:0; z-index:9999; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:32px; opacity:0; pointer-events:none; transition:opacity 0.3s ease; }
+        .success-overlay {
+            position:fixed; inset:0; z-index:9999;
+            background:var(--bg);
+            display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            text-align:center; padding:32px;
+            opacity:0; pointer-events:none;
+            transition:opacity 0.3s ease;
+        }
         .success-overlay.show { opacity:1; pointer-events:all; }
         .success-anim { width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,#10b981,#059669); display:flex; align-items:center; justify-content:center; font-size:36px; color:#fff; margin:0 auto 24px auto; animation:popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
         @keyframes popIn { 0%{transform:scale(0)} 100%{transform:scale(1)} }
@@ -234,37 +176,32 @@
         <button class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
     </header>
 
-    <!-- STEPS BAR -->
+    <!-- STEPS -->
     <div class="steps-bar">
         <div class="step done">
-            <div class="step-num"><i class="fa-solid fa-check" style="font-size:9px;"></i></div>
+            <div class="step-num"><i class="fa-solid fa-check" style="font-size:10px;"></i></div>
             <span class="step-label">PRN ✓</span>
         </div>
         <div class="step-divider done"></div>
         <div class="step done">
-            <div class="step-num"><i class="fa-solid fa-check" style="font-size:9px;"></i></div>
+            <div class="step-num"><i class="fa-solid fa-check" style="font-size:10px;"></i></div>
             <span class="step-label">Branch ✓</span>
         </div>
         <div class="step-divider done"></div>
         <div class="step active">
             <div class="step-num">3</div>
-            <span class="step-label">Subscription</span>
-        </div>
-        <div class="step-divider"></div>
-        <div class="step pending">
-            <div class="step-num">4</div>
             <span class="step-label">Payment</span>
         </div>
         <div class="step-divider"></div>
         <div class="step pending">
-            <div class="step-num">5</div>
+            <div class="step-num">4</div>
             <span class="step-label">Confirm</span>
         </div>
     </div>
 
     <div class="content">
 
-        <!-- STUDENT INFO -->
+        <!-- STUDENT INFO (fetched from URL params) -->
         <div class="student-info-card">
             <div class="student-info-icon"><i class="fa-solid fa-user-graduate"></i></div>
             <div>
@@ -273,106 +210,79 @@
             </div>
         </div>
 
-        <!-- BRANCH SELECTION -->
-        <div class="section-title" id="branchSectionTitle">Branch</div>
-        <div class="branch-option-cards" id="branchOptionCards">
-            <!-- Injected by JS -->
-        </div>
-
-        <!-- SUBSCRIPTION SELECTION -->
-        <div class="section-title">Subscription Plan चुनें</div>
-        <div class="sub-cards">
-            <div class="sub-card silver-card" id="card-silver" onclick="selectPlan('silver',45)">
-                <div class="sub-radio"><div class="sub-radio-dot"></div></div>
-                <div class="sub-icon silver-icon">🪙</div>
-                <div class="sub-info">
-                    <div class="sub-name" style="color:#64748b;">Silver Plan</div>
-                    <div class="sub-validity">1 Month • Basic Access</div>
-                </div>
-                <div class="sub-price-wrap">
-                    <div class="sub-price silver-price">₹45</div>
-                    <div class="sub-price-sub">/month</div>
-                </div>
-            </div>
-            <div class="sub-card gold-card" id="card-gold" onclick="selectPlan('gold',70)">
-                <div class="sub-radio"><div class="sub-radio-dot"></div></div>
-                <div class="sub-icon gold-icon">🥇</div>
-                <div class="sub-info">
-                    <div class="sub-name" style="color:#f59e0b;">Gold Plan</div>
-                    <div class="sub-validity">1 Month • Enhanced Access</div>
-                </div>
-                <div class="sub-price-wrap">
-                    <div class="sub-price gold-price">₹70</div>
-                    <div class="sub-price-sub">/month</div>
-                </div>
-            </div>
-            <div class="sub-card diamond-card" id="card-diamond" onclick="selectPlan('diamond',150)">
-                <div class="best-value-tag">⭐ BEST VALUE</div>
-                <div class="sub-radio"><div class="sub-radio-dot"></div></div>
-                <div class="sub-icon diamond-icon">💎</div>
-                <div class="sub-info">
-                    <div class="sub-name" style="color:#7c4dff;">Diamond Plan</div>
-                    <div class="sub-validity">1 Month • Full Access</div>
-                </div>
-                <div class="sub-price-wrap">
-                    <div class="sub-price diamond-price">₹150</div>
-                    <div class="sub-price-sub">/month</div>
-                </div>
-            </div>
-        </div>
-
         <!-- ORDER SUMMARY -->
-        <div class="section-title">Order Summary</div>
         <div class="order-card">
-            <div class="order-row" id="branchSummaryRow">
-                <div class="order-row-label">
-                    <div class="order-row-icon icon-branch"><i class="fa-solid fa-building-columns"></i></div>
-                    <div>
-                        <div class="order-row-text" id="summaryBranchName">—</div>
-                        <div class="order-row-sub" id="summaryBranchSub">—</div>
-                    </div>
+            <div class="order-left">
+                <div class="order-icon"><i class="fa-solid fa-crown"></i></div>
+                <div>
+                    <div class="order-name" id="orderBranchName">Branch Unlock</div>
+                    <div class="order-sub" id="orderBranchSub">SY Engineering • 1 Year Valid</div>
                 </div>
-                <div class="order-row-price price-branch" id="summaryBranchPrice">₹—</div>
             </div>
-            <div class="order-row">
-                <div class="order-row-label">
-                    <div class="order-row-icon icon-sub"><i class="fa-solid fa-crown"></i></div>
-                    <div>
-                        <div class="order-row-text" id="summarySubName">Select a Plan</div>
-                        <div class="order-row-sub">1 Month Validity</div>
-                    </div>
-                </div>
-                <div class="order-row-price price-sub" id="summarySubPrice">₹—</div>
-            </div>
-            <div class="order-row" style="border-bottom:none; padding-top:10px; margin-top:2px;">
-                <div class="order-row-label">
-                    <div class="order-row-icon icon-total"><i class="fa-solid fa-receipt"></i></div>
-                    <div>
-                        <div class="order-row-text" style="color:var(--text-main);">Total Amount</div>
-                        <div class="order-row-sub">Branch + Subscription</div>
-                    </div>
-                </div>
-                <div class="order-row-price price-total" id="summaryTotal">₹—</div>
-            </div>
+            <div class="order-price" id="orderBranchPrice">₹39</div>
         </div>
 
-        <!-- PAY BUTTON -->
-        <button id="onlinePayBtn" onclick="payOnline()" class="confirm-btn" disabled>
-            ⚡ Pay करें — <span id="btnPrice">Plan & Branch चुनें</span>
+        <!-- SUBSCRIPTION -->
+        <div class="section-title">Subscription चुनें</div>
+        <div class="current-role-note" id="currentRoleNote" style="display:none;"></div>
+        <div class="plan-list" id="planList">
+            <label class="plan-item" data-role="silver">
+                <div class="plan-left">
+                    <input type="radio" name="planRadio" value="silver" onchange="onPlanChange()" checked>
+                    <div><div class="plan-name">Silver</div><div class="plan-desc">Basic subscription • 30 दिन</div></div>
+                </div>
+                <div class="plan-price">₹49</div>
+            </label>
+            <label class="plan-item" data-role="gold">
+                <div class="plan-left">
+                    <input type="radio" name="planRadio" value="gold" onchange="onPlanChange()">
+                    <div><div class="plan-name">Gold</div><div class="plan-desc">Extra features • 30 दिन</div></div>
+                </div>
+                <div class="plan-price">₹89</div>
+            </label>
+            <label class="plan-item" data-role="diamond">
+                <div class="plan-left">
+                    <input type="radio" name="planRadio" value="diamond" onchange="onPlanChange()">
+                    <div><div class="plan-name">Diamond</div><div class="plan-desc">All access • 30 दिन</div></div>
+                </div>
+                <div class="plan-price">₹162</div>
+            </label>
+        </div>
+
+        <!-- SKIP SUBSCRIPTION -->
+        <div class="skip-box" id="skipRoleBox" style="display:none;">
+            <label>
+                <input type="checkbox" id="skipRoleCheckbox" onchange="toggleRoleSkip()">
+                <span>मुझे सिर्फ Branch चाहिए, Subscription नहीं लेनी — Skip करें <span class="skip-price-tag">(सिर्फ ₹5)</span>। मेरा current role वैसा ही रहेगा।</span>
+            </label>
+        </div>
+        <div class="skip-box" id="skipRoleBoxNoRole" style="display:none;">
+            <label>
+                <input type="checkbox" id="skipRoleCheckboxNoRole" onchange="toggleRoleSkip()">
+                <span>अभी Subscription नहीं लेनी — सिर्फ Branch लेनी है — Skip करें <span class="skip-price-tag">(सिर्फ ₹5)</span></span>
+            </label>
+        </div>
+
+        <!-- TOTAL -->
+        <div class="total-row">
+            <span class="total-label">Total Amount</span>
+            <span class="total-amount" id="totalAmount">₹88</span>
+        </div>
+
+        <!-- ONLINE PAY -->
+        <button id="onlinePayBtn" onclick="payOnline()" style="
+          width:100%; padding:16px; border-radius:14px; border:none;
+          background:linear-gradient(135deg,#7c4dff,#e040fb);
+          color:#fff; font-size:15px; font-weight:800;
+          cursor:pointer; margin-bottom:12px; margin-top:6px;
+          box-shadow:0 6px 24px rgba(124,77,255,0.35);">
+          ⚡ Online Pay करें — ₹88 (Instant)
         </button>
         <div class="secure-row">
             <i class="fa-solid fa-shield-halved"></i> Secure Payment via Cashfree
         </div>
 
-        <!-- WHAT YOU GET -->
-        <div class="section-title">What You Get</div>
-        <div class="what-card">
-            <div class="what-item"><i class="fa-solid fa-check-circle"></i><span>Branch ke saare practicals PDFs unlock</span></div>
-            <div class="what-item"><i class="fa-solid fa-check-circle"></i><span>Branch validity: 1 Year (365 days)</span></div>
-            <div class="what-item"><i class="fa-solid fa-check-circle"></i><span>Subscription validity: 1 Month (30 days)</span></div>
-            <div class="what-item"><i class="fa-solid fa-check-circle"></i><span>Instant auto-approval after payment</span></div>
-            <div class="what-item"><i class="fa-solid fa-check-circle"></i><span>SY Engineering ke sabhi subjects covered</span></div>
-        </div>
+
 
     </div>
 
@@ -391,6 +301,8 @@
     <!-- TOAST -->
     <div class="toast" id="toast"><span id="toastMsg"></span></div>
 
+    </script>
+
     <script>
         document.documentElement.setAttribute('data-theme','light');
         function toggleTheme() {
@@ -405,223 +317,154 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // ── URL PARAMS ──
-        const params      = new URLSearchParams(window.location.search);
-        const studentPRN  = params.get('prn')        || '';
-        const studentName = params.get('name')        || 'Student';
-        const branchCode  = params.get('branch')      || '';       // existing branch (if any)
-        const branchName  = params.get('branchName')  || '';
-        const branchOwned = params.get('branchOwned') === '1';     // true = already purchased
+        // ── READ URL PARAMS (passed from premium-get.html) ──
+        const params = new URLSearchParams(window.location.search);
+        const studentPRN      = params.get('prn') || '';
+        const studentName     = params.get('name') || 'Student';
+        const branchCode      = params.get('branch') || '';
+        const branchName      = params.get('branchName') || 'Branch Unlock';
+        const studentUid      = params.get('uid') || '';
+        const branchOwned     = params.get('branchOwned') === 'true';
+        const existingRole    = (params.get('existingRole') || '').toLowerCase();
 
-        if (!studentPRN) window.location.href = 'premium-get.html';
+        // If no PRN, redirect back
+        if (!studentPRN || !branchCode) {
+            window.location.href = 'premium-get.html';
+        }
 
+        // Show student info
         document.getElementById('studentInfoName').textContent = studentName;
-        document.getElementById('studentInfoPrn').textContent  = 'PRN: ' + studentPRN;
+        document.getElementById('studentInfoPrn').textContent = 'PRN: ' + studentPRN;
+        document.getElementById('orderBranchName').textContent = branchName + ' Unlock';
 
-        // ── STATE ──
-        let selectedRole      = null;   // 'silver' | 'gold' | 'diamond'
-        let selectedRolePrice = 0;
-        let branchChoice      = null;   // 'keep' | 'new'
-        let branchCost        = 0;      // 0 (keep) or 30 (new)
+        // ── PRICING STATE ──
+        const BRANCH_PRICE = 39, SKIP_PRICE = 5;
+        const ROLE_PRICES  = { silver: 49, gold: 89, diamond: 162 };
+        let roleSkipped = false;
 
-        // BRANCH NAMES MAP
-        const BRANCH_NAMES = {
-            civil:'Civil Engineering', mech:'Mechanical Engineering',
-            cs:'Computer Science & Engineering', aiml:'AI & Machine Learning',
-            entc:'Electronics & Telecom (ENTC)', it:'Information Technology',
-            electrical:'Electrical Engineering', chem:'Chemical Engineering',
-            petro:'Petrochemical Engineering', prod:'Production Engineering'
-        };
-        const resolvedBranchName = branchName || BRANCH_NAMES[branchCode] || branchCode;
-
-        // ── BUILD BRANCH OPTION CARDS ──
-        function buildBranchCards() {
-            const container = document.getElementById('branchOptionCards');
-
-            if (branchOwned) {
-                // Show two options: Keep existing (free) OR New branch (₹30)
-                document.getElementById('branchSectionTitle').textContent = 'Branch Option';
-                container.innerHTML = `
-                  <!-- KEEP EXISTING -->
-                  <div class="branch-opt-card keep-card selected" id="opt-keep" onclick="selectBranch('keep')">
-                      <div class="free-tag">✅ ALREADY UNLOCKED</div>
-                      <div class="opt-radio"><div class="opt-radio-dot"></div></div>
-                      <div class="opt-icon opt-icon-green"><i class="fa-solid fa-building-columns" style="color:#10b981;"></i></div>
-                      <div class="opt-info">
-                          <div class="opt-name">${resolvedBranchName}</div>
-                          <div class="opt-sub">Current Branch • 1 Year Valid</div>
-                      </div>
-                      <div class="opt-price">
-                          <div class="opt-price-main price-green">₹0</div>
-                          <div class="opt-price-sub">FREE</div>
-                      </div>
-                  </div>
-                  <!-- NEW BRANCH -->
-                  <div class="branch-opt-card" id="opt-new" onclick="selectBranch('new')">
-                      <div class="opt-radio"><div class="opt-radio-dot"></div></div>
-                      <div class="opt-icon opt-icon-blue"><i class="fa-solid fa-rotate" style="color:#5c6bc0;"></i></div>
-                      <div class="opt-info">
-                          <div class="opt-name">Branch बदलनी है</div>
-                          <div class="opt-sub">New Branch Unlock • +₹30 extra</div>
-                      </div>
-                      <div class="opt-price">
-                          <div class="opt-price-main price-blue">₹30</div>
-                          <div class="opt-price-sub">+add-on</div>
-                      </div>
-                  </div>`;
-
-                // Default: keep existing branch (free)
-                selectBranch('keep');
-
-            } else {
-                // No existing branch — hide section, just show a single fixed info row
-                document.getElementById('branchSectionTitle').textContent = 'Branch';
-                container.innerHTML = `
-                  <div class="branch-opt-card selected" style="cursor:default;">
-                      <div class="opt-radio"><div class="opt-radio-dot" style="background:#5c6bc0; opacity:1;"></div></div>
-                      <div class="opt-icon opt-icon-blue"><i class="fa-solid fa-building-columns" style="color:#5c6bc0;"></i></div>
-                      <div class="opt-info">
-                          <div class="opt-name">${resolvedBranchName || 'Branch Unlock'}</div>
-                          <div class="opt-sub">New Branch • 1 Year Validity</div>
-                      </div>
-                      <div class="opt-price">
-                          <div class="opt-price-main price-blue">₹30</div>
-                          <div class="opt-price-sub">one-time</div>
-                      </div>
-                  </div>`;
-
-                // Auto-set branch cost
-                branchChoice = 'new';
-                branchCost   = 30;
-                updateSummary();
-            }
+        // If branch is already owned (skipped on previous screen) — show ₹5 + relabel
+        if (branchOwned) {
+            document.getElementById('orderBranchSub').textContent = 'पहले से Owned • Skip Charge';
         }
 
-        function selectBranch(choice) {
-            // choice: 'keep' or 'new'
-            branchChoice = choice;
-            branchCost   = (choice === 'keep') ? 0 : 30;
-
-            const keepCard = document.getElementById('opt-keep');
-            const newCard  = document.getElementById('opt-new');
-            if (keepCard) keepCard.classList.toggle('selected', choice === 'keep');
-            if (newCard)  newCard.classList.toggle('selected',  choice === 'new');
-
-            updateSummary();
+        // Show correct skip box based on whether student already has a subscription role
+        if (existingRole) {
+            document.getElementById('currentRoleNote').style.display = 'block';
+            document.getElementById('currentRoleNote').innerHTML = 'आपकी Current Subscription: <strong>' + existingRole.toUpperCase() + '</strong>';
+            document.getElementById('skipRoleBox').style.display = 'block';
+        } else {
+            document.getElementById('skipRoleBoxNoRole').style.display = 'block';
         }
 
-        // ── SUBSCRIPTION PLAN SELECTION ──
-        function selectPlan(role, price) {
-            ['silver','gold','diamond'].forEach(r =>
-                document.getElementById('card-' + r).classList.remove('selected'));
-            document.getElementById('card-' + role).classList.add('selected');
+        function getBranchCharge() { return branchOwned ? SKIP_PRICE : BRANCH_PRICE; }
 
-            selectedRole      = role;
-            selectedRolePrice = price;
-            updateSummary();
+        function getRoleCharge() {
+            if (roleSkipped) return SKIP_PRICE;
+            const selected = document.querySelector('input[name="planRadio"]:checked');
+            return selected ? (ROLE_PRICES[selected.value] || SKIP_PRICE) : SKIP_PRICE;
         }
 
-        // ── UPDATE ORDER SUMMARY + BUTTON ──
-        function updateSummary() {
-            const planLabel = selectedRole
-                ? selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1) + ' Plan'
-                : '—';
+        function getSelectedRole() {
+            const selected = document.querySelector('input[name="planRadio"]:checked');
+            return selected ? selected.value : 'silver';
+        }
 
-            // Branch row
-            if (branchChoice === 'keep') {
-                document.getElementById('summaryBranchName').textContent = resolvedBranchName || branchCode;
-                document.getElementById('summaryBranchSub').textContent  = 'Already Unlocked ✅';
-                document.getElementById('summaryBranchPrice').textContent = '₹0';
-                document.getElementById('summaryBranchPrice').style.color = '#10b981';
-            } else {
-                const displayName = (branchChoice === 'new' && branchOwned)
-                    ? 'New Branch Unlock' : (resolvedBranchName || 'Branch Unlock');
-                document.getElementById('summaryBranchName').textContent  = displayName;
-                document.getElementById('summaryBranchSub').textContent   = '1 Year Validity';
-                document.getElementById('summaryBranchPrice').textContent = '₹30';
-                document.getElementById('summaryBranchPrice').style.color = '#5c6bc0';
-            }
+        function updateTotals() {
+            const branchCharge = getBranchCharge();
+            const roleCharge   = getRoleCharge();
+            const total        = branchCharge + roleCharge;
 
-            // Sub row
-            document.getElementById('summarySubName').textContent  = selectedRole ? planLabel : 'Select a Plan';
-            document.getElementById('summarySubPrice').textContent = selectedRole ? '₹' + selectedRolePrice : '₹—';
+            document.getElementById('orderBranchPrice').textContent = '₹' + branchCharge;
+            document.getElementById('totalAmount').textContent = '₹' + total;
 
-            // Total
-            const total = branchCost + selectedRolePrice;
-            document.getElementById('summaryTotal').textContent = (selectedRole && branchChoice) ? '₹' + total : '₹—';
-
-            // Button
             const btn = document.getElementById('onlinePayBtn');
-            const ready = selectedRole && branchChoice !== null;
-            btn.disabled = !ready;
-            if (ready) {
-                document.getElementById('btnPrice').textContent = '₹' + total + ' (' + planLabel + (branchCost > 0 ? ' + Branch' : '') + ')';
-            } else {
-                document.getElementById('btnPrice').textContent = 'Plan चुनें';
+            if (!btn.disabled) {
+                btn.innerHTML = '⚡ Online Pay करें — ₹' + total + ' (Instant)';
             }
+
+            // Highlight selected plan card
+            document.querySelectorAll('.plan-item').forEach(el => {
+                const radio = el.querySelector('input[type="radio"]');
+                el.classList.toggle('selected', radio.checked && !roleSkipped);
+            });
         }
 
-        // ── INIT ──
-        buildBranchCards();
+        function onPlanChange() { updateTotals(); }
 
-        // ── CASHFREE SDK ──
+        function toggleRoleSkip() {
+            const cb1 = document.getElementById('skipRoleCheckbox');
+            const cb2 = document.getElementById('skipRoleCheckboxNoRole');
+            // Keep both checkboxes (whichever is visible) in sync
+            roleSkipped = (cb1 && cb1.checked) || (cb2 && cb2.checked);
+            if (cb1) cb1.checked = roleSkipped;
+            if (cb2) cb2.checked = roleSkipped;
+
+            document.querySelectorAll('#planList input[type="radio"]').forEach(r => r.disabled = roleSkipped);
+            document.getElementById('planList').style.opacity = roleSkipped ? '0.45' : '1';
+            document.getElementById('planList').style.pointerEvents = roleSkipped ? 'none' : 'auto';
+
+            updateTotals();
+        }
+
+        // Initial total render
+        updateTotals();
+
+
+        // Cashfree SDK load
         const cfScript = document.createElement('script');
         cfScript.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
         document.head.appendChild(cfScript);
 
         async function payOnline() {
-            if (!selectedRole) { showToast('❌ Pehle subscription plan choose karo!'); return; }
+          const cashfree = Cashfree({ mode: "production" });
+          const btn = document.getElementById('onlinePayBtn');
+          const branchCharge = getBranchCharge();
+          const roleCharge   = getRoleCharge();
+          const total        = branchCharge + roleCharge;
+          const selectedRole = getSelectedRole();
+          const restoreLabel = '⚡ Online Pay करें — ₹' + total + ' (Instant)';
 
-            const cashfree   = Cashfree({ mode: "production" });
-            const btn        = document.getElementById('onlinePayBtn');
-            const totalAmount = branchCost + selectedRolePrice;
-
-            // Determine final branch to send — if 'new' and already owned, send empty so
-            // verify-payment.js won't overwrite with old code
-            // We always send the current branchCode; if user wanted a new one they'd
-            // need to go back to premium-get — for now 'new' means re-pay for same branch
-            const finalBranch     = branchCode;
-            const finalBranchName = resolvedBranchName;
-
-            btn.disabled = true;
-            btn.innerHTML = '⏳ Loading...';
-
-            try {
-                const res = await fetch('https://studybuddypro-psi.vercel.app/api/create-order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        prn:         studentPRN,
-                        name:        studentName,
-                        branch:      finalBranch,
-                        branchName:  finalBranchName,
-                        role:        selectedRole,
-                        amount:      totalAmount,
-                        branchOwned: branchChoice === 'keep'   // true = don't charge branch
-                    })
-                });
-                const data = await res.json();
-
-                if (!data.payment_session_id) {
-                    showToast('❌ Error: ' + JSON.stringify(data));
-                    btn.disabled = false;
-                    btn.innerHTML = '⚡ Pay करें — <span id="btnPrice">₹' + totalAmount + '</span>';
-                    return;
-                }
-
-                sessionStorage.setItem('sbz_prn',        studentPRN);
-                sessionStorage.setItem('sbz_name',       studentName);
-                sessionStorage.setItem('sbz_branch',     finalBranch);
-                sessionStorage.setItem('sbz_branchName', finalBranchName);
-                sessionStorage.setItem('sbz_role',       selectedRole);
-
-                cashfree.checkout({ paymentSessionId: data.payment_session_id, redirectTarget: "_self" });
-
-            } catch (err) {
-                showToast('❌ Network error');
-                btn.disabled = false;
-                btn.innerHTML = '⚡ Pay करें — <span id="btnPrice">₹' + totalAmount + '</span>';
+          btn.disabled = true;
+          btn.innerHTML = '⏳ Loading...';
+          try {
+            const res = await fetch('https://studybuddypro-psi.vercel.app/api/create-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prn: studentPRN || 'TEST001',
+                name: studentName || 'Student',
+                branch: branchCode || 'TEST',
+                branchName: branchName || 'Branch',
+                amount: total,
+                role: selectedRole,
+                branchOwned: branchOwned,
+                roleSkipped: roleSkipped
+              })
+            });
+            const data = await res.json();
+            if (!data.payment_session_id) {
+              showToast('❌ Error: ' + JSON.stringify(data));
+              btn.disabled = false;
+              btn.innerHTML = restoreLabel;
+              return;
             }
+            // Save student info before redirect so success/failed pages can read it
+            sessionStorage.setItem('sbz_prn',        studentPRN);
+            sessionStorage.setItem('sbz_name',       studentName);
+            sessionStorage.setItem('sbz_branch',     branchCode);
+            sessionStorage.setItem('sbz_branchName', branchName);
+            sessionStorage.setItem('sbz_role',       selectedRole);
+            sessionStorage.setItem('sbz_branchOwned', String(branchOwned));
+            sessionStorage.setItem('sbz_roleSkipped', String(roleSkipped));
+            cashfree.checkout({
+              paymentSessionId: data.payment_session_id,
+              redirectTarget: "_self"
+            });
+          } catch (err) {
+            showToast('❌ Network error');
+            btn.disabled = false;
+            btn.innerHTML = restoreLabel;
+          }
         }
         window.payOnline = payOnline;
     </script>
