@@ -431,15 +431,6 @@
 
         function toggleBranchSkip() {
             branchSkipped = document.getElementById('skipBranchCheckbox').checked;
-            const sel = document.getElementById('branchSelect');
-            if (branchSkipped) {
-                sel.dataset.savedValue = sel.value;
-                sel.value = '';
-                sel.disabled = true;
-            } else {
-                sel.disabled = !verifiedPRN;
-                if (sel.dataset.savedValue) sel.value = sel.dataset.savedValue;
-            }
             updatePriceUI();
         }
 
@@ -521,16 +512,10 @@
                     branchSel.value = branchSel.dataset.preSelected;
                 }
 
-                // Show "already have this branch — skip" option only if student already owns a branch
+                // Show "already have a branch — skip" option (always visible so student can choose)
                 const skipBox = document.getElementById('skipBranchBox');
-                if (existingBranch) {
-                    document.getElementById('existingBranchLabel').textContent = branchCodeToLabel(existingBranch);
-                    skipBox.classList.add('show');
-                } else {
-                    skipBox.classList.remove('show');
-                    document.getElementById('skipBranchCheckbox').checked = false;
-                    branchSkipped = false;
-                }
+                document.getElementById('existingBranchLabel').textContent = existingBranch ? branchCodeToLabel(existingBranch) : 'Branch';
+                skipBox.classList.add('show');
 
                 const payBtn = document.getElementById('payBtn');
                 payBtn.disabled = false;
@@ -545,16 +530,9 @@
         function handlePayment() {
             if (!verifiedPRN) { showToast('पहले PRN verify करें।'); return; }
 
-            let branch, branchText;
-            if (branchSkipped) {
-                if (!existingBranch) { showToast('आपकी existing branch जानकारी नहीं मिली।'); return; }
-                branch = existingBranch;
-                branchText = branchCodeToLabel(existingBranch);
-            } else {
-                branch = document.getElementById('branchSelect').value;
-                if (!branch) { showToast('पहले अपनी branch select करें या ऊपर Skip करें।'); return; }
-                branchText = document.getElementById('branchSelect').options[document.getElementById('branchSelect').selectedIndex].text;
-            }
+            const branch = document.getElementById('branchSelect').value;
+            if (!branch) { showToast('पहले अपनी branch select करें (जो पहले से है वही चुनें अगर Skip कर रहे हैं)।'); return; }
+            const branchText = document.getElementById('branchSelect').options[document.getElementById('branchSelect').selectedIndex].text;
 
             window.location.href = 'payment-gateway.html'
                 + '?branch=' + branch
