@@ -573,30 +573,19 @@
                 auth.signInWithEmailAndPassword(email, password).then((userCredential) => {
                     const user = userCredential.user;
 
-                    // Step 1: Firestore से PRN लो
-                    db.collection("users").doc(user.uid).get().then((doc) => {
-                        let prn = doc.exists ? doc.data().prn : null;
-
-                        if (prn) {
-                            // Step 2: RTDB में सीधे PRN node से role fetch करो
-                            rtdb.ref('users/' + prn).once('value').then((snap) => {
-                                const role = snap.exists() ? snap.val().role : null;
-                                checkRole(role);
-                            });
-                        } else {
-                            // Firestore में PRN नहीं मिला — UID से RTDB try करो
-                            rtdb.ref('users/' + user.uid).once('value').then((snap) => {
-                                const role = snap.exists() ? snap.val().role : null;
-                                checkRole(role);
-                            });
-                        }
-                    }).catch(() => {
-                        // Firestore fail हो तो UID से RTDB try करो
-                        rtdb.ref('users/' + user.uid).once('value').then((snap) => {
-                            const role = snap.exists() ? snap.val().role : null;
-                            checkRole(role);
-                        });
-                    });
+                    // Auth safal hone ke baad, role RTDB se humare secure backend ke
+                    // zariye uid se fetch hota hai (Auth + RTDB dono jagah se confirm)
+                    fetch('https://studybuddypro-psi.vercel.app/api/verify-prn', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ uid: user.uid, mode: 'login' })
+                    })
+                    .then(r => r.json())
+                    .then((result) => {
+                        const role = (result && result.found) ? result.role : null;
+                        checkRole(role);
+                    })
+                    .catch(() => checkRole(null));
 
                     function checkRole(role) {
                         if (role === 'master') {
@@ -627,15 +616,22 @@
                     btn.disabled = false;
                     return;
                 }
-                db.collection("users").where("prn", "==", identity).get().then((snapshot) => {
-                    if (!snapshot.empty) {
-                        doMasterLogin(snapshot.docs[0].data().email);
+                fetch('https://studybuddypro-psi.vercel.app/api/verify-prn', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prn: identity, mode: 'login' })
+                })
+                .then(r => r.json())
+                .then((result) => {
+                    if (result && result.found && result.email) {
+                        doMasterLogin(result.email);
                     } else {
                         launchToast("Not Found", "No account found with this PRN!", true);
                         btn.innerText = 'Enter Portal';
                         btn.disabled = false;
                     }
-                }).catch(err => {
+                })
+                .catch(err => {
                     launchToast("Error", err.message, true);
                     btn.innerText = 'Enter Portal';
                     btn.disabled = false;
@@ -706,13 +702,27 @@
                     // मोबाइल नंबर को कोर डेटा स्ट्रक्चर में शामिल किया गया
                     const coreUserData = { uid, name, mobile, prn, email: inputVal, role, year, createdAt: Date.now() };
 
+                    // Firestore me pehle jaisa hi save hota hai (baaki pages iske uid-doc par depend karte hain)
                     db.collection("users").doc(uid).set(coreUserData).then(() => {
-                        // डेटा रीयल-टाइम डेटाबेस में PRN नोड के तहत सुरक्षित रूप से सेव होगा
-                        rtdb.ref('users/' + prn).set(coreUserData).then(() => {
+                        // Realtime Database ka write ab humare secure backend se hota hai
+                        // (client se sidha likhna rules ki wajah se allowed nahi hai)
+                        fetch('https://studybuddypro-psi.vercel.app/api/register-user', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ uid, name, mobile, prn, email: inputVal, year })
+                        })
+                        .then(r => r.json())
+                        .then((result) => {
+                            if (!result || !result.success) {
+                                launchToast("Signup Failed", (result && result.error) || "Database write failed", true);
+                                btn.innerText = 'Create Account';
+                                return;
+                            }
                             const signupMsg = generateYearAlertMessage(year, "Signup");
                             launchToast("Success", signupMsg);
                             setTimeout(() => { redirectUser(year); }, 1200);
-                        });
+                        })
+                        .catch(err => { launchToast("Signup Failed", err.message, true); btn.innerText = 'Create Account'; });
                     });
                 }).catch(err => { launchToast("Signup Failed", err.message, true); btn.innerText = 'Create Account'; });
 
@@ -729,51 +739,57 @@
                 if (inputVal.includes('@')) {
                     executeFirebaseLogin(inputVal, password, btn);
                 } else {
-                    db.collection("users").where("prn", "==", inputVal).get().then((snapshot) => {
-                        if (!snapshot.empty) {
-                            executeFirebaseLogin(snapshot.docs[0].data().email, password, btn);
+                    // PRN se email dhundna ab humare secure backend (RTDB source of truth) se hota hai
+                    fetch('https://studybuddypro-psi.vercel.app/api/verify-prn', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prn: inputVal, mode: 'login' })
+                    })
+                    .then(r => r.json())
+                    .then((result) => {
+                        if (result && result.found && result.email) {
+                            executeFirebaseLogin(result.email, password, btn);
                         } else {
                             launchToast("Not Found", "No account found with this PRN!", true);
                             btn.innerText = 'Login';
                         }
-                    }).catch(err => { launchToast("Error", err.message, true); btn.innerText = 'Login'; });
+                    })
+                    .catch(err => { launchToast("Error", err.message, true); btn.innerText = 'Login'; });
                 }
             }
         }
 
         function executeFirebaseLogin(email, password, btn) {
+            // Yahi asli Authentication step hai — yeh Firebase ka standard, secure
+            // client-side sign-in hai (Google khud ise client se karne ki salah deta hai)
             auth.signInWithEmailAndPassword(email, password).then((userCredential) => {
-                const user = userCredential.user;
-                
-                db.collection("users").doc(user.uid).get().then((doc) => {
-                    if (doc.exists) {
-                        const userPrnNumber = doc.data().prn;
-                        
-                        rtdb.ref('users/' + userPrnNumber).once('value').then((snapshot) => {
-                            if (snapshot.exists()) {
-                                const userData = snapshot.val();
-                                const successMsg = generateYearAlertMessage(userData.year, "Login");
-                                launchToast("Login Successful", successMsg);
-                                setTimeout(() => { redirectUser(userData.year); }, 1200);
-                            } else {
-                                launchToast("Login Successful", "Successful Login on FY");
-                                setTimeout(() => { redirectUser('1'); }, 1200);
-                            }
-                        });
-                    } else {
-                        rtdb.ref('users/' + user.uid).once('value').then((snap) => {
-                            if (snap.exists()) {
-                                const uData = snap.val();
-                                launchToast("Login Successful", generateYearAlertMessage(uData.year, "Login"));
-                                setTimeout(() => { redirectUser(uData.year); }, 1200);
-                            } else {
-                                launchToast("Login Successful", "Successful Login on FY");
-                                setTimeout(() => { redirectUser('1'); }, 1200);
-                            }
-                        });
-                    }
-                });
+                afterAuthSuccess(userCredential.user);
             }).catch(err => { launchToast("Auth Failed", err.message, true); btn.innerText = 'Login'; });
+        }
+
+        // Auth safal hone ke baad ka common step — RTDB se role/year humare
+        // secure backend se uid ke zariye fetch hota hai
+        function afterAuthSuccess(user) {
+            fetch('https://studybuddypro-psi.vercel.app/api/verify-prn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: user.uid, mode: 'login' })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (result && result.found) {
+                    const successMsg = generateYearAlertMessage(result.year, "Login");
+                    launchToast("Login Successful", successMsg);
+                    setTimeout(() => { redirectUser(result.year); }, 1200);
+                } else {
+                    launchToast("Login Successful", "Successful Login on FY");
+                    setTimeout(() => { redirectUser('1'); }, 1200);
+                }
+            })
+            .catch(() => {
+                launchToast("Login Successful", "Successful Login on FY");
+                setTimeout(() => { redirectUser('1'); }, 1200);
+            });
         }
 
         function generateYearAlertMessage(year, type) {
