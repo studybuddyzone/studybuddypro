@@ -71,7 +71,6 @@ async function handleRegisterUser(body, res) {
   const prn    = (body.prn    || "").toString().trim();
   const email  = (body.email  || "").toString().trim();
   const year   = (body.year   || "1").toString().trim();
-  const confirmPassword = (body.confirmPassword || "").toString();
 
   if (!uid) return res.status(400).json({ error: "uid missing hai (pehle Firebase Auth account banayein)." });
   if (!/^\d{10}$/.test(mobile)) return res.status(400).json({ error: "Mobile number exactly 10 digits ka hona chahiye." });
@@ -83,7 +82,7 @@ async function handleRegisterUser(body, res) {
   const existingSnap = await db.ref(`users/${prn}`).once("value");
   if (existingSnap.exists()) return res.status(409).json({ error: "Yeh PRN pehle se kisi account se register hai." });
 
-  await db.ref(`users/${prn}`).set({ uid, name, mobile, prn, email, role: "student", year, createdAt: Date.now(), "confirm password": confirmPassword });
+  await db.ref(`users/${prn}`).set({ uid, name, mobile, prn, email, role: "student", year, createdAt: Date.now() });
   return res.status(200).json({ success: true });
 }
 
@@ -242,6 +241,211 @@ async function handleManageRooms(body, res) {
   return res.status(400).json({ error: "Unknown room action." });
 }
 
+const ROLE_WEIGHT = {
+  master: 100, superadmin: 80, admin: 60, moderator: 40,
+  diamond: 20, gold: 15, silver: 10, student: 0
+};
+const ELEVATED_ROLES = ["master", "superadmin", "admin", "moderator"];
+
+// Admin khud kis role ka hai, RTDB se (server-side, asli source of truth) verify karta hai.
+// adminUid diya ho to pehle prn resolve karte hain (uid -> prn), phir role nikalte hain.
+async function resolveAdminIdentity(body) {
+  let adminPrn = (body.adminPrn || "").toString().trim();
+  const adminUid = (body.adminUid || "").toString().trim();
+  const db = admin.database();
+
+  if (!adminPrn && adminUid) {
+    const snap = await db.ref("users").orderByChild("uid").equalTo(adminUid).once("value");
+    const val = snap.val();
+    if (val) adminPrn = Object.values(val)[0].prn || Object.keys(val)[0];
+  }
+  if (!adminPrn) return { adminPrn: null, role: null };
+  const role = await getRoleByPRN(adminPrn);
+  return { adminPrn, role };
+}
+
+async function handleMasterCreateAccount(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) {
+    return res.status(403).json({ error: "Aapko account banane ki anumati nahi hai." });
+  }
+
+  const prn = (body.prn || "").toString().trim();
+  const name = (body.name || "").toString().trim();
+  const email = (body.email || "").toString().trim();
+  const phone = (body.phone || "").toString().trim();
+  const dob = (body.dob || "").toString().trim();
+  const year = (body.year || "").toString().trim();
+  const password = (body.password || "").toString();
+  const targetRole = (body.targetRole || "student").toString().trim();
+
+  if (adminRole !== "master" && ROLE_WEIGHT[adminRole] <= ROLE_WEIGHT[targetRole]) {
+    return res.status(403).json({ error: "Aap apne barabar ya usse upar rank ka account nahi bana sakte." });
+  }
+  if (!/^\d{16}$/.test(prn)) return res.status(400).json({ error: "PRN exactly 16 digits ka hona chahiye." });
+  if (!name || !email || !password) return res.status(400).json({ error: "Name, email aur password zaroori hain." });
+
+  const db = admin.database();
+  const existing = await db.ref(`users/${prn}`).once("value");
+  if (existing.exists()) return res.status(409).json({ error: "Yeh PRN pehle se registered hai." });
+
+  // Asli Firebase Auth account banaya jaata hai (pehle sirf RTDB me plaintext
+  // password store hota tha, jisse student real login kabhi nahi kar paata tha)
+  let uid;
+  try {
+    const authUser = await admin.auth().createUser({ email, password, displayName: name });
+    uid = authUser.uid;
+  } catch (authErr) {
+    return res.status(400).json({ error: "Auth account nahi ban paaya: " + authErr.message });
+  }
+
+  await db.ref(`users/${prn}`).set({ uid, name, email, mobile: phone, dob, year, role: targetRole, createdAt: Date.now() });
+  return res.status(200).json({ success: true });
+}
+
+async function handleMasterListRequests(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) {
+    return res.status(403).json({ error: "Access denied." });
+  }
+  const snap = await admin.database().ref("profile_requests").once("value");
+  const all = snap.val() || {};
+  const pending = {};
+  for (const prn in all) if (all[prn].status === "pending") pending[prn] = all[prn];
+  return res.status(200).json({ success: true, requests: pending });
+}
+
+async function handleMasterProcessRequest(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) return res.status(403).json({ error: "Access denied." });
+
+  const prn = (body.prn || "").toString().trim();
+  const action = (body.action || "").toString().trim();
+  if (!prn || !["approved", "rejected"].includes(action)) return res.status(400).json({ error: "Invalid request." });
+
+  const db = admin.database();
+  const reqSnap = await db.ref(`profile_requests/${prn}`).once("value");
+  const reqData = reqSnap.val();
+  if (!reqData) return res.status(404).json({ error: "Request not found." });
+
+  const oRole = reqData.oldRole || reqData.role || "student";
+  const nRole = reqData.newRole || "student";
+  if (adminRole !== "master" && (ROLE_WEIGHT[adminRole] <= ROLE_WEIGHT[oRole] || ROLE_WEIGHT[adminRole] <= ROLE_WEIGHT[nRole])) {
+    return res.status(403).json({ error: "Unauthorized action on higher rank parameters." });
+  }
+
+  if (action === "approved") {
+    const updates = {};
+    if (reqData.newName)  updates.name  = reqData.newName;
+    if (reqData.newEmail) updates.email = reqData.newEmail;
+    if (reqData.newPhone) updates.mobile = reqData.newPhone;
+    if (reqData.newDOB)   updates.dob   = reqData.newDOB;
+    if (reqData.newYear)  updates.year  = reqData.newYear;
+    if (reqData.newRole)  updates.role  = reqData.newRole;
+    await db.ref(`users/${prn}`).update(updates);
+  }
+  await db.ref(`profile_requests/${prn}`).remove();
+  return res.status(200).json({ success: true });
+}
+
+async function handleMasterListUsers(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) return res.status(403).json({ error: "Access denied." });
+
+  const snap = await admin.database().ref("users").once("value");
+  const all = snap.val() || {};
+  const users = {};
+  for (const prn in all) {
+    const u = all[prn];
+    users[prn] = { name: u.name, year: u.year, role: u.role || "student", password: u.password || null };
+  }
+  return res.status(200).json({ success: true, users, adminRole });
+}
+
+async function handleMasterModifyRole(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) return res.status(403).json({ error: "Access denied." });
+
+  const targetPrn = (body.targetPrn || "").toString().trim();
+  const newRole = (body.newRole || "").toString().trim();
+  const currentTargetRole = (body.currentTargetRole || "").toString().trim();
+
+  if (currentTargetRole === "master") return res.status(403).json({ error: "Master Node is Immortal!" });
+  if (currentTargetRole === "superadmin" && adminRole !== "master") return res.status(403).json({ error: "Only Master can demote a Superadmin!" });
+  if (adminRole !== "master" && ROLE_WEIGHT[adminRole] <= ROLE_WEIGHT[newRole]) {
+    return res.status(403).json({ error: "Aap kisi ko apni rank ya usse upar promote nahi kar sakte!" });
+  }
+
+  await admin.database().ref(`users/${targetPrn}`).update({ role: newRole });
+  return res.status(200).json({ success: true });
+}
+
+async function handleMasterTerminateAccount(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) return res.status(403).json({ error: "Access denied." });
+
+  const targetPrn = (body.targetPrn || "").toString().trim();
+  const targetRole = (body.targetRole || "").toString().trim();
+  if (targetRole === "master") return res.status(403).json({ error: "Master Engine cannot be deleted!" });
+  if (targetRole === "superadmin" && adminRole !== "master") return res.status(403).json({ error: "Only Master can wipe a Superadmin!" });
+
+  const db = admin.database();
+  const userSnap = await db.ref(`users/${targetPrn}`).once("value");
+  const userData = userSnap.val();
+  if (userData && userData.uid) {
+    try { await admin.auth().deleteUser(userData.uid); } catch (e) { /* auth account shayad pehle se na ho, ignore */ }
+  }
+  await db.ref(`users/${targetPrn}`).remove();
+  await db.ref(`profile_requests/${targetPrn}`).remove();
+  return res.status(200).json({ success: true });
+}
+
+async function handleMasterUpdateNotification(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) return res.status(403).json({ error: "Access denied." });
+  const text = (body.text || "").toString().trim();
+  if (!text) return res.status(400).json({ error: "Notification text khaali hai." });
+  await admin.database().ref("site_config/notification").set(text);
+  return res.status(200).json({ success: true });
+}
+
+async function handleMasterClearNotification(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) return res.status(403).json({ error: "Access denied." });
+  await admin.database().ref("site_config/notification").remove();
+  return res.status(200).json({ success: true });
+}
+
+async function handleMasterToggleMaintenance(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) return res.status(403).json({ error: "Access denied." });
+  const yearKey = (body.yearKey || "").toString().trim();
+  if (!["fy", "sy", "ty", "ffy"].includes(yearKey)) return res.status(400).json({ error: "Invalid year key." });
+  await admin.database().ref(`site_config/maintenance/${yearKey}`).set(!!body.isOn);
+  return res.status(200).json({ success: true });
+}
+
+async function handleMasterVerifySelf(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) {
+    return res.status(403).json({ authorized: false, error: "Access denied." });
+  }
+  return res.status(200).json({ authorized: true, role: adminRole });
+}
+
+async function handleMasterGetSiteConfig(body, res) {
+  const { role: adminRole } = await resolveAdminIdentity(body);
+  if (!adminRole || !ELEVATED_ROLES.includes(adminRole)) return res.status(403).json({ error: "Access denied." });
+
+  const snap = await admin.database().ref("site_config").once("value");
+  const cfg = snap.val() || {};
+  return res.status(200).json({
+    success: true,
+    notification: cfg.notification || null,
+    maintenance: cfg.maintenance || {}
+  });
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -259,15 +463,26 @@ module.exports = async (req, res) => {
 
   try {
     switch (action) {
-      case "verify-prn":             return await handleVerifyPrn(body, res);
-      case "register-user":          return await handleRegisterUser(body, res);
-      case "demote-role":            return await handleDemoteRole(body, res);
-      case "request-wipeout":        return await handleRequestWipeout(body, res);
-      case "reset-scores":           return await handleResetScores(body, res);
-      case "wipe-database":          return await handleWipeDatabase(body, res);
-      case "submit-score":           return await handleSubmitScore(body, res);
-      case "submit-profile-request": return await handleSubmitProfileRequest(body, res);
-      case "manage-rooms":           return await handleManageRooms(body, res);
+      case "verify-prn":                  return await handleVerifyPrn(body, res);
+      case "register-user":               return await handleRegisterUser(body, res);
+      case "demote-role":                 return await handleDemoteRole(body, res);
+      case "request-wipeout":             return await handleRequestWipeout(body, res);
+      case "reset-scores":                return await handleResetScores(body, res);
+      case "wipe-database":               return await handleWipeDatabase(body, res);
+      case "submit-score":                return await handleSubmitScore(body, res);
+      case "submit-profile-request":      return await handleSubmitProfileRequest(body, res);
+      case "manage-rooms":                return await handleManageRooms(body, res);
+      case "master-create-account":       return await handleMasterCreateAccount(body, res);
+      case "master-list-requests":        return await handleMasterListRequests(body, res);
+      case "master-process-request":      return await handleMasterProcessRequest(body, res);
+      case "master-list-users":           return await handleMasterListUsers(body, res);
+      case "master-modify-role":          return await handleMasterModifyRole(body, res);
+      case "master-terminate-account":    return await handleMasterTerminateAccount(body, res);
+      case "master-update-notification":  return await handleMasterUpdateNotification(body, res);
+      case "master-clear-notification":   return await handleMasterClearNotification(body, res);
+      case "master-toggle-maintenance":   return await handleMasterToggleMaintenance(body, res);
+      case "master-verify-self":          return await handleMasterVerifySelf(body, res);
+      case "master-get-site-config":      return await handleMasterGetSiteConfig(body, res);
       default:
         return res.status(400).json({ error: "Unknown or missing action: '" + action + "'" });
     }
