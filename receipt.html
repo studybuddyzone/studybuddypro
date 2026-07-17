@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StudyBuddyZone | Receipt Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#070b14;--card:#0e1420;--card2:#111827;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.13);
+  --text:#f0f4ff;--muted:#6b7a99;
+  --accent:#6366f1;--accent2:#818cf8;
+  --success:#34d399;--danger:#f87171;
+  --silver:#94a3b8;--gold:#f59e0b;--diamond:#38bdf8;
+}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:32px 16px;}
+
+/* ── Search card ── */
+.search-wrap{
+  max-width:440px;margin:0 auto 32px;
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:24px;overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,0.5);
+  animation:slideUp 0.4s cubic-bezier(0.16,1,.3,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.search-bar{height:3px;background:linear-gradient(90deg,#4f46e5,#818cf8,#38bdf8);}
+.search-body{padding:28px 24px 32px;}
+.search-title{
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;
+  background:linear-gradient(135deg,#a5b4fc,#818cf8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-align:center;margin-bottom:4px;
+}
+.search-sub{font-size:12.5px;color:var(--muted);text-align:center;margin-bottom:22px;line-height:1.5;}
+
+.inp-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block;}
+.inp{
+  width:100%;padding:13px 16px;
+  background:var(--card2);border:1.5px solid var(--border2);
+  border-radius:12px;font-family:'Inter',sans-serif;
+  font-size:16px;color:var(--text);outline:none;
+  letter-spacing:3px;text-align:center;font-weight:700;
+  transition:border 0.2s,box-shadow 0.2s;margin-bottom:4px;
+}
+.inp::placeholder{color:rgba(107,122,153,0.35);letter-spacing:2px;font-size:13px;}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.15);}
+.inp-hint{font-size:11px;color:var(--muted);margin-bottom:18px;}
+
+.fetch-btn{
+  width:100%;padding:15px;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;
+  border:none;border-radius:14px;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;
+  cursor:pointer;box-shadow:0 6px 24px rgba(99,102,241,0.3);
+  transition:transform 0.15s,box-shadow 0.15s;letter-spacing:0.3px;
+}
+.fetch-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 32px rgba(99,102,241,0.45);}
+.fetch-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+
+.error-box{
+  background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);
+  border-radius:10px;padding:12px 14px;font-size:13px;font-weight:600;
+  color:var(--danger);margin-top:14px;display:none;text-align:center;
+}
+
+/* ── Receipt wrap ── */
+.receipt-wrap{max-width:600px;margin:0 auto;display:none;}
+.download-bar{display:flex;gap:10px;margin-bottom:14px;justify-content:flex-end;}
+.dl-btn{
+  padding:10px 18px;border-radius:10px;border:none;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.2s;
+}
+.dl-print{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,0.3);}
+.dl-print:hover{opacity:0.88;}
+.dl-back{background:var(--card);color:var(--muted);border:1px solid var(--border2);}
+.dl-back:hover{color:var(--text);}
+
+/* ── Receipt card — white for print ── */
+.receipt{
+  background:#ffffff;border-radius:20px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.5);overflow:hidden;
+  font-family:'Poppins',sans-serif;color:#1e293b;
+}
+
+/* ── Header — dynamic gradient set by JS ── */
+.receipt-header{
+  padding:32px 36px 26px;color:#fff;
+  position:relative;overflow:hidden;
+  transition:background 0.3s;
+}
+.receipt-header::before{
+  content:'';position:absolute;top:-50px;right:-50px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,0.07);
+}
+.receipt-header::after{
+  content:'';position:absolute;bottom:-70px;right:80px;
+  width:140px;height:140px;border-radius:50%;
+  background:rgba(255,255,255,0.05);
+}
+.rh-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+.brand-name{font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;letter-spacing:1px;}
+.brand-sub{font-size:11px;font-weight:600;opacity:0.75;letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+.receipt-badge{
+  background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);
+  padding:6px 14px;border-radius:20px;
+  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  backdrop-filter:blur(4px);
+}
+.rh-divider{border:none;border-top:1px solid rgba(255,255,255,0.18);margin:16px 0 14px;position:relative;z-index:1;}
+.receipt-title{
+  font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;
+  letter-spacing:2px;text-transform:uppercase;opacity:0.95;
+  position:relative;z-index:1;
+}
+.receipt-num{font-size:12px;opacity:0.65;margin-top:4px;letter-spacing:0.5px;position:relative;z-index:1;}
+
+/* ── Body ── */
+.receipt-body{padding:30px 36px;position:relative;}
+
+.watermark{
+  position:absolute;font-family:'Nunito',sans-serif;font-weight:900;
+  font-size:90px;color:rgba(99,102,241,0.04);
+  pointer-events:none;top:50%;left:50%;
+  transform:translate(-50%,-50%) rotate(-30deg);white-space:nowrap;z-index:0;
+}
+
+/* ── Info grid ── */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px;position:relative;z-index:1;}
+.info-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin-bottom:4px;}
+.info-value{font-size:14px;font-weight:600;color:#1e293b;}
+.info-value.hl{color:#4f46e5;}
+.info-value.green{color:#16a34a;}
+.info-value.red{color:#dc2626;}
+
+/* ── Validity card ── */
+.validity-card{
+  background:linear-gradient(135deg,#f0fdf4,#ecfdf5);
+  border:1.5px solid #86efac;border-radius:14px;
+  padding:18px 22px;margin-bottom:22px;
+  position:relative;z-index:1;
+}
+.validity-title{font-size:10px;font-weight:700;color:#15803d;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.validity-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.v-block{text-align:center;}
+.v-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.v-value{font-size:13px;font-weight:700;color:#1e293b;}
+.v-days{font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:#16a34a;}
+
+/* ── Tier section ── */
+.tier-section{
+  border:2px solid #e2e8f0;border-radius:14px;
+  padding:18px 22px;margin-bottom:22px;
+  display:flex;align-items:center;gap:16px;
+  position:relative;z-index:1;
+}
+.tier-icon-big{font-size:38px;}
+.tier-name-big{font-family:'Nunito',sans-serif;font-weight:900;font-size:18px;}
+.tier-desc-sm{font-size:12px;color:#64748b;margin-top:3px;}
+.tier-amount{font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;margin-left:auto;}
+.t-silver .tier-section{border-color:#cbd5e1;background:#f8fafc;}
+.t-silver .tier-name-big{color:#64748b;}
+.t-silver .tier-amount{color:#64748b;}
+.t-gold .tier-section{border-color:#fcd34d;background:#fffbeb;}
+.t-gold .tier-name-big{color:#d97706;}
+.t-gold .tier-amount{color:#d97706;}
+.t-diamond .tier-section{border-color:#a5f3fc;background:#ecfeff;}
+.t-diamond .tier-name-big{color:#0891b2;}
+.t-diamond .tier-amount{color:#0891b2;}
+
+/* ── Status ── */
+.status-section{
+  display:flex;align-items:center;gap:12px;
+  background:#f0fdf4;border:1.5px solid #86efac;
+  border-radius:12px;padding:14px 18px;margin-bottom:22px;
+  position:relative;z-index:1;
+}
+.status-text-main{font-weight:700;font-size:14px;color:#16a34a;}
+.status-text-sub{font-size:11px;color:#64748b;margin-top:2px;}
+
+/* ── Amount row ── */
+.amount-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:18px;border-top:2px dashed #e2e8f0;
+  position:relative;z-index:1;
+}
+.amount-label{font-size:11px;font-weight:700;letter-spacing:1px;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;}
+.amount-value{font-family:'Nunito',sans-serif;font-weight:900;font-size:30px;color:#4f46e5;}
+.amount-via{font-size:11px;color:#94a3b8;margin-top:2px;}
+
+.qr-box{
+  width:72px;height:72px;border:2px solid #e2e8f0;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:2px;font-size:10px;color:#94a3b8;
+}
+
+/* ── Notice ── */
+.notice-box{
+  margin-top:18px;background:#f8fafc;border:1px solid #e2e8f0;
+  border-radius:10px;padding:14px 16px;position:relative;z-index:1;
+}
+.notice-title{font-size:10px;font-weight:700;color:#475569;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;}
+.notice-text{font-size:11px;color:#64748b;line-height:1.8;}
+
+/* ── Footer ── */
+.receipt-footer{
+  background:#f8fafc;border-top:1px solid #e2e8f0;
+  padding:18px 36px;display:flex;justify-content:space-between;align-items:center;
+}
+.footer-brand{font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;letter-spacing:1px;color:#4f46e5;}
+.footer-note{font-size:10px;color:#94a3b8;text-align:right;line-height:1.7;}
+
+/* ── Spinner ── */
+.spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media print{
+  body{padding:0;background:#fff;}
+  .search-wrap,.download-bar{display:none!important;}
+  .receipt-wrap{display:block!important;max-width:100%;}
+  .receipt{border-radius:0;box-shadow:none;}
+  .receipt-header,.validity-card,.tier-section,.status-section{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{margin:0.5cm;size:A4;}
+}
+</style>
+  <script src="devtools-guard.js"></script>
+</head>
+<body>
+
+<!-- Search -->
+<div class="search-wrap" id="searchWrap">
+  <div class="search-bar"></div>
+  <div class="search-body">
+    <div class="search-title">📄 Receipt Generator</div>
+    <div class="search-sub">Enter your 16-digit PRN to generate your<br/>official StudyBuddyZone payment receipt.</div>
+
+    <label class="inp-label">🎓 PRN Number</label>
+    <input class="inp" id="searchPRN" placeholder="0000000000000000"
+      maxlength="16" inputmode="numeric"
+      onkeydown="if(event.key==='Enter')fetchReceipt()"
+      oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
+    <div class="inp-hint">Exactly 16 digits • Numbers only</div>
+
+    <button class="fetch-btn" id="fetchBtn" onclick="fetchReceipt()">
+      Generate Receipt →
+    </button>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+</div>
+
+<!-- Receipt -->
+<div class="receipt-wrap" id="receiptWrap">
+  <div class="download-bar">
+    <button class="dl-btn dl-back" onclick="goBack()">← Back</button>
+    <button class="dl-btn dl-print" onclick="window.print()">🖨️ Print / Save PDF</button>
+  </div>
+  <div class="receipt" id="receipt"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref as dbRef, get as dbGet }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+  authDomain: "students-e5183.firebaseapp.com",
+  databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+  projectId: "students-e5183",
+  storageBucket: "students-e5183.firebasestorage.app",
+  messagingSenderId: "473442117683",
+  appId: "1:473442117683:web:f39adc0665317aa95e9b46",
+  measurementId: "G-DT4XQLZJW3"
+};
+
+const app  = initializeApp(firebaseConfig);
+const rtdb = getDatabase(app);
+
+// ── 12 Unique premium header gradients ──────────────────────────
+const HEADER_GRADIENTS = [
+  'linear-gradient(135deg,#4f46e5 0%,#7c3aed 50%,#2563eb 100%)',   // indigo-violet-blue
+  'linear-gradient(135deg,#0f766e 0%,#0891b2 50%,#0284c7 100%)',   // teal-cyan-blue
+  'linear-gradient(135deg,#7e22ce 0%,#a855f7 50%,#ec4899 100%)',   // purple-pink
+  'linear-gradient(135deg,#1e40af 0%,#3730a3 50%,#6d28d9 100%)',   // deep-blue-indigo
+  'linear-gradient(135deg,#065f46 0%,#047857 50%,#0891b2 100%)',   // emerald-teal
+  'linear-gradient(135deg,#9d174d 0%,#be185d 50%,#7c3aed 100%)',   // rose-violet
+  'linear-gradient(135deg,#92400e 0%,#b45309 50%,#d97706 100%)',   // amber-gold
+  'linear-gradient(135deg,#1e3a5f 0%,#1e40af 50%,#0891b2 100%)',   // navy-blue-cyan
+  'linear-gradient(135deg,#134e4a 0%,#0f766e 50%,#7c3aed 100%)',   // teal-purple
+  'linear-gradient(135deg,#4a1d96 0%,#6d28d9 50%,#0891b2 100%)',   // deep-violet-cyan
+  'linear-gradient(135deg,#7f1d1d 0%,#991b1b 50%,#1e40af 100%)',   // red-blue
+  'linear-gradient(135deg,#064e3b 0%,#065f46 50%,#0f766e 100%)',   // deep-green
+];
+
+const TIER_INFO = {
+  silver:  { icon:'🥈', name:'SILVER TIER',        color:'t-silver', price:39,  features:['Handwritten Notes','Previous Year Questions (PYQs)','Solo MCQ Practice','Question Bank Access'] },
+  gold:    { icon:'🥇', name:'GOLD TIER',           color:'t-gold',   price:69,  features:['All Silver features','Battle Arena Access','Competitive Zone','Exclusive Content'] },
+  diamond: { icon:'💎', name:'DIAMOND ALL-ACCESS',  color:'t-diamond',price:129, features:['All Gold features','Full Platform Access','All Layout Resources','Priority Support','Lifetime Updates'] }
+};
+
+// ── Format timestamp → readable date ──────────────────────────
+function fmtDate(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+}
+
+// ── Calculate days between two timestamps ────────────────────
+function daysBetween(from, to) {
+  if (!from || !to) return '—';
+  const d = Math.round((to - from) / (1000 * 60 * 60 * 24));
+  return d > 0 ? d + ' days' : 'Expired';
+}
+
+// ── Pick a random gradient each load ─────────────────────────
+function randomGradient() {
+  return HEADER_GRADIENTS[Math.floor(Math.random() * HEADER_GRADIENTS.length)];
+}
+
+window.fetchReceipt = async function() {
+  const prn = document.getElementById('searchPRN').value.trim();
+
+  if (!/^\d{16}$/.test(prn)) {
+    showError('❌ Please enter a valid 16-digit PRN number.');
+    return;
+  }
+
+  const btn = document.getElementById('fetchBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Fetching...';
+  hideError();
+
+  try {
+    // Sidha RTDB read ki jagah ab secure server API se PRN verify hota hai
+    const apiRes = await fetch('https://studybuddypro-psi.vercel.app/api/backend?action=verify-prn', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prn, mode: 'receipt' })
+    });
+    const data = await apiRes.json();
+
+    if (!data || !data.found) {
+      showError('❌ PRN not found in database. Please check and try again.');
+      btn.disabled = false; btn.innerHTML = 'Generate Receipt →';
+      return;
+    }
+
+    const role = (data.role || '').toLowerCase();
+    const allowedRoles = ['silver','gold','diamond'];
+
+    if (!allowedRoles.includes(role)) {
+      showError('❌ No payment record found. Please check your PRN and try again.');
+      btn.disabled = false; btn.innerHTML = 'Generate Receipt →';
+      return;
+    }
+
+    renderReceipt(prn, data);
+    document.getElementById('searchWrap').style.display  = 'none';
+    document.getElementById('receiptWrap').style.display = 'block';
+
+  } catch(e) {
+    showError('Connection error: ' + e.message);
+    btn.disabled = false; btn.innerHTML = 'Generate Receipt →';
+  }
+};
+
+function renderReceipt(prn, data) {
+  const role     = (data.role || data.Role || 'silver').toLowerCase();
+  const tierKey  = ['silver','gold','diamond'].includes(role) ? role : 'silver';
+  const info     = TIER_INFO[tierKey];
+
+  const name     = data.name || data.Name || data.studentName || '—';
+  const branch   = data.branch || data.Branch || '—';
+  const year     = data.year || data.Year || '—';
+
+  const activatedTs  = data.premiumSince || data.activatedAt || data.createdAt || null;
+  const expiryTs     = data.roleExpires || data.premiumUntil || data.expiresAt || null;
+  const activatedStr = fmtDate(activatedTs);
+  const expiryStr    = fmtDate(expiryTs);
+  const validityStr  = '30 Days';
+
+  const now        = Date.now();
+  const isActive   = expiryTs ? expiryTs > now : true;
+  const statusTxt  = isActive ? 'Active & Valid' : 'Expired';
+  const statusColor= isActive ? '#16a34a' : '#dc2626';
+
+  const receiptNo  = 'SZ-' + prn.slice(-6) + '-' + Date.now().toString().slice(-4);
+  const genDate    = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  const genTime    = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const headerGrad = randomGradient();
+  const amount     = data.amount || data.totalPaid || info.price;
+
+  document.getElementById('receipt').className = `receipt ${info.color}`;
+  document.getElementById('receipt').innerHTML = `
+    <div class="receipt-header" style="background:${headerGrad};">
+      <div class="rh-top">
+        <div>
+          <div class="brand-name">StudyBuddyZone</div>
+          <div class="brand-sub">Premium Academic Hub</div>
+        </div>
+        <div class="receipt-badge">OFFICIAL RECEIPT</div>
+      </div>
+      <hr class="rh-divider"/>
+      <div class="receipt-title">Payment Receipt</div>
+      <div class="receipt-num">Receipt No: ${receiptNo} &nbsp;|&nbsp; Generated: ${genDate} at ${genTime}</div>
+    </div>
+
+    <div class="receipt-body">
+      <div class="watermark">PAID</div>
+
+      <div class="info-grid">
+        <div>
+          <div class="info-label">Student Name</div>
+          <div class="info-value">${name}</div>
+        </div>
+        <div>
+          <div class="info-label">PRN Number</div>
+          <div class="info-value hl">${prn}</div>
+        </div>
+        <div>
+          <div class="info-label">Branch</div>
+          <div class="info-value">${branch}</div>
+        </div>
+        <div>
+          <div class="info-label">Year</div>
+          <div class="info-value">${year}</div>
+        </div>
+        <div>
+          <div class="info-label">Membership Status</div>
+          <div class="info-value" style="color:${statusColor};font-weight:700;">${isActive ? '✅ ' : '❌ '}${statusTxt}</div>
+        </div>
+        <div>
+          <div class="info-label">Receipt Date</div>
+          <div class="info-value">${genDate}</div>
+        </div>
+      </div>
+
+      <!-- Validity Card -->
+      <div class="validity-card">
+        <div class="validity-title">🗓️ Membership Validity Details</div>
+        <div class="validity-grid">
+          <div class="v-block">
+            <div class="v-label">Activation Date</div>
+            <div class="v-value">${activatedStr}</div>
+          </div>
+          <div class="v-block">
+            <div class="v-label">Expiry Date</div>
+            <div class="v-value" style="${!isActive ? 'color:#dc2626;' : ''}">${expiryStr}</div>
+          </div>
+          <div class="v-block">
+            <div class="v-label">Total Validity</div>
+            <div class="v-days">${validityStr}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier -->
+      <div class="tier-section">
+        <div class="tier-icon-big">${info.icon}</div>
+        <div>
+          <div class="tier-name-big">${info.name}</div>
+          <div class="tier-desc-sm">StudyBuddyZone Premium Membership</div>
+        </div>
+        <div class="tier-amount">₹${amount}</div>
+      </div>
+
+      <!-- Status -->
+      <div class="status-section">
+        <div style="font-size:26px;">${isActive ? '✅' : '⚠️'}</div>
+        <div>
+          <div class="status-text-main" style="color:${statusColor};">Payment Verified &amp; ${statusTxt}</div>
+          <div class="status-text-sub">Your ${info.name} membership is on record.</div>
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div class="amount-row">
+        <div>
+          <div class="amount-label">Amount Paid</div>
+          <div class="amount-value">₹${amount}</div>
+          <div class="amount-via">via Cashfree Online Payment</div>
+        </div>
+        <div class="qr-box">
+          <div style="font-size:26px;">🔐</div>
+          <div>Verified</div>
+        </div>
+      </div>
+
+      <!-- Notice -->
+      <div class="notice-box">
+        <div class="notice-title">📋 Important Notice</div>
+        <div class="notice-text">
+          This is an <strong>official payment receipt</strong> issued by <strong>StudyBuddyZone Premium Academic Hub</strong>.
+          This document confirms your premium membership is active and on record.<br/>
+          Receipt No. <strong>${receiptNo}</strong> is unique to this transaction. Keep this for your records.<br/>
+          For support, contact us with your PRN number via WhatsApp: <strong>+91 90493 21230</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="receipt-footer">
+      <div>
+        <div class="footer-brand">StudyBuddyZone</div>
+        <div style="font-size:10px;color:#94a3b8;margin-top:2px;">Premium Academic Hub — Official Document</div>
+        <div style="font-size:10px;color:#94a3b8;margin-top:1px;">Computer-generated receipt. Valid without signature.</div>
+      </div>
+      <div class="footer-note">
+        Generated: ${genDate}<br/>
+        Receipt No: ${receiptNo}<br/>
+        <span style="color:#6366f1;font-weight:700;">✔ Verified &amp; Authenticated</span>
+      </div>
+    </div>
+  `;
+}
+
+window.goBack = function() {
+  document.getElementById('receiptWrap').style.display = 'none';
+  document.getElementById('searchWrap').style.display  = 'block';
+  document.getElementById('fetchBtn').disabled = false;
+  document.getElementById('fetchBtn').innerHTML = 'Generate Receipt →';
+};
+
+function showError(msg) {
+  const e = document.getElementById('errorBox');
+  e.textContent = msg; e.style.display = 'block';
+}
+function hideError() {
+  document.getElementById('errorBox').style.display = 'none';
+}
+</script>
+</body>
+</html>

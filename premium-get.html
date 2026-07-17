@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Get Premium | Practical Zone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --bg: #ffffff; --card-bg: #ffffff; --border: #e5e7eb;
+            --primary: #5c6bc0; --primary-glow: #eef0fb;
+            --text-main: #111111; --text-muted: #6b7280;
+            --hover-bg: #f5f5f5; --input-bg: #f3f4f6;
+        }
+        [data-theme="dark"] {
+            --bg: #0a0a0a; --card-bg: #141414; --border: #2a2a2a;
+            --primary: #7986cb; --primary-glow: #1a1c2e;
+            --text-main: #f5f5f5; --text-muted: #888888;
+            --hover-bg: #1a1a1a; --input-bg: #1a1a1a;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; transition:background-color 0.2s, color 0.2s, border-color 0.2s; }
+        body { background:var(--bg); color:var(--text-main); min-height:100vh; display:flex; flex-direction:column; }
+
+        .top-header {
+            position:sticky; top:0; z-index:100;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0 20px; height:56px;
+            background:var(--card-bg); border-bottom:1px solid var(--border);
+        }
+        .header-left { display:flex; align-items:center; gap:12px; }
+        .back-btn {
+            width:36px; height:36px; border-radius:50%; border:none;
+            background:var(--hover-bg); color:var(--text-main);
+            display:flex; align-items:center; justify-content:center;
+            font-size:15px; cursor:pointer; text-decoration:none;
+        }
+        .header-title { font-size:16px; font-weight:800; color:var(--text-main); }
+        .theme-btn {
+            width:36px; height:36px; border-radius:50%; border:none;
+            background:var(--hover-bg); color:var(--text-main);
+            display:flex; align-items:center; justify-content:center;
+            font-size:14px; cursor:pointer;
+        }
+
+        .hero {
+            background:linear-gradient(135deg,#5c6bc0 0%,#7c4dff 55%,#e040fb 100%);
+            padding:32px 24px 28px 24px; text-align:center; position:relative; overflow:hidden;
+        }
+        .hero::before { content:''; position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,0.07); pointer-events:none; }
+        .hero::after { content:''; position:absolute; bottom:-50px; left:-30px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.05); pointer-events:none; }
+        .hero-crown { width:68px; height:68px; border-radius:20px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 16px auto; box-shadow:0 8px 24px rgba(0,0,0,0.15); }
+        .hero-title { font-size:24px; font-weight:900; color:#fff; margin-bottom:6px; letter-spacing:-0.5px; }
+        .hero-sub { font-size:13px; color:rgba(255,255,255,0.82); font-weight:500; line-height:1.5; }
+
+        .content { max-width:480px; margin:0 auto; width:100%; padding:24px 20px 40px 20px; flex-grow:1; }
+
+        /* ── PRN VERIFICATION SECTION ── */
+        .prn-section {
+            background:var(--card-bg); border:2px solid #5c6bc0;
+            border-radius:18px; padding:20px; margin-bottom:20px;
+            box-shadow:0 4px 20px rgba(92,107,192,0.1);
+        }
+        .prn-section-title {
+            font-size:13px; font-weight:800; color:var(--text-muted);
+            text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;
+            display:flex; align-items:center; gap:8px;
+        }
+        .prn-section-title i { color:#5c6bc0; }
+        .prn-input-row { display:flex; gap:8px; margin-bottom:8px; }
+        .prn-input {
+            flex:1; padding:13px 16px;
+            background:var(--input-bg); border:1.5px solid var(--border);
+            border-radius:12px; font-size:15px; font-weight:700;
+            color:var(--text-main); outline:none; letter-spacing:1px;
+            transition:border-color 0.15s, box-shadow 0.15s;
+        }
+        .prn-input:focus { border-color:#5c6bc0; box-shadow:0 0 0 3px rgba(92,107,192,0.15); }
+        .prn-verify-btn {
+            padding:13px 18px; border-radius:12px; border:none;
+            background:linear-gradient(135deg,#5c6bc0,#7c4dff);
+            color:#fff; font-size:13px; font-weight:800;
+            cursor:pointer; white-space:nowrap;
+            transition:transform 0.15s, opacity 0.15s;
+        }
+        .prn-verify-btn:hover { transform:scale(1.03); }
+        .prn-verify-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+        .prn-status { font-size:12.5px; font-weight:700; margin-top:4px; min-height:18px; display:flex; align-items:center; gap:6px; }
+        .prn-status.success { color:#10b981; }
+        .prn-status.error { color:#ef4444; }
+        .prn-verified-card {
+            background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25);
+            border-radius:12px; padding:12px 14px; margin-top:10px;
+            display:none; align-items:center; gap:10px;
+        }
+        .prn-verified-card.show { display:flex; }
+        .prn-verified-card i { color:#10b981; font-size:18px; }
+        .prn-verified-info .prn-student-name { font-size:14px; font-weight:800; color:var(--text-main); }
+        .prn-verified-info .prn-student-sub { font-size:11.5px; color:var(--text-muted); }
+
+        /* PRICE CARD */
+        .price-card {
+            background:var(--card-bg); border:2px solid #7c4dff;
+            border-radius:20px; padding:20px; margin-bottom:20px;
+            display:flex; align-items:center; justify-content:space-between;
+            box-shadow:0 4px 20px rgba(124,77,255,0.12);
+        }
+        .price-left .price-label { font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:4px; }
+        .price-left .price-amount { font-size:36px; font-weight:900; color:#7c4dff; letter-spacing:-1.5px; }
+        .price-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+        .validity-chip { background:rgba(124,77,255,0.1); color:#7c4dff; font-size:11px; font-weight:800; border-radius:20px; padding:4px 12px; border:1px solid rgba(124,77,255,0.2); }
+        .one-branch-chip { background:var(--hover-bg); color:var(--text-muted); font-size:10.5px; font-weight:700; border-radius:20px; padding:3px 10px; border:1px solid var(--border); }
+
+        /* PERKS */
+        .perks-title { font-size:13px; font-weight:700; color:var(--text-muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px; }
+        .perks-list { display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+        .perk-item { display:flex; align-items:center; gap:12px; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
+        .perk-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+        .perk-text .perk-name { font-size:13.5px; font-weight:700; color:var(--text-main); }
+        .perk-text .perk-desc { font-size:11.5px; color:var(--text-muted); margin-top:1px; }
+
+        /* BRANCH SELECT */
+        .branch-select-title { font-size:13px; font-weight:700; color:var(--text-muted); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
+        .branch-select {
+            width:100%; padding:13px 16px;
+            background:var(--input-bg); border:1px solid var(--border);
+            border-radius:12px; font-size:14px; font-weight:600;
+            color:var(--text-main); cursor:pointer; margin-bottom:20px;
+            appearance:none; -webkit-appearance:none;
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat:no-repeat; background-position:right 14px center;
+            padding-right:40px;
+        }
+        .branch-select:focus { outline:none; border-color:#7c4dff; box-shadow:0 0 0 3px rgba(124,77,255,0.15); }
+        .branch-select:disabled { opacity:0.5; cursor:not-allowed; }
+
+        /* SKIP BOX */
+        .skip-box {
+            background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.25);
+            border-radius:12px; padding:12px 14px; margin-bottom:16px; display:none;
+        }
+        .skip-box.show { display:block; }
+        .skip-box label { display:flex; align-items:center; gap:10px; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--text-main); line-height:1.5; }
+        .skip-box input[type="checkbox"] { width:19px; height:19px; accent-color:#10b981; flex-shrink:0; cursor:pointer; }
+        .skip-box .skip-price-tag { color:#10b981; font-weight:800; }
+
+        /* WARNING BOX */
+        .warning-box {
+            display:flex; align-items:flex-start; gap:10px;
+            background:rgba(251,146,60,0.08); border:1px solid rgba(251,146,60,0.25);
+            border-left:4px solid #fb923c; border-radius:12px;
+            padding:12px 14px; margin-bottom:20px;
+        }
+        .warning-box i { color:#fb923c; margin-top:1px; flex-shrink:0; }
+        .warning-box p { font-size:12px; color:var(--text-muted); line-height:1.6; }
+        .warning-box strong { color:var(--text-main); font-weight:700; }
+
+        /* PAY BUTTON */
+        .pay-btn {
+            display:flex; align-items:center; justify-content:center; gap:10px;
+            width:100%; padding:16px;
+            background:linear-gradient(135deg,#7c4dff,#e040fb);
+            color:#fff; font-size:16px; font-weight:900;
+            border:none; border-radius:16px; cursor:pointer;
+            box-shadow:0 6px 24px rgba(124,77,255,0.4);
+            transition:transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+            margin-bottom:12px;
+        }
+        .pay-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 32px rgba(124,77,255,0.5); }
+        .pay-btn:disabled { opacity:0.45; cursor:not-allowed; transform:none; }
+
+        .secure-note { display:flex; align-items:center; justify-content:center; gap:6px; font-size:11.5px; color:var(--text-muted); font-weight:600; margin-bottom:28px; }
+        .secure-note i { color:#10b981; }
+
+        /* RULES */
+        .rules-box { background:var(--hover-bg); border-radius:14px; padding:16px; border:1px solid var(--border); }
+        .rules-title { font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
+        .rule-item { display:flex; align-items:flex-start; gap:8px; margin-bottom:8px; font-size:12px; color:var(--text-muted); line-height:1.5; }
+        .rule-item:last-child { margin-bottom:0; }
+        .rule-item i { color:#7c4dff; margin-top:2px; flex-shrink:0; font-size:10px; }
+
+        /* TOAST */
+        .toast { position:fixed; bottom:-80px; left:50%; transform:translateX(-50%); background:#111; color:#fff; font-size:13px; font-weight:600; padding:12px 20px; border-radius:12px; transition:bottom 0.3s ease; white-space:nowrap; z-index:9999; display:flex; align-items:center; gap:8px; }
+        .toast.show { bottom:30px; }
+
+        /* ADMIN CROWN BUTTON */
+        .admin-crown-btn {
+            position:fixed; bottom:28px; right:20px; z-index:500;
+            width:52px; height:52px; border-radius:50%;
+            background:linear-gradient(135deg,#f59e0b,#ef4444);
+            border:none; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            font-size:22px; color:#fff;
+            box-shadow:0 4px 20px rgba(245,158,11,0.45);
+            transition:transform 0.18s, box-shadow 0.18s;
+        }
+        .admin-crown-btn:hover { transform:scale(1.1); box-shadow:0 8px 28px rgba(245,158,11,0.55); }
+
+        /* ADMIN PRN MODAL */
+        .prn-backdrop { position:fixed; inset:0; z-index:8000; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); opacity:0; pointer-events:none; transition:opacity 0.25s; }
+        .prn-backdrop.open { opacity:1; pointer-events:all; }
+        .prn-sheet {
+            position:fixed; bottom:-100%; left:0; right:0; z-index:8001;
+            background:var(--card-bg); border-radius:24px 24px 0 0;
+            padding:10px 24px 40px 24px;
+            box-shadow:0 -8px 40px rgba(0,0,0,0.2);
+            transition:bottom 0.32s cubic-bezier(0.4,0,0.2,1);
+            max-width:480px; margin:0 auto;
+        }
+        .prn-sheet.open { bottom:0; }
+        .prn-handle { width:40px; height:4px; border-radius:4px; background:var(--border); margin:0 auto 20px auto; }
+        .prn-icon { width:60px; height:60px; border-radius:18px; background:linear-gradient(135deg,#f59e0b,#ef4444); display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff; margin:0 auto 14px auto; box-shadow:0 4px 16px rgba(245,158,11,0.35); }
+        .prn-title { font-size:18px; font-weight:900; text-align:center; margin-bottom:4px; }
+        .prn-sub { font-size:12.5px; color:var(--text-muted); text-align:center; margin-bottom:20px; line-height:1.5; }
+        .admin-prn-input { width:100%; padding:14px 16px; background:var(--input-bg); border:1.5px solid var(--border); border-radius:13px; font-size:15px; font-weight:700; color:var(--text-main); outline:none; text-align:center; letter-spacing:2px; margin-bottom:12px; }
+        .admin-prn-input:focus { border-color:#f59e0b; box-shadow:0 0 0 3px rgba(245,158,11,0.15); }
+        .admin-verify-btn { width:100%; padding:14px; border-radius:13px; border:none; background:linear-gradient(135deg,#f59e0b,#ef4444); color:#fff; font-size:15px; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+        .admin-verify-btn:disabled { opacity:0.6; cursor:not-allowed; }
+        .prn-cancel-btn { width:100%; padding:12px; border-radius:13px; background:var(--hover-bg); border:1px solid var(--border); color:var(--text-muted); font-size:13.5px; font-weight:700; cursor:pointer; margin-top:10px; }
+        .prn-error { font-size:12px; color:#ef4444; text-align:center; margin-bottom:8px; display:none; font-weight:700; }
+        .prn-error.show { display:block; }
+    </style>
+  <script src="devtools-guard.js"></script>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="top-header">
+        <div class="header-left">
+            <a href="second-year.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+            <span class="header-title">Get Premium</span>
+        </div>
+        <button class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
+    </header>
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="hero-crown"><i class="fa-solid fa-crown"></i></div>
+        <div class="hero-title">Unlock Your Branch 🚀</div>
+        <div class="hero-sub">Notes, PYQs, MCQs — सब कुछ एक जगह<br>सिर्फ ₹39 में • 1 साल तक valid</div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- ── STEP 1: PRN VERIFICATION ── -->
+        <div class="prn-section">
+            <div class="prn-section-title">
+                <i class="fa-solid fa-id-card"></i> Step 1 — PRN Verify करें
+            </div>
+            <div class="prn-input-row">
+                <input class="prn-input" id="studentPrnInput" type="text" placeholder="अपना PRN दर्ज करें" maxlength="16" oninput="resetPrnStatus()" onkeydown="if(event.key==='Enter') verifyStudentPRN()">
+                <button class="prn-verify-btn" id="studentVerifyBtn" onclick="verifyStudentPRN()">
+                    <i class="fa-solid fa-shield-halved"></i> Verify
+                </button>
+            </div>
+            <div class="prn-status" id="prnStatus"></div>
+            <div class="prn-verified-card" id="prnVerifiedCard">
+                <i class="fa-solid fa-circle-check"></i>
+                <div class="prn-verified-info">
+                    <div class="prn-student-name" id="prnStudentName">—</div>
+                    <div class="prn-student-sub" id="prnStudentSub">PRN Verified ✅</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRICE CARD -->
+        <div class="price-card">
+            <div class="price-left">
+                <div class="price-label">Branch Unlock Price</div>
+                <div class="price-amount">₹39</div>
+            </div>
+            <div class="price-right">
+                <div class="validity-chip">📅 1 Year Valid</div>
+                <div class="one-branch-chip">1 Branch Only</div>
+            </div>
+        </div>
+
+        <!-- PERKS -->
+        <div class="perks-title">What you get</div>
+        <div class="perks-list">
+            <div class="perk-item">
+                <div class="perk-icon" style="background:#eef0fb; color:#5c6bc0;"><i class="fa-solid fa-file-lines"></i></div>
+                <div class="perk-text"><div class="perk-name">Study Notes</div><div class="perk-desc">Subject-wise organized notes for all topics</div></div>
+            </div>
+            <div class="perk-item">
+                <div class="perk-icon" style="background:#fce4ec; color:#e91e63;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div class="perk-text"><div class="perk-name">Previous Year Questions</div><div class="perk-desc">PYQs with solutions — last 5 years</div></div>
+            </div>
+            <div class="perk-item">
+                <div class="perk-icon" style="background:#e8f5e9; color:#43a047;"><i class="fa-solid fa-circle-question"></i></div>
+                <div class="perk-text"><div class="perk-name">MCQ Practice Sets</div><div class="perk-desc">Topic-wise MCQs for exam preparation</div></div>
+            </div>
+            <div class="perk-item">
+                <div class="perk-icon" style="background:#fff3e0; color:#fb8c00;"><i class="fa-solid fa-bolt"></i></div>
+                <div class="perk-text"><div class="perk-name">Instant Access</div><div class="perk-desc">Payment verify होते ही तुरंत unlock</div></div>
+            </div>
+        </div>
+
+        <!-- ── STEP 2: BRANCH SELECT ── -->
+        <div class="branch-select-title">Step 2 — अपनी Branch चुनें</div>
+        <select class="branch-select" id="branchSelect" disabled>
+            <option value="">— Branch चुनें —</option>
+            <option value="civil">Civil Engineering</option>
+            <option value="mech">Mechanical Engineering</option>
+            <option value="cs">Computer Science & Engineering</option>
+            <option value="aiml">AI & Machine Learning</option>
+            <option value="entc">Electronics & Telecom (ENTC)</option>
+            <option value="it">Information Technology</option>
+            <option value="electrical">Electrical Engineering</option>
+            <option value="chem">Chemical Engineering</option>
+            <option value="petro">Petrochemical Engineering</option>
+            <option value="prod">Production Engineering</option>
+        </select>
+
+        <!-- SKIP BRANCH (only shown if student already owns a branch) -->
+        <div class="skip-box" id="skipBranchBox">
+            <label>
+                <input type="checkbox" id="skipBranchCheckbox" onchange="toggleBranchSkip()">
+                <span>मेरे पास पहले से <strong id="existingBranchLabel">Branch</strong> है — दोबारा नहीं लेनी। Skip करें <span class="skip-price-tag">(सिर्फ ₹5)</span></span>
+            </label>
+        </div>
+
+        <!-- WARNING -->
+        <div class="warning-box">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <p>एक बार branch select करने के बाद <strong>change नहीं होगी</strong>। Branch बदलनी हो तो दोबारा ₹39 payment करनी पड़ेगी।</p>
+        </div>
+
+        <!-- PAY BUTTON -->
+        <button class="pay-btn" id="payBtn" onclick="handlePayment()" disabled>
+            <i class="fa-solid fa-lock"></i> PRN Verify करें पहले
+        </button>
+        <div class="secure-note">
+            <i class="fa-solid fa-shield-halved"></i> Secure Payment &nbsp;·&nbsp; Instant Access after Approval
+        </div>
+
+        <!-- RULES -->
+        <div class="rules-box">
+            <div class="rules-title">📋 Terms & Conditions</div>
+            <div class="rule-item"><i class="fa-solid fa-circle"></i> एक payment में सिर्फ एक branch unlock होगी।</div>
+            <div class="rule-item"><i class="fa-solid fa-circle"></i> Unlock के बाद 1 साल तक valid रहेगी।</div>
+            <div class="rule-item"><i class="fa-solid fa-circle"></i> Branch बदलनी हो तो नई payment जरूरी है।</div>
+            <div class="rule-item"><i class="fa-solid fa-circle"></i> Payment successful होने के बाद refund नहीं होगा।</div>
+            <div class="rule-item"><i class="fa-solid fa-circle"></i> किसी problem के लिए support से contact करें।</div>
+        </div>
+
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"><i class="fa-solid fa-triangle-exclamation" style="color:#fb923c;"></i> <span id="toastMsg"></span></div>
+
+    <!-- 👑 ADMIN CROWN BUTTON -->
+    <button class="admin-crown-btn" onclick="openAdminSheet()" title="Admin Access">
+        <i class="fa-solid fa-crown"></i>
+    </button>
+
+    <!-- ADMIN PRN MODAL -->
+    <div class="prn-backdrop" id="adminBackdrop" onclick="closeAdminSheet()"></div>
+    <div class="prn-sheet" id="adminSheet">
+        <div class="prn-handle"></div>
+        <div class="prn-icon"><i class="fa-solid fa-crown"></i></div>
+        <div class="prn-title">Admin Verification</div>
+        <div class="prn-sub">अपना PRN दर्ज करें। सिर्फ authorized admins को entry मिलेगी।</div>
+        <div class="prn-error" id="adminPrnError">❌ Access Denied — आप authorized admin नहीं हैं।</div>
+        <input class="admin-prn-input" id="adminPrnInput" type="text" placeholder="Enter Admin PRN" maxlength="16" onkeydown="if(event.key==='Enter') verifyAdminPRN()">
+        <button class="admin-verify-btn" id="adminVerifyBtn" onclick="verifyAdminPRN()">
+            <i class="fa-solid fa-shield-halved"></i> Verify & Enter
+        </button>
+        <button class="prn-cancel-btn" onclick="closeAdminSheet()">Cancel</button>
+    </div>
+
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+            authDomain: "students-e5183.firebaseapp.com",
+            databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+            projectId: "students-e5183",
+            storageBucket: "students-e5183.firebasestorage.app",
+            messagingSenderId: "473442117683",
+            appId: "1:473442117683:web:f39adc0665317aa95e9b46"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        window._rtdb = firebase.database();
+    </script>
+
+    <script>
+        document.documentElement.setAttribute('data-theme', 'light');
+        function toggleTheme() {
+            const cur = document.documentElement.getAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+            document.getElementById('themeIcon').className = cur === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2800);
+        }
+
+        // ── AUTO-SELECT BRANCH FROM URL PARAMS (passed from second-year.html lock sheet) ──
+        (function autoSelectBranch() {
+            const params = new URLSearchParams(window.location.search);
+            const branchCode = params.get('branch');
+            if (branchCode) {
+                // Wait for DOM then set value (branch select is disabled until PRN verify, just pre-fill value)
+                const sel = document.getElementById('branchSelect');
+                if (sel) {
+                    sel.value = branchCode;
+                    // Store so after PRN verify it stays selected
+                    sel.dataset.preSelected = branchCode;
+                }
+            }
+        })();
+
+        // ── STUDENT PRN VERIFICATION ──
+        let verifiedPRN = null;
+        let verifiedStudentName = null;
+        let verifiedUid = null;
+        let existingBranch = '';   // branch code already owned by this student (if any)
+        let existingRole = '';     // current subscription role already owned by this student (if any)
+        let branchSkipped = false; // true if student ticked "already have this branch"
+
+        function branchCodeToLabel(code) {
+            const sel = document.getElementById('branchSelect');
+            for (const opt of sel.options) { if (opt.value === code) return opt.text; }
+            return code;
+        }
+
+        function toggleBranchSkip() {
+            branchSkipped = document.getElementById('skipBranchCheckbox').checked;
+            updatePriceUI();
+        }
+
+        function updatePriceUI() {
+            const priceEl = document.querySelector('.price-amount');
+            const amount = branchSkipped ? 5 : 39;
+            priceEl.textContent = '₹' + amount;
+            const payBtn = document.getElementById('payBtn');
+            if (!payBtn.disabled) {
+                payBtn.innerHTML = '<i class="fa-solid fa-crown"></i> ' + (branchSkipped ? 'Continue करें — ₹5' : 'Unlock Now — ₹39');
+            }
+        }
+
+        function resetPrnStatus() {
+            verifiedPRN = null;
+            verifiedStudentName = null;
+            verifiedUid = null;
+            existingBranch = '';
+            existingRole = '';
+            branchSkipped = false;
+            document.getElementById('prnStatus').textContent = '';
+            document.getElementById('prnStatus').className = 'prn-status';
+            document.getElementById('prnVerifiedCard').classList.remove('show');
+            document.getElementById('branchSelect').disabled = true;
+            document.getElementById('skipBranchBox').classList.remove('show');
+            document.getElementById('skipBranchCheckbox').checked = false;
+            updatePriceUI();
+            const btn = document.getElementById('payBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-lock"></i> PRN Verify करें पहले';
+        }
+
+        function verifyStudentPRN() {
+            const prn = document.getElementById('studentPrnInput').value.trim();
+            if (!prn) { showToast('PRN दर्ज करें।'); return; }
+            if (prn.length !== 16) { showToast('⚠️ PRN exactly 16 digits का होना चाहिए।'); return; }
+            const btn = document.getElementById('studentVerifyBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            const statusEl = document.getElementById('prnStatus');
+            statusEl.textContent = '';
+            statusEl.className = 'prn-status';
+            document.getElementById('prnVerifiedCard').classList.remove('show');
+
+            // Sidha RTDB query ki jagah ab secure server API se PRN verify hota hai
+            // (email/mobile jaisi sensitive fields ab client tak kabhi nahi aatin)
+            fetch('https://studybuddypro-psi.vercel.app/api/backend?action=verify-prn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prn, mode: 'buyer' })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Verify';
+
+                if (!result || !result.found) {
+                    statusEl.textContent = '❌ PRN नहीं मिला — कृपया सही PRN डालें।';
+                    statusEl.className = 'prn-status error';
+                    return;
+                }
+
+                verifiedPRN = prn;
+                verifiedStudentName = result.name || 'Student';
+                verifiedUid = result.uid;
+                existingBranch = (result.branch || '').toLowerCase();
+                existingRole = (result.role || '').toLowerCase();
+
+                statusEl.textContent = '✅ PRN Verified!';
+                statusEl.className = 'prn-status success';
+
+                document.getElementById('prnStudentName').textContent = verifiedStudentName;
+                document.getElementById('prnStudentSub').textContent = 'PRN: ' + prn + ' • Verified ✅';
+                document.getElementById('prnVerifiedCard').classList.add('show');
+
+                // Enable branch select and restore pre-selected branch if any
+                const branchSel = document.getElementById('branchSelect');
+                branchSel.disabled = false;
+                if (branchSel.dataset.preSelected && !branchSel.value) {
+                    branchSel.value = branchSel.dataset.preSelected;
+                }
+
+                // Show "already have a branch — skip" option (always visible so student can choose)
+                const skipBox = document.getElementById('skipBranchBox');
+                document.getElementById('existingBranchLabel').textContent = existingBranch ? branchCodeToLabel(existingBranch) : 'Branch';
+                skipBox.classList.add('show');
+
+                const payBtn = document.getElementById('payBtn');
+                payBtn.disabled = false;
+                updatePriceUI();
+            })
+            .catch((err) => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Verify';
+                showToast('Database error: ' + err.message);
+            });
+        }
+
+        function handlePayment() {
+            if (!verifiedPRN) { showToast('पहले PRN verify करें।'); return; }
+
+            const branch = document.getElementById('branchSelect').value;
+            if (!branch) { showToast('पहले अपनी branch select करें (जो पहले से है वही चुनें अगर Skip कर रहे हैं)।'); return; }
+            const branchText = document.getElementById('branchSelect').options[document.getElementById('branchSelect').selectedIndex].text;
+
+            window.location.href = 'payment-gateway.html'
+                + '?branch=' + branch
+                + '&branchName=' + encodeURIComponent(branchText)
+                + '&prn=' + encodeURIComponent(verifiedPRN)
+                + '&name=' + encodeURIComponent(verifiedStudentName)
+                + '&uid=' + encodeURIComponent(verifiedUid || '')
+                + '&branchOwned=' + (branchSkipped ? 'true' : 'false')
+                + '&existingRole=' + encodeURIComponent(existingRole || '');
+        }
+
+        // ── ADMIN SHEET ──
+        function openAdminSheet() {
+            document.getElementById('adminBackdrop').classList.add('open');
+            document.getElementById('adminSheet').classList.add('open');
+            document.getElementById('adminPrnInput').value = '';
+            document.getElementById('adminPrnError').classList.remove('show');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => document.getElementById('adminPrnInput').focus(), 350);
+        }
+        function closeAdminSheet() {
+            document.getElementById('adminBackdrop').classList.remove('open');
+            document.getElementById('adminSheet').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        function verifyAdminPRN() {
+            const prn = document.getElementById('adminPrnInput').value.trim();
+            if (!prn) { showToast('PRN दर्ज करें।'); return; }
+            if (prn.length !== 16) {
+                document.getElementById('adminPrnError').textContent = '⚠️ PRN exactly 16 digits का होना चाहिए।';
+                document.getElementById('adminPrnError').classList.add('show');
+                return;
+            }
+            const btn = document.getElementById('adminVerifyBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+            document.getElementById('adminPrnError').classList.remove('show');
+
+            // Sidha RTDB query ki jagah ab secure server API se sirf role check hota hai
+            fetch('https://studybuddypro-psi.vercel.app/api/backend?action=verify-prn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prn, mode: 'admin' })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Verify & Enter';
+                if (!result || !result.found) {
+                    document.getElementById('adminPrnError').textContent = '❌ PRN not found.';
+                    document.getElementById('adminPrnError').classList.add('show');
+                    return;
+                }
+                const role = result.role || '';
+                if (role === 'master' || role === 'super admin' || role === 'superadmin') {
+                    closeAdminSheet();
+                    window.location.href = 'SY-payment-approval.html?adminPrn=' + encodeURIComponent(prn);
+                } else {
+                    document.getElementById('adminPrnError').textContent = '❌ Access Denied — Role: ' + role;
+                    document.getElementById('adminPrnError').classList.add('show');
+                }
+            })
+            .catch((err) => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Verify & Enter';
+                showToast('Error: ' + err.message);
+            });
+        }
+    </script>
+
+</body>
+</html>

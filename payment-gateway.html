@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Payment | Practical Zone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg:#f5f6fa; --card-bg:#ffffff; --border:#e5e7eb;
+            --primary:#5c6bc0; --primary-glow:#eef0fb;
+            --text-main:#111111; --text-muted:#6b7280;
+            --hover-bg:#f0f1f5; --input-bg:#f3f4f6;
+            --success:#10b981; --warn:#fb923c;
+        }
+        [data-theme="dark"] {
+            --bg:#0a0a0a; --card-bg:#141414; --border:#2a2a2a;
+            --primary:#7986cb; --primary-glow:#1a1c2e;
+            --text-main:#f5f5f5; --text-muted:#888888;
+            --hover-bg:#1a1a1a; --input-bg:#1e1e1e;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; transition:background-color 0.2s,color 0.2s,border-color 0.2s; }
+        body { background:var(--bg); color:var(--text-main); min-height:100vh; display:flex; flex-direction:column; }
+
+        .top-header {
+            position:sticky; top:0; z-index:100;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0 20px; height:56px;
+            background:var(--card-bg); border-bottom:1px solid var(--border);
+            box-shadow:0 1px 8px rgba(0,0,0,0.05);
+        }
+        .header-left { display:flex; align-items:center; gap:12px; }
+        .back-btn {
+            width:36px; height:36px; border-radius:50%; border:none;
+            background:var(--hover-bg); color:var(--text-main);
+            display:flex; align-items:center; justify-content:center;
+            font-size:15px; cursor:pointer; text-decoration:none;
+        }
+        .header-title { font-size:16px; font-weight:800; }
+        .theme-btn {
+            width:36px; height:36px; border-radius:50%; border:none;
+            background:var(--hover-bg); color:var(--text-main);
+            display:flex; align-items:center; justify-content:center;
+            font-size:14px; cursor:pointer;
+        }
+
+        /* STEPS BAR */
+        .steps-bar {
+            background:var(--card-bg); border-bottom:1px solid var(--border);
+            padding:14px 20px; display:flex; align-items:center; gap:0;
+        }
+        .step { display:flex; align-items:center; gap:8px; flex:1; }
+        .step-num { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; }
+        .step.done .step-num { background:#10b981; color:#fff; }
+        .step.active .step-num { background:#7c4dff; color:#fff; box-shadow:0 0 0 3px rgba(124,77,255,0.2); }
+        .step.pending .step-num { background:var(--hover-bg); color:var(--text-muted); }
+        .step-label { font-size:11px; font-weight:700; }
+        .step.done .step-label, .step.active .step-label { color:var(--text-main); }
+        .step.pending .step-label { color:var(--text-muted); }
+        .step-divider { flex:0.3; height:2px; background:var(--border); margin:0 4px; border-radius:2px; }
+        .step-divider.done { background:#10b981; }
+
+        .content { max-width:480px; margin:0 auto; width:100%; padding:20px 16px 50px 16px; flex-grow:1; }
+
+        /* STUDENT INFO CARD */
+        .student-info-card {
+            background:var(--card-bg); border:1.5px solid #5c6bc0;
+            border-radius:16px; padding:14px 16px; margin-bottom:16px;
+            display:flex; align-items:center; gap:12px;
+        }
+        .student-info-icon { width:40px; height:40px; border-radius:12px; background:#eef0fb; display:flex; align-items:center; justify-content:center; font-size:18px; color:#5c6bc0; flex-shrink:0; }
+        .student-info-name { font-size:14px; font-weight:800; margin-bottom:2px; }
+        .student-info-prn { font-size:11.5px; color:var(--text-muted); font-weight:600; }
+
+        /* ORDER CARD */
+        .order-card {
+            background:var(--card-bg); border:1px solid var(--border);
+            border-radius:16px; padding:16px; margin-bottom:16px;
+            display:flex; align-items:center; justify-content:space-between; gap:12px;
+        }
+        .order-left { display:flex; align-items:center; gap:12px; }
+        .order-icon { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,#7c4dff,#e040fb); display:flex; align-items:center; justify-content:center; font-size:18px; color:#fff; flex-shrink:0; }
+        .order-name { font-size:14px; font-weight:800; margin-bottom:2px; }
+        .order-sub { font-size:11.5px; color:var(--text-muted); }
+        .order-price { font-size:22px; font-weight:900; color:#7c4dff; letter-spacing:-0.5px; white-space:nowrap; }
+
+        .section-title { font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.6px; margin:20px 0 10px 0; }
+
+        /* SUBSCRIPTION PLANS */
+        .plan-list { display:flex; flex-direction:column; gap:10px; margin-bottom:12px; }
+        .plan-item {
+            display:flex; align-items:center; justify-content:space-between; gap:10px;
+            background:var(--card-bg); border:1.5px solid var(--border); border-radius:14px;
+            padding:12px 14px; cursor:pointer;
+        }
+        .plan-item.selected { border-color:#7c4dff; background:var(--primary-glow); }
+        .plan-left { display:flex; align-items:center; gap:10px; }
+        .plan-left input[type="radio"] { width:18px; height:18px; accent-color:#7c4dff; cursor:pointer; }
+        .plan-name { font-size:13.5px; font-weight:800; }
+        .plan-desc { font-size:11px; color:var(--text-muted); }
+        .plan-price { font-size:15px; font-weight:900; color:#7c4dff; white-space:nowrap; }
+
+        .current-role-note { font-size:11.5px; color:var(--text-muted); font-weight:600; margin-bottom:10px; }
+        .current-role-note strong { color:var(--text-main); }
+
+        .skip-box {
+            background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.25);
+            border-radius:12px; padding:12px 14px; margin-bottom:16px;
+        }
+        .skip-box label { display:flex; align-items:center; gap:10px; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--text-main); line-height:1.5; }
+        .skip-box input[type="checkbox"] { width:19px; height:19px; accent-color:#10b981; flex-shrink:0; cursor:pointer; }
+        .skip-box .skip-price-tag { color:#10b981; font-weight:800; }
+
+        /* TOTAL ROW */
+        .total-row {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:14px 16px; background:var(--card-bg); border:1.5px solid #7c4dff;
+            border-radius:14px; margin-bottom:8px;
+        }
+        .total-row .total-label { font-size:13px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; }
+        .total-row .total-amount { font-size:24px; font-weight:900; color:#7c4dff; }
+
+        /* CONFIRM BUTTON */
+        .confirm-btn {
+            display:flex; align-items:center; justify-content:center; gap:10px;
+            width:100%; padding:16px;
+            background:linear-gradient(135deg,#7c4dff,#e040fb);
+            color:#fff; font-size:16px; font-weight:900;
+            border:none; border-radius:16px; cursor:pointer;
+            box-shadow:0 6px 24px rgba(124,77,255,0.35);
+            transition:transform 0.15s, box-shadow 0.15s;
+            margin-top:20px; margin-bottom:12px;
+        }
+        .confirm-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 32px rgba(124,77,255,0.45); }
+        .confirm-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+        .secure-row { display:flex; align-items:center; justify-content:center; gap:6px; font-size:11.5px; color:var(--text-muted); font-weight:600; margin-bottom:24px; }
+        .secure-row i { color:#10b981; }
+
+        /* NOTICE BOX */
+        .notice-box { display:flex; align-items:flex-start; gap:10px; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.2); border-left:4px solid #10b981; border-radius:12px; padding:12px 14px; margin-bottom:6px; }
+        .notice-box i { color:#10b981; flex-shrink:0; margin-top:1px; }
+        .notice-box p { font-size:12px; color:var(--text-muted); line-height:1.6; }
+        .notice-box strong { color:var(--text-main); }
+
+        /* SUCCESS OVERLAY */
+        .success-overlay {
+            position:fixed; inset:0; z-index:9999;
+            background:var(--bg);
+            display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            text-align:center; padding:32px;
+            opacity:0; pointer-events:none;
+            transition:opacity 0.3s ease;
+        }
+        .success-overlay.show { opacity:1; pointer-events:all; }
+        .success-anim { width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,#10b981,#059669); display:flex; align-items:center; justify-content:center; font-size:36px; color:#fff; margin:0 auto 24px auto; animation:popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+        @keyframes popIn { 0%{transform:scale(0)} 100%{transform:scale(1)} }
+        .success-title { font-size:24px; font-weight:900; margin-bottom:8px; }
+        .success-sub { font-size:13.5px; color:var(--text-muted); line-height:1.6; margin-bottom:28px; max-width:320px; }
+        .success-back-btn { padding:14px 32px; border-radius:14px; border:none; background:var(--hover-bg); color:var(--text-main); font-size:14px; font-weight:800; cursor:pointer; text-decoration:none; display:inline-block; }
+
+        /* TOAST */
+        .toast { position:fixed; bottom:-80px; left:50%; transform:translateX(-50%); background:#111; color:#fff; font-size:13px; font-weight:600; padding:12px 20px; border-radius:12px; white-space:nowrap; z-index:9999; display:flex; align-items:center; gap:8px; transition:bottom 0.3s ease; }
+        .toast.show { bottom:30px; }
+    </style>
+  <script src="devtools-guard.js"></script>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="header-left">
+            <a href="premium-get.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+            <span class="header-title">Payment</span>
+        </div>
+        <button class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></button>
+    </header>
+
+    <!-- STEPS -->
+    <div class="steps-bar">
+        <div class="step done">
+            <div class="step-num"><i class="fa-solid fa-check" style="font-size:10px;"></i></div>
+            <span class="step-label">PRN ✓</span>
+        </div>
+        <div class="step-divider done"></div>
+        <div class="step done">
+            <div class="step-num"><i class="fa-solid fa-check" style="font-size:10px;"></i></div>
+            <span class="step-label">Branch ✓</span>
+        </div>
+        <div class="step-divider done"></div>
+        <div class="step active">
+            <div class="step-num">3</div>
+            <span class="step-label">Payment</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step pending">
+            <div class="step-num">4</div>
+            <span class="step-label">Confirm</span>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- STUDENT INFO (fetched from URL params) -->
+        <div class="student-info-card">
+            <div class="student-info-icon"><i class="fa-solid fa-user-graduate"></i></div>
+            <div>
+                <div class="student-info-name" id="studentInfoName">Loading...</div>
+                <div class="student-info-prn" id="studentInfoPrn">PRN: —</div>
+            </div>
+        </div>
+
+        <!-- ORDER SUMMARY -->
+        <div class="order-card">
+            <div class="order-left">
+                <div class="order-icon"><i class="fa-solid fa-crown"></i></div>
+                <div>
+                    <div class="order-name" id="orderBranchName">Branch Unlock</div>
+                    <div class="order-sub" id="orderBranchSub">SY Engineering • 1 Year Valid</div>
+                </div>
+            </div>
+            <div class="order-price" id="orderBranchPrice">₹39</div>
+        </div>
+
+        <!-- SKIP BRANCH (backup option directly on payment page) -->
+        <div class="skip-box" id="skipBranchBoxGateway">
+            <label>
+                <input type="checkbox" id="skipBranchCheckboxGateway" onchange="toggleBranchSkipGateway()">
+                <span>मेरे पास पहले से यह Branch है — दोबारा नहीं लेनी। Skip करें <span class="skip-price-tag">(सिर्फ ₹5)</span></span>
+            </label>
+        </div>
+
+        <!-- SUBSCRIPTION -->
+        <div class="section-title">Subscription चुनें</div>
+        <div class="current-role-note" id="currentRoleNote" style="display:none;"></div>
+        <div class="plan-list" id="planList">
+            <label class="plan-item" data-role="silver">
+                <div class="plan-left">
+                    <input type="radio" name="planRadio" value="silver" onchange="onPlanChange()" checked>
+                    <div><div class="plan-name">Silver</div><div class="plan-desc">Basic subscription • 30 दिन</div></div>
+                </div>
+                <div class="plan-price">₹49</div>
+            </label>
+            <label class="plan-item" data-role="gold">
+                <div class="plan-left">
+                    <input type="radio" name="planRadio" value="gold" onchange="onPlanChange()">
+                    <div><div class="plan-name">Gold</div><div class="plan-desc">Extra features • 30 दिन</div></div>
+                </div>
+                <div class="plan-price">₹89</div>
+            </label>
+            <label class="plan-item" data-role="diamond">
+                <div class="plan-left">
+                    <input type="radio" name="planRadio" value="diamond" onchange="onPlanChange()">
+                    <div><div class="plan-name">Diamond</div><div class="plan-desc">All access • 30 दिन</div></div>
+                </div>
+                <div class="plan-price">₹162</div>
+            </label>
+        </div>
+
+        <!-- SKIP SUBSCRIPTION -->
+        <div class="skip-box" id="skipRoleBox" style="display:none;">
+            <label>
+                <input type="checkbox" id="skipRoleCheckbox" onchange="toggleRoleSkip()">
+                <span>मुझे सिर्फ Branch चाहिए, Subscription नहीं लेनी — Skip करें <span class="skip-price-tag">(सिर्फ ₹5)</span>। मेरा current role वैसा ही रहेगा।</span>
+            </label>
+        </div>
+        <div class="skip-box" id="skipRoleBoxNoRole" style="display:none;">
+            <label>
+                <input type="checkbox" id="skipRoleCheckboxNoRole" onchange="toggleRoleSkip()">
+                <span>अभी Subscription नहीं लेनी — सिर्फ Branch लेनी है — Skip करें <span class="skip-price-tag">(सिर्फ ₹5)</span></span>
+            </label>
+        </div>
+
+        <!-- TOTAL -->
+        <div class="total-row">
+            <span class="total-label">Total Amount</span>
+            <span class="total-amount" id="totalAmount">₹88</span>
+        </div>
+
+        <!-- ONLINE PAY -->
+        <button id="onlinePayBtn" onclick="payOnline()" style="
+          width:100%; padding:16px; border-radius:14px; border:none;
+          background:linear-gradient(135deg,#7c4dff,#e040fb);
+          color:#fff; font-size:15px; font-weight:800;
+          cursor:pointer; margin-bottom:12px; margin-top:6px;
+          box-shadow:0 6px 24px rgba(124,77,255,0.35);">
+          ⚡ Online Pay करें — ₹88 (Instant)
+        </button>
+        <div class="secure-row">
+            <i class="fa-solid fa-shield-halved"></i> Secure Payment via Cashfree
+        </div>
+
+
+
+    </div>
+
+    <!-- SUCCESS OVERLAY -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-anim"><i class="fa-solid fa-check"></i></div>
+        <div class="success-title">🎉 Payment Submitted!</div>
+        <div class="success-sub">
+            Payment successful! 🎉<br>
+            तुमची branch <strong>automatically unlock</strong> होईल।<br>
+            कोणत्याही अडचणीसाठी support शी contact करा।
+        </div>
+        <a href="second-year.html" class="success-back-btn">← Second Year वर जा</a>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+    </script>
+
+    <script>
+        document.documentElement.setAttribute('data-theme','light');
+        function toggleTheme() {
+            const cur = document.documentElement.getAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', cur==='dark'?'light':'dark');
+            document.getElementById('themeIcon').className = cur==='dark'?'fa-solid fa-moon':'fa-solid fa-sun';
+        }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ── READ URL PARAMS (passed from premium-get.html) ──
+        const params = new URLSearchParams(window.location.search);
+        const studentPRN      = params.get('prn') || '';
+        const studentName     = params.get('name') || 'Student';
+        const branchCode      = params.get('branch') || '';
+        const branchName      = params.get('branchName') || 'Branch Unlock';
+        const studentUid      = params.get('uid') || '';
+        let branchOwned        = params.get('branchOwned') === 'true';
+        const existingRole    = (params.get('existingRole') || '').toLowerCase();
+
+        // If no PRN, redirect back
+        if (!studentPRN || !branchCode) {
+            window.location.href = 'premium-get.html';
+        }
+
+        // Show student info
+        document.getElementById('studentInfoName').textContent = studentName;
+        document.getElementById('studentInfoPrn').textContent = 'PRN: ' + studentPRN;
+        document.getElementById('orderBranchName').textContent = branchName + ' Unlock';
+
+        // ── PRICING STATE ──
+        const BRANCH_PRICE = 39, SKIP_PRICE = 5;
+        const ROLE_PRICES  = { silver: 49, gold: 89, diamond: 162 };
+        let roleSkipped = false;
+
+        // If branch is already owned (skipped on previous screen) — show ₹5 + relabel + tick checkbox
+        document.getElementById('skipBranchCheckboxGateway').checked = branchOwned;
+        if (branchOwned) {
+            document.getElementById('orderBranchSub').textContent = 'पहले से Owned • Skip Charge';
+        }
+
+        function toggleBranchSkipGateway() {
+            branchOwned = document.getElementById('skipBranchCheckboxGateway').checked;
+            document.getElementById('orderBranchSub').textContent = branchOwned ? 'पहले से Owned • Skip Charge' : 'SY Engineering • 1 Year Valid';
+            updateTotals();
+        }
+
+        // Show correct skip box based on whether student already has a subscription role
+        if (existingRole) {
+            document.getElementById('currentRoleNote').style.display = 'block';
+            document.getElementById('currentRoleNote').innerHTML = 'आपकी Current Subscription: <strong>' + existingRole.toUpperCase() + '</strong>';
+            document.getElementById('skipRoleBox').style.display = 'block';
+        } else {
+            document.getElementById('skipRoleBoxNoRole').style.display = 'block';
+        }
+
+        function getBranchCharge() { return branchOwned ? SKIP_PRICE : BRANCH_PRICE; }
+
+        function getRoleCharge() {
+            if (roleSkipped) return SKIP_PRICE;
+            const selected = document.querySelector('input[name="planRadio"]:checked');
+            return selected ? (ROLE_PRICES[selected.value] || SKIP_PRICE) : SKIP_PRICE;
+        }
+
+        function getSelectedRole() {
+            const selected = document.querySelector('input[name="planRadio"]:checked');
+            return selected ? selected.value : 'silver';
+        }
+
+        function updateTotals() {
+            const branchCharge = getBranchCharge();
+            const roleCharge   = getRoleCharge();
+            const total        = branchCharge + roleCharge;
+
+            document.getElementById('orderBranchPrice').textContent = '₹' + branchCharge;
+            document.getElementById('totalAmount').textContent = '₹' + total;
+
+            const btn = document.getElementById('onlinePayBtn');
+            if (!btn.disabled) {
+                btn.innerHTML = '⚡ Online Pay करें — ₹' + total + ' (Instant)';
+            }
+
+            // Highlight selected plan card
+            document.querySelectorAll('.plan-item').forEach(el => {
+                const radio = el.querySelector('input[type="radio"]');
+                el.classList.toggle('selected', radio.checked && !roleSkipped);
+            });
+        }
+
+        function onPlanChange() { updateTotals(); }
+
+        function toggleRoleSkip() {
+            const cb1 = document.getElementById('skipRoleCheckbox');
+            const cb2 = document.getElementById('skipRoleCheckboxNoRole');
+            // Keep both checkboxes (whichever is visible) in sync
+            roleSkipped = (cb1 && cb1.checked) || (cb2 && cb2.checked);
+            if (cb1) cb1.checked = roleSkipped;
+            if (cb2) cb2.checked = roleSkipped;
+
+            document.querySelectorAll('#planList input[type="radio"]').forEach(r => r.disabled = roleSkipped);
+            document.getElementById('planList').style.opacity = roleSkipped ? '0.45' : '1';
+            document.getElementById('planList').style.pointerEvents = roleSkipped ? 'none' : 'auto';
+
+            updateTotals();
+        }
+
+        // Initial total render
+        updateTotals();
+
+
+        // Cashfree SDK load
+        const cfScript = document.createElement('script');
+        cfScript.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
+        document.head.appendChild(cfScript);
+
+        async function payOnline() {
+          const cashfree = Cashfree({ mode: "production" });
+          const btn = document.getElementById('onlinePayBtn');
+          const branchCharge = getBranchCharge();
+          const roleCharge   = getRoleCharge();
+          const total        = branchCharge + roleCharge;
+          const selectedRole = getSelectedRole();
+          const restoreLabel = '⚡ Online Pay करें — ₹' + total + ' (Instant)';
+
+          btn.disabled = true;
+          btn.innerHTML = '⏳ Loading...';
+          try {
+            const res = await fetch('https://studybuddypro-psi.vercel.app/api/create-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prn: studentPRN || 'TEST001',
+                name: studentName || 'Student',
+                branch: branchCode || 'TEST',
+                branchName: branchName || 'Branch',
+                amount: total,
+                role: selectedRole,
+                branchOwned: branchOwned,
+                roleSkipped: roleSkipped
+              })
+            });
+            const data = await res.json();
+            if (!data.payment_session_id) {
+              showToast('❌ Error: ' + JSON.stringify(data));
+              btn.disabled = false;
+              btn.innerHTML = restoreLabel;
+              return;
+            }
+            // Save student info before redirect so success/failed pages can read it
+            sessionStorage.setItem('sbz_prn',        studentPRN);
+            sessionStorage.setItem('sbz_name',       studentName);
+            sessionStorage.setItem('sbz_branch',     branchCode);
+            sessionStorage.setItem('sbz_branchName', branchName);
+            sessionStorage.setItem('sbz_role',       selectedRole);
+            sessionStorage.setItem('sbz_branchOwned', String(branchOwned));
+            sessionStorage.setItem('sbz_roleSkipped', String(roleSkipped));
+            cashfree.checkout({
+              paymentSessionId: data.payment_session_id,
+              redirectTarget: "_self"
+            });
+          } catch (err) {
+            showToast('❌ Network error');
+            btn.disabled = false;
+            btn.innerHTML = restoreLabel;
+          }
+        }
+        window.payOnline = payOnline;
+    </script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Privacy Policy | studybuddypremiumpro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.15);
+            --accent: #4f46e5;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: rgba(0, 0, 0, 0.08);
+            --input-bg: rgba(241, 245, 249, 0.9);
+        }
+        [data-theme="dark"] {
+            --bg-dark: #0b0f19;
+            --card-bg: rgba(20, 27, 45, 0.7);
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.3);
+            --accent: #818cf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(15, 23, 42, 0.6);
+        }
+        html, body { max-width: 100%; overflow-x: hidden; margin: 0; padding: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 30px 16px 50px; }
+
+        .bg-glow-1, .bg-glow-2 { position: fixed; width: 450px; height: 450px; border-radius: 50%; filter: blur(130px); opacity: 0.08; z-index: -1; pointer-events: none; }
+        .bg-glow-1 { top: -5%; left: -5%; background: radial-gradient(circle, var(--primary) 0%, transparent 70%); }
+        .bg-glow-2 { bottom: 10%; right: -5%; background: radial-gradient(circle, var(--accent) 0%, transparent 70%); }
+
+        .theme-toggle-container { position: fixed; top: 16px; right: 16px; z-index: 10; }
+        .theme-btn { font-size: 16px; color: var(--text-muted); cursor: pointer; width: 40px; height: 40px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+        .back-btn { display: flex; align-items: center; gap: 8px; color: var(--primary); font-size: 13px; font-weight: 600; text-decoration: none; margin-bottom: 20px; align-self: flex-start; max-width: 680px; width: 100%; padding: 0 4px; }
+        .back-btn i { font-size: 12px; }
+
+        .doc-container { width: 100%; max-width: 680px; }
+
+        .doc-hero { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 30px 28px 24px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 12px 40px rgba(0,0,0,0.04); margin-bottom: 16px; display: flex; align-items: center; gap: 18px; }
+        .hero-icon { width: 56px; height: 56px; border-radius: 16px; background: rgba(2, 132, 199, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--primary); flex-shrink: 0; }
+        [data-theme="dark"] .hero-icon { background: rgba(56, 189, 248, 0.15); }
+        .hero-text h1 { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+        .hero-text p { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+        .section-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 24px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 8px 24px rgba(0,0,0,0.03); margin-bottom: 12px; }
+        .section-title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .section-title i { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .icon-blue { background: rgba(2, 132, 199, 0.1); color: #0284c7; }
+        .icon-green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .icon-purple { background: rgba(79, 70, 229, 0.1); color: #4f46e5; }
+        .icon-orange { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .icon-red { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .icon-teal { background: rgba(20, 184, 166, 0.1); color: #14b8a6; }
+        [data-theme="dark"] .icon-blue { background: rgba(56,189,248,0.15); color: #38bdf8; }
+        [data-theme="dark"] .icon-green { background: rgba(52,211,153,0.15); color: #34d399; }
+        [data-theme="dark"] .icon-purple { background: rgba(129,140,248,0.15); color: #818cf8; }
+        [data-theme="dark"] .icon-orange { background: rgba(251,191,36,0.15); color: #fbbf24; }
+        [data-theme="dark"] .icon-red { background: rgba(248,113,113,0.15); color: #f87171; }
+        [data-theme="dark"] .icon-teal { background: rgba(45,212,191,0.15); color: #2dd4bf; }
+        .section-title h2 { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .section-body p { font-size: 13.5px; color: var(--text-muted); line-height: 1.75; margin-bottom: 10px; }
+        .section-body p:last-child { margin-bottom: 0; }
+        .section-body ul { padding-left: 0; list-style: none; }
+        .section-body ul li { font-size: 13.5px; color: var(--text-muted); line-height: 1.75; padding: 5px 0 5px 22px; position: relative; border-bottom: 1px solid var(--border); }
+        .section-body ul li:last-child { border-bottom: none; }
+        .section-body ul li::before { content: ""; position: absolute; left: 0; top: 13px; width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+
+        .updated-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(2,132,199,0.08); border: 1px solid rgba(2,132,199,0.15); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 600; color: var(--primary); margin-bottom: 16px; }
+
+        .footer-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .footer-nav-link { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; text-decoration: none; color: var(--text-muted); font-size: 12px; font-weight: 600; transition: all 0.2s; }
+        .footer-nav-link:hover { border-color: var(--primary); color: var(--primary); }
+        .footer-note { text-align: center; margin-top: 16px; font-size: 11px; color: var(--text-muted); }
+        .footer-note i { color: var(--primary); }
+    </style>
+  <script src="devtools-guard.js"></script>
+</head>
+<body>
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="theme-toggle-container">
+        <div class="theme-btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="themeIcon"></i></div>
+    </div>
+
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Portal</a>
+
+    <div class="doc-container">
+
+        <div class="updated-badge"><i class="fa-solid fa-calendar-check"></i> Last Updated: June 2025</div>
+
+        <div class="doc-hero">
+            <div class="hero-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="hero-text">
+                <h1>Privacy Policy</h1>
+                <p>studybuddypremiumpro Academic Portal &nbsp;·&nbsp; studybuddyzone.help.in@gmail.com</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-circle-info icon-blue"></i>
+                <h2>Introduction</h2>
+            </div>
+            <div class="section-body">
+                <p>studybuddypremiumpro ("we", "us", or "our"), owned and operated by <strong>Govind Lahu Ade</strong> (trading as StudyBuddyZone), operates the Academic Portal accessible at this website. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform. Please read this policy carefully. By accessing or using our service, you agree to the terms described herein.</p>
+                <p>We are committed to protecting your personal data in accordance with applicable Indian data protection laws and PhonePe payment gateway requirements.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-database icon-purple"></i>
+                <h2>Information We Collect</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    <li><strong>Personal Identification:</strong> Full name, email address, mobile number, and PRN (Permanent Registration Number)</li>
+                    <li><strong>Academic Information:</strong> Academic year, course details, and portal activity</li>
+                    <li><strong>Payment Information:</strong> Transaction IDs and payment status via PhonePe gateway — we do not store card/UPI credentials</li>
+                    <li><strong>Technical Data:</strong> Device type, browser type, IP address, and access timestamps via Firebase</li>
+                    <li><strong>Usage Data:</strong> Pages visited, features used, and session duration within the portal</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-gears icon-green"></i>
+                <h2>How We Use Your Information</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    <li>To create and manage your academic portal account</li>
+                    <li>To process payments securely through the PhonePe payment gateway</li>
+                    <li>To provide access to academic materials and resources appropriate to your year</li>
+                    <li>To send important notices, updates, and account-related communications</li>
+                    <li>To verify your identity using PRN and mobile number</li>
+                    <li>To improve our platform, features, and user experience</li>
+                    <li>To comply with legal obligations and resolve disputes</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-credit-card icon-orange"></i>
+                <h2>Payment Data & PhonePe Gateway</h2>
+            </div>
+            <div class="section-body">
+                <p>All payment transactions on studybuddypremiumpro are processed securely through the <strong>PhonePe Payment Gateway</strong>. We do not store, log, or have access to your UPI credentials, card numbers, net banking passwords, or any sensitive payment authentication data.</p>
+                <p>PhonePe processes your payment information under their own Privacy Policy and PCI-DSS compliant infrastructure. Transaction reference IDs are stored solely for order verification, refund processing, and dispute resolution purposes.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-share-nodes icon-teal"></i>
+                <h2>Data Sharing & Disclosure</h2>
+            </div>
+            <div class="section-body">
+                <p>We do not sell, trade, or rent your personal information to third parties. We may share your data only in the following limited circumstances:</p>
+                <ul>
+                    <li><strong>PhonePe:</strong> Payment gateway to process transactions securely</li>
+                    <li><strong>Firebase (Google):</strong> Authentication, database, and hosting services</li>
+                    <li><strong>Legal Requirements:</strong> When required by law, court order, or governmental authority</li>
+                    <li><strong>Safety:</strong> To protect the rights, property, or safety of our users or the public</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-lock icon-red"></i>
+                <h2>Data Security</h2>
+            </div>
+            <div class="section-body">
+                <p>We implement industry-standard security measures to protect your data. Your account is protected by Firebase Authentication, and all data is stored encrypted on Google Firebase servers. Passwords are never stored in plain text.</p>
+                <p>However, no method of transmission over the internet is 100% secure. While we strive to protect your personal information, we cannot guarantee absolute security.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-user-shield icon-blue"></i>
+                <h2>Your Rights</h2>
+            </div>
+            <div class="section-body">
+                <ul>
+                    <li><strong>Access:</strong> Request a copy of the personal data we hold about you</li>
+                    <li><strong>Correction:</strong> Request correction of inaccurate personal data</li>
+                    <li><strong>Deletion:</strong> Request deletion of your account and associated data</li>
+                    <li><strong>Portability:</strong> Request your data in a portable format</li>
+                    <li><strong>Opt-out:</strong> Opt out of non-essential communications at any time</li>
+                </ul>
+                <p style="margin-top:10px;">To exercise any of these rights, contact us at <strong>studybuddyzone.help.in@gmail.com</strong> or call <strong>+91 9049321230</strong>.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-cookie-bite icon-orange"></i>
+                <h2>Cookies & Local Storage</h2>
+            </div>
+            <div class="section-body">
+                <p>Our portal uses browser local storage and Firebase session tokens to keep you logged in and remember your preferences. We do not use third-party advertising cookies. You may clear your browser storage at any time through your browser settings, which will log you out of the portal.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-child icon-green"></i>
+                <h2>Children's Privacy</h2>
+            </div>
+            <div class="section-body">
+                <p>Our platform is intended for college students aged 18 and above. We do not knowingly collect personal information from anyone under 18 years of age. If you believe a minor has provided us with personal information, please contact us immediately.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-pen-to-square icon-purple"></i>
+                <h2>Changes to This Policy</h2>
+            </div>
+            <div class="section-body">
+                <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated revision date. Continued use of the portal after changes constitutes acceptance of the updated policy. We encourage you to review this page periodically.</p>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-title">
+                <i class="fa-solid fa-envelope icon-teal"></i>
+                <h2>Contact for Privacy Concerns</h2>
+            </div>
+            <div class="section-body">
+                <p>For any privacy-related questions, data requests, or concerns, please reach out to us:</p>
+                <ul>
+                    <li><strong>Email:</strong> studybuddyzone.help.in@gmail.com</li>
+                    <li><strong>Phone:</strong> +91 9049321230</li>
+                    <li><strong>Response Time:</strong> Within 48 business hours</li>
+                    <li><strong>Registered Address:</strong> Govind Lahu Ade, Nanded City, Maharashtra, India – 431601</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-nav">
+            <a href="refund-policy.html" class="footer-nav-link"><i class="fa-solid fa-rotate-left"></i> Refund Policy</a>
+            <a href="cancellation-policy.html" class="footer-nav-link"><i class="fa-solid fa-ban"></i> Cancellation</a>
+            <a href="contact.html" class="footer-nav-link"><i class="fa-solid fa-envelope"></i> Contact Us</a>
+            <a href="terms-conditions.html" class="footer-nav-link"><i class="fa-solid fa-file-contract"></i> Terms & Conditions</a>
+            <a href="index.html" class="footer-nav-link" style="grid-column: 1 / -1;"><i class="fa-solid fa-house"></i> Home</a>
+        </div>
+
+        <div class="footer-note"><i class="fa-solid fa-lock"></i> &nbsp; Payments secured by PhonePe &nbsp;·&nbsp; © 2026 Govind Lahu Ade (StudyBuddyZone)</div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            document.getElementById('themeIcon').className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+    </script>
+</body>
+</html>
