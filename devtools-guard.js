@@ -1,13 +1,13 @@
-// Devtools-guard v2
-// 3 layers:
-// 1) Keyboard shortcuts (F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S) — kaam karta hai Firefox/Edge me.
-//    Chrome me F12 ko keypress se pura block karna sambhav nahi (Chrome jaan-bujhkar
-//    isse allow nahi karta), isliye layer 3 (detection loop) asli kaam karta hai Chrome me.
-// 2) Right-click aur copy/cut/select block.
-// 3) DevTools already khula ho (chahe kisi bhi tarike se — F12, browser menu, ya external
-//    tool se) to lagataar detect karke turant due.html par redirect karta hai.
-// Note: yeh sab deterrent hai, 100% foolproof nahi (JS disable karke ya extension se bypass
-// ho sakta hai) — asli data-security backend/Firebase rules me hi hai.
+// Devtools-guard v3
+// Layers:
+// 1) Keyboard shortcuts (F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+S) — desktop browsers ke liye.
+// 2) Right-click aur copy/cut/select block — sab devices par.
+// 3) DevTools-open detection (sirf DESKTOP par) — mobile par yeh heuristics
+//    unreliable hain (browser toolbar collapse/expand, background tab lag, etc.
+//    se false-positive aata hai), isliye mobile/touch devices par yeh layer
+//    poori tarah skip hoti hai.
+// Note: yeh sab deterrent hai, 100% foolproof nahi — asli data-security
+// backend/Firebase rules me hi hai.
 (function () {
   var redirected = false;
   function blockAndRedirect(e) {
@@ -19,6 +19,9 @@
     redirected = true;
     window.location.href = "due.html";
   }
+
+  var isMobile = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent) ||
+                 (navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
 
   // ---- Layer 1: keyboard shortcuts ----
   document.addEventListener("keydown", function (e) {
@@ -48,25 +51,28 @@
     document.head.appendChild(style);
   });
 
-  // ---- Layer 3: devtools-open detection (window-size gap trick) ----
-  var gapThreshold = 160;
-  setInterval(function () {
-    var widthGap = window.outerWidth - window.innerWidth;
-    var heightGap = window.outerHeight - window.innerHeight;
-    if (widthGap > gapThreshold || heightGap > gapThreshold) {
-      blockAndRedirect();
-    }
-  }, 800);
+  // ---- Layer 3: devtools-open detection — SIRF DESKTOP par, aur debounce ke saath ----
+  if (!isMobile) {
+    var gapThreshold = 250;
+    var debuggerThreshold = 200;
+    var consecutiveHits = 0;
+    var HITS_NEEDED = 3; // lagataar 3 baar shak hone par hi redirect — random ek-baar ka spike ignore
 
-  // ---- Layer 3b: devtools-open detection (debugger timing trick) ----
-  // Jab devtools khula hota hai, "debugger" line par execution ruk jaata hai — isse
-  // time-gap measure karke pata chal jaata hai devtools khula hai, chahe kaise bhi khula ho.
-  setInterval(function () {
-    var start = performance.now();
-    debugger;
-    var end = performance.now();
-    if (end - start > 100) {
-      blockAndRedirect();
-    }
-  }, 1200);
+    setInterval(function () {
+      var widthGap = window.outerWidth - window.innerWidth;
+      var heightGap = window.outerHeight - window.innerHeight;
+
+      var start = performance.now();
+      debugger;
+      var end = performance.now();
+
+      var suspicious = (widthGap > gapThreshold || heightGap > gapThreshold) || (end - start > debuggerThreshold);
+
+      consecutiveHits = suspicious ? (consecutiveHits + 1) : 0;
+
+      if (consecutiveHits >= HITS_NEEDED) {
+        blockAndRedirect();
+      }
+    }, 1000);
+  }
 })();
