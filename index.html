@@ -709,7 +709,7 @@
                         fetch('https://studybuddypro-psi.vercel.app/api/backend?action=register-user', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ uid, name, mobile, prn, email: inputVal, year })
+                            body: JSON.stringify({ uid, name, mobile, prn, email: inputVal, year, confirmPassword })
                         })
                         .then(r => r.json())
                         .then((result) => {
