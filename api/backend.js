@@ -1,4 +1,4 @@
-const { admin, getRoleByPRN } = require("../lib/helpers");
+const { admin, getRoleByPRN, initError } = require("../lib/helpers");
 
 // ── Har action ka apna handler function ──────────────────────────────────────
 
@@ -250,6 +250,11 @@ module.exports = async (req, res) => {
 
   const action = (req.query && req.query.action) || (req.body && req.body.action) || "";
   const body = req.method === "GET" ? (req.query || {}) : (req.body || {});
+
+  if (initError) {
+    console.error("Firebase Admin init failed:", initError.message);
+    return res.status(500).json({ error: "Server setup error: " + initError.message });
+  }
 
   try {
     switch (action) {
