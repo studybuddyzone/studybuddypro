@@ -592,7 +592,7 @@
                 const role = result.role || '';
                 if (role === 'master' || role === 'super admin' || role === 'superadmin') {
                     closeAdminSheet();
-                    window.location.href = 'SY-payment-approval.html';
+                    window.location.href = 'SY-payment-approval.html?adminPrn=' + encodeURIComponent(prn);
                 } else {
                     document.getElementById('adminPrnError').textContent = '❌ Access Denied — Role: ' + role;
                     document.getElementById('adminPrnError').classList.add('show');

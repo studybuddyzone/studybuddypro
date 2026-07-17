@@ -1121,21 +1121,31 @@ async function openMasterPanel() {
     listEl.innerHTML = "<div class=\"master-empty\"><i class=\"fa-solid fa-circle-notch spin-icon\"></i> Loading rooms...</div>";
 
     try {
-        var snap = await firestore.collection("rooms").limit(500).get();
-        if (snap.empty) {
+        var apiRes = await fetch('https://studybuddypro-psi.vercel.app/api/manage-rooms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prn: currentPRN, action: 'list' })
+        });
+        var result = await apiRes.json();
+
+        if (!result || !result.success) {
+            listEl.innerHTML = "<div class=\"master-empty\" style=\"color:#ef4444\">Error: " + escHtml((result && result.error) || "Access denied") + "</div>";
+            return;
+        }
+
+        var rooms = result.rooms || [];
+        if (rooms.length === 0) {
             listEl.innerHTML = "<div class=\"master-empty\">Koi room nahi mila.</div>";
             document.getElementById("masterSubtitle").textContent = "0 rooms found";
             return;
         }
-        document.getElementById("masterSubtitle").textContent = snap.size + " rooms found";
+        document.getElementById("masterSubtitle").textContent = rooms.length + " rooms found";
         listEl.innerHTML = "";
 
-        snap.forEach(function(docSnap) {
-            var d       = docSnap.data();
-            var roomId  = docSnap.id;
-            var subject = d.subject || d.subjectName || d.arena || d.roomName || d.topic || "Unknown";
-            function gd(x) { return x && x.toDate ? x.toDate() : (typeof x === "number" ? new Date(x) : null); }
-            var dt    = gd(d.timestamp) || gd(d.createdAt);
+        rooms.forEach(function(d) {
+            var roomId  = d.id;
+            var subject = d.subject || "Unknown";
+            var dt    = d.timestamp ? new Date(d.timestamp) : null;
             var dtStr = dt ? dt.toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"2-digit" }) : "—";
             var row   = document.createElement("div");
             row.className = "master-room-row";
@@ -1166,7 +1176,17 @@ async function deleteOneRoom(roomId) {
     var btn = row ? row.querySelector(".btn-del-one") : null;
     if (btn) btn.disabled = true;
     try {
-        await firestore.collection("rooms").doc(roomId).delete();
+        var apiRes = await fetch('https://studybuddypro-psi.vercel.app/api/manage-rooms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prn: currentPRN, action: 'deleteOne', roomId: roomId })
+        });
+        var result = await apiRes.json();
+        if (!result || !result.success) {
+            if (btn) btn.disabled = false;
+            fireAlert("Delete Failed", (result && result.error) || "Room delete nahi hua");
+            return;
+        }
         if (row) { row.style.opacity = "0"; row.style.transition = "opacity .3s"; setTimeout(function() { row.remove(); }, 300); }
         var remaining = document.querySelectorAll(".master-room-row").length - 1;
         document.getElementById("masterSubtitle").textContent = remaining + " rooms remaining";
@@ -1183,15 +1203,22 @@ async function deleteAllRooms() {
     btn.classList.add("loading");
     btn.innerHTML = "<i class=\"fa-solid fa-circle-notch spin-icon\"></i> Deleting...";
     try {
-        var snap = await firestore.collection("rooms").limit(500).get();
-        if (snap.empty) { btn.innerHTML = "<i class=\"fa-solid fa-check\"></i> Already Empty"; return; }
-        var batches = [], batch = firestore.batch(), count = 0;
-        snap.forEach(function(d) {
-            batch.delete(d.ref); count++;
-            if (count % 400 === 0) { batches.push(batch); batch = firestore.batch(); count = 0; }
+        var apiRes = await fetch('https://studybuddypro-psi.vercel.app/api/manage-rooms', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prn: currentPRN, action: 'deleteAll' })
         });
-        batches.push(batch);
-        await Promise.all(batches.map(function(b) { return b.commit(); }));
+        var result = await apiRes.json();
+
+        if (!result || !result.success) {
+            btn.classList.remove("loading");
+            btn.innerHTML = "<i class=\"fa-solid fa-trash-can\"></i> DELETE ALL HISTORY";
+            fireAlert("Delete Failed", (result && result.error) || "Error hua");
+            return;
+        }
+
+        if (result.deletedCount === 0) { btn.innerHTML = "<i class=\"fa-solid fa-check\"></i> Already Empty"; return; }
+
         document.getElementById("masterList").innerHTML = "<div class=\"master-empty\" style=\"color:#10b981\"><i class=\"fa-solid fa-circle-check\"></i> Sabhi rooms delete ho gaye!</div>";
         document.getElementById("masterSubtitle").textContent = "0 rooms remaining";
         btn.innerHTML = "<i class=\"fa-solid fa-circle-check\"></i> ALL DELETED";

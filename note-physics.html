@@ -350,7 +350,7 @@
             if (Date.now() > expiryTs) {
                 // ── Expired → demote to student ──
                 if (prn) {
-                    rtdb.ref('users/' + prn + '/role').set('student').catch(console.error);
+                    fetch('https://studybuddypro-psi.vercel.app/api/demote-role', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prn }) }).catch(console.error);
                 }
                 currentUserRole = 'student';
                 applyMenuRoleStyle('student');

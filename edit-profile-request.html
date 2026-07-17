@@ -350,9 +350,14 @@
 
         // 🛡️ User ka database status check karke Dropdown lock karne wala logic
         function checkUserRoleAndLockFields(prn) {
-            database.ref('users/' + prn).once('value').then((snapshot) => {
-                const userData = snapshot.val() || {};
-                if (userData.role === 'master') {
+            fetch('https://studybuddypro-psi.vercel.app/api/verify-prn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prn: prn, mode: 'admin' })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (result && result.role === 'master') {
                     const roleSelect = document.getElementById('updateRole');
                     roleSelect.setAttribute('disabled', true);
                     roleSelect.style.cursor = "not-allowed";
@@ -410,36 +415,25 @@
                 return;
             }
 
-            database.ref('users/' + prnInput).once('value').then((snapshot) => {
-                const userData = snapshot.val() || {};
-                
-                // Backend bypass protection
-                let finalRoleSetting = newRole || userData.role || "student";
-                if(userData.role === 'master') {
-                    finalRoleSetting = "master"; 
-                }
-
-                database.ref('profile_requests/' + prnInput).set({
+            fetch('https://studybuddypro-psi.vercel.app/api/submit-profile-request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     prn: prnInput,
-                    oldName: userData.name || "Not Available",
-                    newName: newName || userData.name || "Not Available",
-                    oldEmail: userData.email || "Not Available",
-                    newEmail: newEmail || userData.email || "Not Available",
-                    oldPhone: userData.phone || "Not Available",
-                    newPhone: newPhone || userData.phone || "Not Available",
-                    oldDOB: userData.dob || "Not Set",
-                    newDOB: newDOB || userData.dob || "Not Set",
-                    oldYear: userData.year || "first_year",
-                    newYear: newYear || userData.year || "first_year",
-                    oldRole: userData.role || "student",
-                    newRole: finalRoleSetting,
-                    status: "pending"
-                }).then(() => {
+                    newName, newEmail, newPhone, newDOB, newYear, newRole
+                })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (result && result.success) {
                     triggerGlassNotification("Sync Successful", "Data queued into Master Deck Stream!", "success");
                     document.getElementById('updateRequestForm').reset();
                     setTimeout(() => { window.location.href = "fy.html"; }, 2200);
-                });
-            }).catch(err => triggerGlassNotification("Node Error", err.message, "error"));
+                } else {
+                    triggerGlassNotification("Request Failed", (result && result.error) || "Kuch galat ho gaya", "error");
+                }
+            })
+            .catch(err => triggerGlassNotification("Node Error", err.message, "error"));
         }
     </script>
 </body>

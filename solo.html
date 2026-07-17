@@ -1075,15 +1075,20 @@
             }
 
             if(currentUserRole === "admin" || currentUserRole === "moderator" || currentUserRole === "superadmin") {
-                firestore.collection("master_requests").add({
-                    requestedByPRN: activeValidatedPRN,
-                    role: currentUserRole.toUpperCase(),
-                    message: `Request server wipeout triggered by ${currentUserRole}`,
-                    status: "pending",
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => {
-                    triggerBottomSheetNotification('warning', 'REQUEST SENT', `🛰️ [${currentUserRole.toUpperCase()}]: रीसेट की रिक्वेस्ट मास्टर पैनल को भेज दी गई है!`);
-                });
+                fetch('https://studybuddypro-psi.vercel.app/api/request-wipeout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prn: activeValidatedPRN })
+                })
+                .then(r => r.json())
+                .then((result) => {
+                    if (result && result.success) {
+                        triggerBottomSheetNotification('warning', 'REQUEST SENT', `🛰️ [${currentUserRole.toUpperCase()}]: रीसेट की रिक्वेस्ट मास्टर पैनल को भेज दी गई है!`);
+                    } else {
+                        triggerBottomSheetNotification('danger', 'FAILED', (result && result.error) || 'Request bhejne me error aaya');
+                    }
+                })
+                .catch(err => triggerBottomSheetNotification('danger', 'ERROR', err.message));
             } 
             else if(currentUserRole === "master") {
                 document.getElementById('masterPanelOverlay').classList.add('active');
@@ -1106,26 +1111,40 @@
 
         function executeScoresAndRanksOnlyWipeout() {
             closeMasterModal();
-            firestore.collection("solo_mcq").get().then((querySnap) => {
-                const batch = firestore.batch();
-                querySnap.forEach((doc) => { batch.update(doc.ref, { score: 0 }); });
-                return batch.commit().then(() => {
+            fetch('https://studybuddypro-psi.vercel.app/api/reset-scores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prn: activeValidatedPRN })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (result && result.success) {
                     triggerBottomSheetNotification('success', 'SCORES RESET', 'सफलतापूर्वक सर्वर के सभी मार्क्स 0 PTS कर दिए गए!');
                     verifyUserRoleRealtime();
-                });
-            });
+                } else {
+                    triggerBottomSheetNotification('danger', 'FAILED', (result && result.error) || 'Reset nahi ho paaya');
+                }
+            })
+            .catch(err => triggerBottomSheetNotification('danger', 'ERROR', err.message));
         }
 
         function executeAbsoluteDatabaseCleanse() {
             closeMasterModal();
-            firestore.collection("solo_mcq").get().then((querySnap) => {
-                const batch = firestore.batch();
-                querySnap.forEach((doc) => { batch.delete(doc.ref); });
-                return batch.commit().then(() => {
+            fetch('https://studybuddypro-psi.vercel.app/api/wipe-database', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prn: activeValidatedPRN })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (result && result.success) {
                     triggerBottomSheetNotification('danger', 'CRITICAL DESTRUCTION', 'क्लाउड सर्वर से पूरा डेटाबेस कंपलीट डिलीट कर दिया गया है!');
                     verifyUserRoleRealtime();
-                });
-            });
+                } else {
+                    triggerBottomSheetNotification('danger', 'FAILED', (result && result.error) || 'Cleanse nahi ho paaya');
+                }
+            })
+            .catch(err => triggerBottomSheetNotification('danger', 'ERROR', err.message));
         }
 
         /* NEW SHUFFLED FIVE LAUNCHER */
@@ -1250,27 +1269,27 @@
                 return;
             }
 
-            // Sync structural score computations to Cloud Database Firestore
-            firestore.collection("solo_mcq").where("prn", "==", activeValidatedPRN).get().then((snap) => {
-                let scoreToIncrement = runningCumulativePoints;
-                
-                if(!snap.empty) {
-                    const userDoc = snap.docs[0].ref;
-                    const oldScore = snap.docs[0].data().score || 0;
-                    userDoc.update({ 
-                        score: oldScore + scoreToIncrement, 
-                        name: verifiedStudentName, 
-                        lastTestedTimestamp: firebase.firestore.FieldValue.serverTimestamp() 
-                    }).then(() => { finalizeSubmissionFeedback(scoreToIncrement); });
+            // Sync structural score computations to humare secure backend
+            // (backend PRN aur score-range dono validate karta hai)
+            fetch('https://studybuddypro-psi.vercel.app/api/submit-score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prn: activeValidatedPRN,
+                    name: verifiedStudentName,
+                    scoreDelta: runningCumulativePoints,
+                    questionCount: totalQuestionsInThisSet
+                })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (result && result.success) {
+                    finalizeSubmissionFeedback(runningCumulativePoints);
                 } else {
-                    firestore.collection("solo_mcq").add({ 
-                        prn: activeValidatedPRN, 
-                        name: verifiedStudentName, 
-                        score: scoreToIncrement, 
-                        lastTestedTimestamp: firebase.firestore.FieldValue.serverTimestamp() 
-                    }).then(() => { finalizeSubmissionFeedback(scoreToIncrement); });
+                    triggerBottomSheetNotification('danger', 'SUBMIT FAILED', (result && result.error) || 'Score submit nahi ho paaya');
                 }
-            });
+            })
+            .catch(err => triggerBottomSheetNotification('danger', 'ERROR', err.message));
         }
 
         function finalizeSubmissionFeedback(scoreEarned) {

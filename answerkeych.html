@@ -331,7 +331,7 @@
             if (isNaN(expiryTs)) return;
 
             if (Date.now() > expiryTs) {
-                if (prn) { rtdb.ref('users/' + prn + '/role').set('student').catch(console.error); }
+                if (prn) { fetch('https://studybuddypro-psi.vercel.app/api/demote-role', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prn }) }).catch(console.error); }
                 currentUserRole = 'student';
                 applyMenuRoleStyle('student');
                 document.getElementById('expiredModal').classList.add('active');
