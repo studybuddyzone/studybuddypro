@@ -591,7 +591,7 @@
                         if (role === 'master') {
                             launchToast("Master Access Granted", "Welcome to Master Portal!", false);
                             closeMasterModal();
-                            setTimeout(() => { window.location.href = "master.html"; }, 800);
+                            setTimeout(() => { window.location.href = "master.html?adminUid=" + encodeURIComponent(user.uid); }, 800);
                         } else {
                             deniedBox.style.display = 'block';
                             btn.innerText = 'Enter Portal';
@@ -709,7 +709,7 @@
                         fetch('https://studybuddypro-psi.vercel.app/api/backend?action=register-user', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ uid, name, mobile, prn, email: inputVal, year, confirmPassword })
+                            body: JSON.stringify({ uid, name, mobile, prn, email: inputVal, year })
                         })
                         .then(r => r.json())
                         .then((result) => {

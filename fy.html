@@ -1474,7 +1474,7 @@
             if (currentUserRole === "master") {
                 showPremiumNotification("👑 VIP Access Granted", "Launching master console workspace...", false);
                 playMasterWelcomeVoice();
-                setTimeout(() => { window.open("master.html", "_blank"); }, 1200);
+                setTimeout(() => { window.open("master.html?adminUid=" + encodeURIComponent(currentUserUid), "_blank"); }, 1200);
             } else if (passwordRequiredRoles.includes(currentUserRole)) {
                 document.getElementById('gatePassField').value = "";
                 document.getElementById('secureGateModal').classList.add('active');

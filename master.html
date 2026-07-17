@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Authority Deck | Practical Zone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 🎨 अल्ट्रा प्रीमियम डार्क थीम वेरिएबल्स */
+        :root {
+            --bg-master: #070a13;
+            --card-bg: rgba(15, 22, 42, 0.6);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.15);
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --glass-shadow: rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-master); color: var(--text-main); min-height: 100vh; padding: 40px 20px;
+            background-image: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.03) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.03) 0px, transparent 50%);
+            background-attachment: fixed; overflow-x: hidden;
+        }
+
+        .master-container { width: 100%; max-width: 1240px; margin: 0 auto; }
+        .master-header { text-align: center; margin-bottom: 45px; }
+        .master-header h1 {
+            font-size: 32px; font-weight: 800; letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 0%, #64748b 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+        }
+        .master-header p { font-size: 14px; color: var(--text-muted); margin-top: 6px; }
+
+        .section-title {
+            font-size: 18px; font-weight: 700; margin: 40px 0 20px 0; color: var(--primary);
+            display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 10px;
+        }
+
+        /* ➕ आईडी क्रिएशन कार्ड */
+        .creation-glass-card {
+            background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; padding: 30px;
+            box-shadow: 0 25px 50px var(--glass-shadow); margin-bottom: 20px;
+        }
+        .creation-grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .input-wrapper-node { display: flex; flex-direction: column; gap: 6px; }
+        .input-wrapper-node label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.6px; }
+        .interactive-box { position: relative; }
+        .interactive-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px; }
+        .interactive-box input, .interactive-box select {
+            width: 100%; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border);
+            padding: 12px 14px 12px 40px; border-radius: 12px; color: var(--text-main); font-size: 13.5px; outline: none; transition: all 0.3s;
+        }
+        .interactive-box select option { background: #0f172a; color: var(--text-main); }
+        .btn-create-account {
+            grid-column: 1 / -1; background: linear-gradient(135deg, var(--primary), #0284c7); color: #030712;
+            border: none; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2); margin-top: 5px;
+        }
+
+        /* 🎴 ग्रिड सिस्टम */
+        .approval-stream-grid, .users-display-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 100%)); gap: 25px; }
+        @media (min-width: 768px) { .approval-stream-grid, .users-display-grid { grid-template-columns: repeat(auto-fill, minmax(370px, 1fr)); } }
+
+        .request-approval-card, .user-profile-node-card {
+            background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.12); border-radius: 22px; padding: 24px;
+            box-shadow: 0 20px 40px var(--glass-shadow); display: flex; flex-direction: column; gap: 16px; position: relative;
+        }
+
+        .card-top-identity { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        .prn-badge-wrapper { display: flex; align-items: center; gap: 8px; }
+        .prn-string-key { font-size: 14px; font-weight: 700; color: #ffffff; }
+        .status-pending-tag { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); color: var(--warning); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+
+        .data-comparison-matrix, .user-info-matrix { display: flex; flex-direction: column; gap: 10px; }
+        .matrix-row { display: grid; grid-template-columns: 85px 1fr; align-items: center; font-size: 13px; }
+        .matrix-field-label { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 10.5px; }
+        .matrix-values-node { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; background: rgba(15, 23, 42, 0.4); padding: 6px 12px; border-radius: 9px; border: 1px solid rgba(255, 255, 255, 0.03); }
+        
+        .old-value-striked { color: #ef4444; text-decoration: line-through; opacity: 0.5; font-size: 12px; }
+        .new-value-highlight { color: var(--success); font-weight: 600; }
+        .static-value-text { color: #ffffff; font-weight: 500; }
+
+        .card-action-deck { display: flex; gap: 10px; margin-top: 5px; justify-content: space-between; align-items: center; }
+        .btn-deck { flex: 1; padding: 11px; font-size: 12.5px; font-weight: 700; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; }
+        .btn-deck-reject { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.15); color: var(--error); }
+        .btn-deck-approve { background: var(--success); color: #030712; }
+
+        .role-modifier-dropdown { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); color: #ffffff; font-size: 12px; font-weight: 600; padding: 8px 12px; border-radius: 8px; outline: none; cursor: pointer; }
+        .role-modifier-dropdown option { background: #0f172a; }
+        .btn-node-delete { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.15); color: var(--error); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; }
+        .no-data-alert { grid-column: 1 / -1; background: rgba(255,255,255,0.01); border: 1px dashed var(--border); padding: 35px; border-radius: 16px; text-align: center; color: var(--text-muted); }
+
+        /* 👑 अमर मास्टर शील्ड लुक */
+        .immortal-shield {
+            border: 1px solid rgba(217, 119, 6, 0.3) !important;
+            background: linear-gradient(135deg, rgba(15, 22, 42, 0.8), rgba(217, 119, 6, 0.03)) !important;
+        }
+        .shield-badge {
+            background: rgba(217, 119, 6, 0.15); border: 1px solid rgba(217, 119, 6, 0.3);
+            color: #f59e0b; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase;
+        }
+
+        /* 🔧 MAINTENANCE CONTROL PANEL */
+        .maintenance-control-section {
+            background: var(--card-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-top: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px; padding: 28px 30px; margin-bottom: 20px;
+            box-shadow: 0 25px 50px var(--glass-shadow);
+        }
+        .maintenance-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 18px;
+        }
+        .maintenance-toggle-card {
+            background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border);
+            border-radius: 16px; padding: 18px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.3s ease; cursor: default;
+        }
+        .maintenance-toggle-card.active-maintenance {
+            border-color: rgba(245, 158, 11, 0.5);
+            background: rgba(245, 158, 11, 0.06);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
+        }
+        .maint-card-left { display: flex; align-items: center; gap: 12px; }
+        .maint-year-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 800; letter-spacing: 0.5px;
+            background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: var(--primary);
+            transition: all 0.3s;
+        }
+        .maintenance-toggle-card.active-maintenance .maint-year-icon {
+            background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.35); color: #f59e0b;
+        }
+        .maint-card-info h4 { font-size: 13.5px; font-weight: 700; color: #fff; }
+        .maint-status-text {
+            font-size: 11px; font-weight: 600; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--success);
+        }
+        .maintenance-toggle-card.active-maintenance .maint-status-text { color: #f59e0b; }
+
+        /* Toggle Switch */
+        .toggle-switch { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; inset: 0; background: rgba(255,255,255,0.1); border-radius: 26px;
+            cursor: pointer; transition: background 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .toggle-slider::before {
+            content: ''; position: absolute; height: 18px; width: 18px;
+            left: 3px; bottom: 3px; background: #fff; border-radius: 50%;
+            transition: transform 0.3s; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+        .toggle-switch input:checked + .toggle-slider { background: #f59e0b; border-color: #f59e0b; }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+        .maint-info-bar {
+            display: flex; align-items: center; gap: 10px; background: rgba(245,158,11,0.06);
+            border: 1px solid rgba(245,158,11,0.15); border-radius: 12px; padding: 11px 16px; margin-bottom: 16px;
+        }
+        .maint-info-bar i { color: #f59e0b; font-size: 14px; flex-shrink: 0; }
+        .maint-info-bar p { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin: 0; }
+
+        /* 🔥 PREMIUM TOAST POPUP SYSTEM */
+        .premium-toast-panel {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%) scale(0.9);
+            background: rgba(15, 23, 42, 0.85); border: 1px solid var(--border); border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 16px 26px; border-radius: 20px; display: flex; align-items: center; gap: 14px; z-index: 99999;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6); opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; min-width: 350px;
+        }
+        .premium-toast-panel.active { top: 30px; opacity: 1; transform: translateX(-50%) scale(1); }
+        .premium-toast-panel i { font-size: 22px; }
+        .toast-success-node i { color: var(--success); }
+        .toast-error-node i { color: var(--error); }
+        .toast-text-content h4 { font-size: 14.5px; font-weight: 700; color: #ffffff; }
+        .toast-text-content p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="premium-toast-panel" id="adminGlassToast">
+        <i id="toastIconBlock" class="fa-solid fa-circle-check"></i>
+        <div class="toast-text-content">
+            <h4 id="toastTitleBlock">Security Engine</h4>
+            <p id="toastMessageBlock">Compiled successfully.</p>
+        </div>
+    </div>
+
+    <div class="master-container">
+        <div class="master-header">
+            <h1><i class="fa-solid fa-shield-halved" style="color: #f59e0b;"></i> Master Authority Deck</h1>
+            <p>Live Core Hierarchy Stream & Authorization Control</p>
+        </div>
+
+        <!-- 🔧 MAINTENANCE MODE CONTROL PANEL -->
+        <div class="section-title">
+            <i class="fa-solid fa-screwdriver-wrench"></i> Site Maintenance Mode Controller
+        </div>
+        <div class="maintenance-control-section">
+            <div class="maint-info-bar">
+                <i class="fa-solid fa-circle-info"></i>
+                <p>यहाँ से किसी भी Year की site को <strong style="color:#f59e0b;">Under Maintenance</strong> mode में डाल सकते हो। Toggle ON करने पर उस site पर Maintenance page दिखेगा, OFF करने पर site normal हो जाएगी। Firebase Realtime Database से directly sync होती है।</p>
+            </div>
+            <div class="maintenance-grid" id="maintenanceGrid">
+                <!-- Cards will be rendered by JS -->
+            </div>
+        </div>
+
+        <div class="section-title">
+            <i class="fa-solid fa-bullhorn"></i> Notification Bar Editor (Live Broadcast Control)
+        </div>
+        <div class="creation-glass-card" style="margin-bottom: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display: flex; align-items: center; gap: 10px; background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.15); border-radius: 12px; padding: 12px 16px;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--primary); font-size: 14px; flex-shrink: 0;"></i>
+                    <p style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin: 0;">यहाँ जो भी notification type करके Update करोगे, वो <strong style="color: var(--primary);">fy.html</strong> के notification bar में realtime update हो जाएगी। पुरानी text नीचे preview में दिखेगी।</p>
+                </div>
+
+                <!-- Current Notification Preview -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.6px;">Current Live Notification</label>
+                    <div id="currentNotiPreview" style="background: rgba(15,23,42,0.5); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #f59e0b; font-style: italic; min-height: 44px; line-height: 1.5;">
+                        Fetching current notification...
+                    </div>
+                </div>
+
+                <!-- New Notification Input -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.6px;">New Notification Text</label>
+                    <div style="position: relative;">
+                        <i class="fa-solid fa-bullhorn" style="position: absolute; left: 14px; top: 14px; color: var(--text-muted); font-size: 13px;"></i>
+                        <textarea id="newNotificationInput" rows="3" placeholder="यहाँ नई notification टाइप करें..." style="width: 100%; background: rgba(15,23,42,0.5); border: 1px solid var(--border); padding: 12px 14px 12px 40px; border-radius: 12px; color: var(--text-main); font-size: 13.5px; outline: none; resize: vertical; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.5;"></textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="updateLiveNotification()" style="flex: 1; min-width: 160px; background: linear-gradient(135deg, var(--primary), #0284c7); color: #030712; border: none; padding: 13px 20px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(56,189,248,0.2);">
+                        <i class="fa-solid fa-satellite-dish"></i> Broadcast Update
+                    </button>
+                    <button onclick="clearLiveNotification()" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: var(--error); padding: 13px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 7px;">
+                        <i class="fa-solid fa-trash-can"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <i class="fa-solid fa-user-plus"></i> Manual Node Injection (Account Creator)
+        </div>
+        <div class="creation-glass-card">
+            <form class="creation-grid-layout" id="manualCreateForm" onsubmit="injectNewStudentAccount(event)">
+                <div class="input-wrapper-node"><label>16-Digit PRN Number</label><div class="interactive-box"><input type="text" id="newPRN" placeholder="16 character PRN" required><i class="fa-solid fa-fingerprint"></i></div></div>
+                <div class="input-wrapper-node"><label>Full Name</label><div class="interactive-box"><input type="text" id="newName" placeholder="Full name" required><i class="fa-solid fa-user"></i></div></div>
+                <div class="input-wrapper-node"><label>Email ID</label><div class="interactive-box"><input type="email" id="newEmail" placeholder="student@gmail.com" required><i class="fa-solid fa-envelope"></i></div></div>
+                <div class="input-wrapper-node"><label>Contact No</label><div class="interactive-box"><input type="text" id="newPhone" placeholder="Mobile number" required><i class="fa-solid fa-phone"></i></div></div>
+                <div class="input-wrapper-node"><label>Date of Birth</label><div class="interactive-box"><input type="date" id="newDOB" required><i class="fa-solid fa-calendar-days"></i></div></div>
+                <div class="input-wrapper-node"><label>Academic Year</label><div class="interactive-box"><select id="newYear" required><option value="first_year">First Year (FY)</option><option value="second_year">Second Year (SY)</option><option value="third_year">Third Year (TY)</option><option value="final_year">Final Year</option></select><i class="fa-solid fa-graduation-cap"></i></div></div>
+                <div class="input-wrapper-node"><label>Password</label><div class="interactive-box"><input type="text" id="newPassword" placeholder="Login password" required><i class="fa-solid fa-lock"></i></div></div>
+                <div class="input-wrapper-node"><label>Role Hierarchy</label><div class="interactive-box"><select id="newRole" required><option value="student">Student (Tier 0)</option><option value="silver">Silver User</option><option value="gold">Gold User</option><option value="diamond">Diamond Member</option><option value="moderator">Moderator Node</option><option value="admin">Admin Auth</option><option value="superadmin">Superadmin Core</option><option value="master">Master Engine 👑</option></select><i class="fa-solid fa-crown"></i></div></div>
+                <button type="submit" class="btn-create-account"><i class="fa-solid fa-plus"></i> Create & Inject Account Node</button>
+            </form>
+        </div>
+
+        <div class="section-title">
+            <i class="fa-solid fa-envelope-open-text"></i> Pending Parameter Update Requests
+        </div>
+        <div class="approval-stream-grid" id="approvalRequestsContainer">
+            <div class="no-data-alert">Linking core stream nodes...</div>
+        </div>
+
+        <div class="section-title">
+            <i class="fa-solid fa-users-gear"></i> Live System Users Deck (Hierarchy Level Console)
+        </div>
+        <div class="users-display-grid" id="systemUsersContainer">
+            <div class="no-data-alert">Fetching active users list...</div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND = 'https://studybuddypro-psi.vercel.app/api/backend';
+
+        // 🔒 Access-gate — URL me admin ki verified identity (PRN ya uid) aana zaroori hai.
+        // Yeh index.html/fy.html ke Master Login ke baad hi milti hai. Bina iske page
+        // access hi nahi hoga — pehle jaisa localStorage-based fake 'master' default
+        // yahan se hata diya gaya hai (woh sabse bada security gap tha).
+        const params = new URLSearchParams(window.location.search);
+        const adminPrn = params.get('adminPrn') || '';
+        const adminUid = params.get('adminUid') || '';
+
+        if (!adminPrn && !adminUid) {
+            document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#ef4444;font-size:16px;text-align:center;padding:20px;">Access Denied — is page ko sidha nahi khola ja sakta.<br>Kripya Master Login se aayein.</div>';
+            throw new Error('No admin identity in URL — halting script.');
+        }
+
+        let currentAdminRole = null; // Server se verify hone ke baad set hota hai
+
+        function adminIdentityBody(extra) {
+            return Object.assign({ adminPrn, adminUid }, extra || {});
+        }
+
+        async function callBackend(action, extra) {
+            const res = await fetch(BACKEND + '?action=' + action, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(adminIdentityBody(extra))
+            });
+            return res.json();
+        }
+
+        const roleWeight = {
+            'master': 100, 'superadmin': 80, 'admin': 60, 'moderator': 40,
+            'diamond': 20, 'gold': 15, 'silver': 10, 'student': 0
+        };
+
+        function triggerAdminNotification(title, message, type) {
+            const toast = document.getElementById('adminGlassToast');
+            const icon = document.getElementById('toastIconBlock');
+            document.getElementById('toastTitleBlock').innerText = title;
+            document.getElementById('toastMessageBlock').innerText = message;
+            toast.className = type === 'success' ? "premium-toast-panel toast-success-node active" : "premium-toast-panel toast-error-node active";
+            icon.className = type === 'success' ? "fa-solid fa-circle-check" : "fa-solid fa-triangle-exclamation";
+            setTimeout(() => { toast.classList.remove('active'); }, 3500);
+        }
+
+        const formatYear = (yr) => {
+            if(yr === 'first_year') return 'First Year (FY)';
+            if(yr === 'second_year') return 'Second Year (SY)';
+            if(yr === 'third_year') return 'Third Year (TY)';
+            if(yr === 'final_year') return 'Final Year';
+            return yr || '—';
+        };
+
+        // ➕ मैन्युअल अकाउंट क्रिएशन
+        function injectNewStudentAccount(event) {
+            event.preventDefault();
+            const prn = document.getElementById('newPRN').value.trim();
+            const name = document.getElementById('newName').value.trim();
+            const email = document.getElementById('newEmail').value.trim();
+            const phone = document.getElementById('newPhone').value.trim();
+            const dob = document.getElementById('newDOB').value;
+            const year = document.getElementById('newYear').value;
+            const password = document.getElementById('newPassword').value.trim();
+            const targetRole = document.getElementById('newRole').value;
+
+            if (roleWeight[currentAdminRole] <= roleWeight[targetRole] && currentAdminRole !== 'master') {
+                triggerAdminNotification("Security Fault", "You cannot create an account with equal or higher status!", "error");
+                return;
+            }
+            if(prn.length !== 16) {
+                triggerAdminNotification("PRN Error", "PRN key must be exactly 16 characters!", "error");
+                return;
+            }
+
+            callBackend('master-create-account', { prn, name, email, phone, dob, year, password, targetRole })
+            .then((result) => {
+                if (result && result.success) {
+                    triggerAdminNotification("Success", "Account Node Injected Live!", "success");
+                    document.getElementById('manualCreateForm').reset();
+                    syncLiveUsersDeck();
+                } else {
+                    triggerAdminNotification("Failure", (result && result.error) || "Database Write Blocked.", "error");
+                }
+            }).catch(() => { triggerAdminNotification("Failure", "Database Write Blocked.", "error"); });
+        }
+
+        // 🔄 2. लाइव प्रोफाइल चेंज अप्रूवल क्यू (FIXED FIELD ENGINE)
+        function syncLiveApprovalRequests() {
+            const container = document.getElementById('approvalRequestsContainer');
+            callBackend('master-list-requests').then((result) => {
+                container.innerHTML = "";
+                let pendingCount = 0;
+                if (result && result.success && result.requests) {
+                    const allRequests = result.requests;
+                    for (let prn in allRequests) {
+                        const req = allRequests[prn];
+                        if (req.status !== 'pending') continue;
+                        pendingCount++;
+                        
+                        // डेटाबेस की फ़ील्ड्स को सुरक्षित क्लीन डैश (—) के साथ लोड करना
+                        const oldName = req.oldName || req.name || '—';
+                        const newName = req.newName || '—';
+                        
+                        const oldEmail = req.oldEmail || req.email || '—';
+                        const newEmail = req.newEmail || '—';
+                        
+                        const oldPhone = req.oldPhone || req.phone || '—';
+                        const newPhone = req.newPhone || '—';
+                        
+                        const oldDOB = req.oldDOB || req.dob || '—';
+                        const newDOB = req.newDOB || '—';
+                        
+                        const oldYear = formatYear(req.oldYear || req.year);
+                        const newYear = formatYear(req.newYear);
+                        
+                        const oldRole = req.oldRole || req.role || '—';
+                        const newRole = req.newRole || '—';
+
+                        const card = document.createElement('div');
+                        card.className = "request-approval-card";
+                        card.innerHTML = `
+                            <div class="card-top-identity">
+                                <div class="prn-badge-wrapper"><i class="fa-solid fa-fingerprint"></i><span class="prn-string-key">${prn}</span></div>
+                                <span class="status-pending-tag">Review</span>
+                            </div>
+                            <div class="data-comparison-matrix">
+                                <div class="matrix-row"><span class="matrix-field-label">Name</span><div class="matrix-values-node"><span class="old-value-striked">${oldName}</span><i class="fa-solid fa-arrow-right"></i><span class="new-value-highlight">${newName}</span></div></div>
+                                <div class="matrix-row"><span class="matrix-field-label">Email</span><div class="matrix-values-node"><span class="old-value-striked">${oldEmail}</span><i class="fa-solid fa-arrow-right"></i><span class="new-value-highlight">${newEmail}</span></div></div>
+                                <div class="matrix-row"><span class="matrix-field-label">Contact</span><div class="matrix-values-node"><span class="old-value-striked">${oldPhone}</span><i class="fa-solid fa-arrow-right"></i><span class="new-value-highlight">${newPhone}</span></div></div>
+                                <div class="matrix-row"><span class="matrix-field-label">DOB</span><div class="matrix-values-node"><span class="old-value-striked">${oldDOB}</span><i class="fa-solid fa-arrow-right"></i><span class="new-value-highlight">${newDOB}</span></div></div>
+                                <div class="matrix-row"><span class="matrix-field-label">Year</span><div class="matrix-values-node"><span class="old-value-striked">${oldYear}</span><i class="fa-solid fa-arrow-right"></i><span class="new-value-highlight">${newYear}</span></div></div>
+                                <div class="matrix-row"><span class="matrix-field-label">Role</span><div class="matrix-values-node"><span class="old-value-striked" style="text-transform: capitalize;">${oldRole}</span><i class="fa-solid fa-arrow-right"></i><span class="new-value-highlight" style="text-transform: capitalize; color:#f59e0b;">${newRole}</span></div></div>
+                            </div>
+                            <div class="card-action-deck">
+                                <button class="btn-deck btn-deck-reject" onclick="processApprovalRequest('${prn}', 'rejected')"><i class="fa-solid fa-ban"></i> Reject</button>
+                                <button class="btn-deck btn-deck-approve" onclick="processApprovalRequest('${prn}', 'approved')"><i class="fa-solid fa-circle-check"></i> Approve & Deploy</button>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    }
+                }
+                if (pendingCount === 0) container.innerHTML = `<div class="no-data-alert"><i class="fa-solid fa-folder-open"></i> No pending updates found in the pipeline.</div>`;
+            });
+        }
+
+        function processApprovalRequest(prn, action) {
+            callBackend('master-process-request', { prn, action }).then((result) => {
+                if (result && result.success) {
+                    triggerAdminNotification(action === 'approved' ? "Approved" : "Rejected", action === 'approved' ? "Core Node synchronized successfully!" : "Request discarded.", action === 'approved' ? "success" : "error");
+                    syncLiveApprovalRequests();
+                    syncLiveUsersDeck();
+                } else {
+                    triggerAdminNotification("Failed", (result && result.error) || "Action fail ho gaya", "error");
+                }
+            });
+        }
+
+        // 👑 3. लाइव यूजर डेक
+        function syncLiveUsersDeck() {
+            const container = document.getElementById('systemUsersContainer');
+            callBackend('master-list-users').then((result) => {
+                container.innerHTML = "";
+                if(result && result.success && result.users && Object.keys(result.users).length) {
+                    const users = result.users;
+                    for(let prn in users) {
+                        const u = users[prn];
+                        const userRole = u.role || 'student';
+                        const isMaster = (userRole === 'master');
+                        
+                        const card = document.createElement('div');
+                        card.className = isMaster ? "user-profile-node-card immortal-shield" : "user-profile-node-card";
+                        
+                        let controlHtml = '';
+                        if (isMaster) {
+                            controlHtml = `<span class="shield-badge"><i class="fa-solid fa-infinity"></i> Immortal Core</span>`;
+                        } else {
+                            const canManage = (currentAdminRole === 'master') || (roleWeight[currentAdminRole] > roleWeight[userRole]);
+                            if (canManage) {
+                                controlHtml = `
+                                    <select class="role-modifier-dropdown" onchange="modifyUserRole('${prn}', this.value, '${userRole}')">
+                                        <option value="" disabled selected>Alter Rank Hierarchy</option>
+                                        <option value="student">Demote to Student</option>
+                                        <option value="silver">Silver User</option>
+                                        <option value="gold">Gold User</option>
+                                        <option value="diamond">Diamond Member</option>
+                                        <option value="moderator">Promote: Moderator</option>
+                                        <option value="admin">Promote: Admin</option>
+                                        ${currentAdminRole === 'master' ? '<option value="superadmin">Promote: Superadmin</option>' : ''}
+                                    </select>
+                                    <button class="btn-node-delete" onclick="terminateUserAccount('${prn}', '${userRole}')"><i class="fa-solid fa-trash-can"></i> Wipe</button>
+                                `;
+                            } else {
+                                controlHtml = `<span style="font-size:11px; color:var(--error); font-weight:600;"><i class="fa-solid fa-lock"></i> Authority High: Access Denied</span>`;
+                            }
+                        }
+
+                        card.innerHTML = `
+                            <div class="card-top-identity">
+                                <div class="prn-badge-wrapper"><i class="fa-solid fa-user-gear" style="${isMaster ? 'color:#f59e0b;' : ''}"></i><span class="prn-string-key">${u.name || '—'}</span></div>
+                                <span class="status-pending-tag" style="${isMaster ? 'color:#f59e0b; background:rgba(217,119,6,0.15);' : 'color:var(--primary); background:rgba(56,189,248,0.1);'}">${userRole}</span>
+                            </div>
+                            <div class="user-info-matrix">
+                                <div class="matrix-row"><span class="matrix-field-label">PRN Key</span><div class="matrix-values-node"><span class="static-value-text">${prn}</span></div></div>
+                                <div class="matrix-row"><span class="matrix-field-label">Academic</span><div class="matrix-values-node"><span class="static-value-text">${formatYear(u.year)}</span></div></div>
+                                <div class="matrix-row"><span class="matrix-field-label">Password</span><div class="matrix-values-node"><span class="static-value-text" style="color:var(--warning); font-family:monospace;">${u.password || '(Firebase Auth se secure — yahan store nahi hota)'}</span></div></div>
+                            </div>
+                            <div class="card-action-deck" style="border-top:1px solid rgba(255,255,255,0.05); padding-top:12px;">
+                                ${controlHtml}
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    }
+                } else {
+                    container.innerHTML = `<div class="no-data-alert">No records found.</div>`;
+                }
+            });
+        }
+
+        function modifyUserRole(prn, selectedRole, currentTargetRole) {
+            if(!selectedRole) return;
+            if (currentTargetRole === 'master') {
+                triggerAdminNotification("Security Denied", "Fatal Error: Master Node is Immortal!", "error");
+                return;
+            }
+            if (currentTargetRole === 'superadmin' && currentAdminRole !== 'master') {
+                triggerAdminNotification("Access Denied", "Only the Core Master can demote a Superadmin!", "error");
+                return;
+            }
+            if (roleWeight[currentAdminRole] <= roleWeight[selectedRole] && currentAdminRole !== 'master') {
+                triggerAdminNotification("Hierarchy Violation", "You cannot promote anyone to your own rank or higher!", "error");
+                return;
+            }
+
+            callBackend('master-modify-role', { targetPrn: prn, newRole: selectedRole, currentTargetRole }).then((result) => {
+                if (result && result.success) {
+                    triggerAdminNotification("Rank Shifted", `User compiled to '${selectedRole}' status successfully.`, "success");
+                    syncLiveUsersDeck();
+                } else {
+                    triggerAdminNotification("Failure", (result && result.error) || "Database synchronization blocked.", "error");
+                }
+            });
+        }
+
+        function terminateUserAccount(prn, targetRole) {
+            if (targetRole === 'master') {
+                triggerAdminNotification("Security Alert", "Critical Protection: Master Engine cannot be deleted!", "error");
+                return;
+            }
+            if (targetRole === 'superadmin' && currentAdminRole !== 'master') {
+                triggerAdminNotification("Security Alert", "Unauthorized: Only the Master can wipe a Superadmin Node!", "error");
+                return;
+            }
+
+            if(confirm(`Are you absolutely sure you want to erase data node: ${prn}?`)) {
+                callBackend('master-terminate-account', { targetPrn: prn, targetRole }).then((result) => {
+                    if (result && result.success) {
+                        triggerAdminNotification("Wiped", "Account node completely erased from core tree.", "error");
+                        syncLiveUsersDeck();
+                    } else {
+                        triggerAdminNotification("Failure", (result && result.error) || "Delete blocked.", "error");
+                    }
+                });
+            }
+        }
+
+        // 📢 NOTIFICATION BAR EDITOR FUNCTIONS
+        function loadCurrentNotification(cachedText) {
+            const preview = document.getElementById('currentNotiPreview');
+            if (cachedText) {
+                preview.textContent = cachedText;
+                preview.style.color = '#f59e0b';
+            } else {
+                preview.textContent = '(कोई notification set नहीं है)';
+                preview.style.color = 'var(--text-muted)';
+            }
+        }
+
+        function updateLiveNotification() {
+            const newText = document.getElementById('newNotificationInput').value.trim();
+            if (!newText) {
+                triggerAdminNotification("Empty Field", "Notification text खाली है! कुछ type करें।", "error");
+                return;
+            }
+            callBackend('master-update-notification', { text: newText }).then((result) => {
+                if (result && result.success) {
+                    triggerAdminNotification("Broadcasted! 📢", "Notification live हो गई — fy.html पर realtime update!", "success");
+                    document.getElementById('newNotificationInput').value = '';
+                    loadCurrentNotification(newText);
+                } else {
+                    triggerAdminNotification("Failed", (result && result.error) || "Database write blocked. Try again.", "error");
+                }
+            });
+        }
+
+        function clearLiveNotification() {
+            if (!confirm('क्या आप current notification clear करना चाहते हैं?')) return;
+            callBackend('master-clear-notification').then((result) => {
+                if (result && result.success) {
+                    triggerAdminNotification("Cleared", "Notification bar reset हो गई।", "success");
+                    loadCurrentNotification(null);
+                } else {
+                    triggerAdminNotification("Failed", (result && result.error) || "Clear operation failed.", "error");
+                }
+            });
+        }
+
+        // 🔧 MAINTENANCE MODE CONTROLLER
+        const maintenanceYears = [
+            { key: 'fy', label: 'First Year', short: 'FY' },
+            { key: 'sy', label: 'Second Year', short: 'SY' },
+            { key: 'ty', label: 'Third Year', short: 'TY' },
+            { key: 'ffy', label: 'Final Year', short: 'FFY' },
+        ];
+
+        function renderMaintenanceGrid() {
+            const grid = document.getElementById('maintenanceGrid');
+            grid.innerHTML = '';
+            maintenanceYears.forEach(yr => {
+                const card = document.createElement('div');
+                card.className = 'maintenance-toggle-card';
+                card.id = `maintCard_${yr.key}`;
+                card.innerHTML = `
+                    <div class="maint-card-left">
+                        <div class="maint-year-icon" id="maintIcon_${yr.key}">${yr.short}</div>
+                        <div class="maint-card-info">
+                            <h4>${yr.label}</h4>
+                            <div class="maint-status-text" id="maintStatus_${yr.key}">Live ✓</div>
+                        </div>
+                    </div>
+                    <label class="toggle-switch" title="Toggle Maintenance for ${yr.label}">
+                        <input type="checkbox" id="maintToggle_${yr.key}" onchange="toggleMaintenanceMode('${yr.key}', '${yr.label}', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function applyMaintenanceStatus(maintObj) {
+            maintenanceYears.forEach(yr => {
+                const isOn = maintObj && maintObj[yr.key] === true;
+                const toggle = document.getElementById(`maintToggle_${yr.key}`);
+                const card = document.getElementById(`maintCard_${yr.key}`);
+                const status = document.getElementById(`maintStatus_${yr.key}`);
+                if (!toggle) return;
+                toggle.checked = isOn;
+                if (isOn) {
+                    card.classList.add('active-maintenance');
+                    status.textContent = '🔧 Under Maintenance';
+                } else {
+                    card.classList.remove('active-maintenance');
+                    status.textContent = 'Live ✓';
+                }
+            });
+        }
+
+        function toggleMaintenanceMode(yearKey, yearLabel, isOn) {
+            callBackend('master-toggle-maintenance', { yearKey, isOn }).then((result) => {
+                if (result && result.success) {
+                    triggerAdminNotification(
+                        isOn ? "Maintenance ON 🔧" : "Maintenance OFF ✅",
+                        `${yearLabel} site ${isOn ? 'Under Maintenance में गई!' : 'Live हो गई!'}`,
+                        isOn ? "error" : "success"
+                    );
+                } else {
+                    triggerAdminNotification("Failed", (result && result.error) || "Database write blocked. Retry.", "error");
+                    document.getElementById(`maintToggle_${yearKey}`).checked = !isOn;
+                }
+            });
+        }
+
+        renderMaintenanceGrid();
+
+        // 🔐 Sabse pehle khud ka role server-side verify hota hai — tabhi aage
+        // koi bhi panel data load hota hai. Yeh access-control ki asli jagah hai.
+        callBackend('master-verify-self').then((result) => {
+            if (!result || !result.authorized) {
+                document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#ef4444;font-size:16px;text-align:center;padding:20px;">Access Denied — Aapka role is panel ke liye authorized nahi hai.</div>';
+                return;
+            }
+            currentAdminRole = result.role;
+
+            callBackend('master-get-site-config').then((cfg) => {
+                if (cfg && cfg.success) {
+                    loadCurrentNotification(cfg.notification);
+                    applyMaintenanceStatus(cfg.maintenance);
+                }
+            });
+
+            syncLiveApprovalRequests();
+            syncLiveUsersDeck();
+
+            // Har 10 second me refresh — pehle jaisa instant-live to nahi, par
+            // near-real-time updates ke liye kaafi hai
+            setInterval(() => {
+                syncLiveApprovalRequests();
+                syncLiveUsersDeck();
+            }, 10000);
+        });
+    </script>
+</body>
+</html>
