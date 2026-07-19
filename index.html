@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>studybuddypremiumpro | Login</title>
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="https://cdn.phototourl.com/free/2026-06-27-c62d2a86-956c-4415-867d-dfa0c9a38979.png">
+<link rel="apple-touch-icon" href="https://cdn.phototourl.com/free/2026-06-27-c62d2a86-956c-4415-867d-dfa0c9a38979.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e8532f">
+
+<!-- SEO -->
+<meta name="description" content="StudyBuddyZone - DBATU FY B.Tech students ke liye best study platform. Notes, question banks, answer keys aur premium content.">
+<meta property="og:title" content="StudyBuddyZone | DBATU Study Platform">
+<meta property="og:description" content="FY B.Tech students ke liye notes, question banks, answer keys aur premium content. Abhi join karo!">
+<meta property="og:image" content="https://cdn.phototourl.com/free/2026-06-27-c62d2a86-956c-4415-867d-dfa0c9a38979.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="StudyBuddyZone">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #ebebeb;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    min-height:100vh;
+    padding: 20px;
+  }
+
+  .scene {
+    width:100%;
+    max-width: 960px;
+    perspective: 1800px;
+    margin: 0 auto;
+  }
+
+  .flip-card {
+    position:relative;
+    width:100%;
+    min-height: 640px;
+    transform-style: preserve-3d;
+    transition: transform 0.9s cubic-bezier(.45,.05,.15,1);
+  }
+  .flip-card.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position:absolute;
+    inset:0;
+    display:flex;
+    background:#fff;
+    border-radius: 22px;
+    overflow:hidden;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .card-face.back { transform: rotateY(180deg); }
+
+  /* LEFT SIDE */
+  .left {
+    flex: 1;
+    position: relative;
+    background: #0e0f14;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding: 24px;
+    color:#fff;
+    overflow:hidden;
+  }
+  .left-top { display:flex; justify-content:space-between; align-items:center; font-size: 13px; z-index:2; position:relative; }
+  .left-top .signup { opacity:0.85; cursor:pointer; }
+  .upload-btn { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.08); color:#fff; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .upload-btn:hover { background: rgba(255,255,255,0.18); }
+  .gallery-arrows { display:flex; gap:6px; z-index:2; position:relative; }
+  .gallery-arrows button { width:26px; height:26px; border-radius:50%; border:1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.08); color:#fff; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .gallery-arrows button:hover { background: rgba(255,255,255,0.18); }
+  .join-btn { border:1px solid rgba(255,255,255,0.7); padding: 6px 16px; border-radius: 20px; font-size:12px; background: rgba(255,255,255,0.05); color:#fff; cursor:pointer; }
+
+  .placeholder-img {
+    position:absolute; inset:0; z-index:1;
+    background: linear-gradient(155deg, #0e0f14 0%, #0e0f14 32%, #e8532f 34%, #f4c9a8 46%, #d9dfd8 52%, #4f7d82 58%, #0e0f14 60%, #0e0f14 100%);
+  }
+
+  .left-bottom { display:flex; align-items:center; justify-content:space-between; z-index:2; position:relative; }
+  .author { display:flex; align-items:center; gap:10px; }
+  .avatar { width:34px; height:34px; border-radius:50%; background: linear-gradient(135deg,#ff8a5c,#c94b3d); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; }
+  .author-name { font-size:13px; font-weight:600; }
+  .author-role { font-size:11px; opacity:0.6; }
+
+  /* RIGHT SIDE - form */
+  .right { flex:1; padding: 34px 44px; display:flex; flex-direction:column; justify-content:center; overflow-y:auto; }
+  .brand-row { display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; }
+  .brand { font-weight:800; font-size: 19px; letter-spacing: 0.5px; color:#e8532f; }
+  .lang { font-size:12px; border:1px solid #ddd; border-radius: 20px; padding: 5px 12px; display:flex; align-items:center; gap:6px; color:#555; }
+
+  h1 { font-size: 24px; color:#1a1a1a; margin-bottom:4px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 18px; }
+
+  form { display:flex; flex-direction:column; gap:12px; }
+
+  .form-group { width:100%; }
+  .form-group label { display:block; font-size:12px; font-weight:600; margin-bottom:5px; color:#333; padding-left:2px; }
+  .input-wrapper { position:relative; display:flex; align-items:center; width:100%; }
+  .input-wrapper i { position:absolute; left:14px; color:#999; font-size:13px; pointer-events:none; }
+
+  input, select.form-select {
+    width:100%;
+    padding: 12px 14px 12px 40px;
+    border-radius: 10px;
+    border: 1px solid #e2e2e2;
+    background:#fafafa;
+    font-size: 13.5px;
+    outline:none;
+    transition: border-color .15s;
+    appearance:none; -webkit-appearance:none;
+    color:#222;
+  }
+  select.form-select {
+    cursor:pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23999'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position: right 14px center; background-size:14px;
+  }
+  input:focus, select.form-select:focus { border-color:#e8532f; background:#fff; }
+  .form-notice { display:block; margin-top:4px; font-size:10.5px; color:#e11d48; padding-left:2px; }
+
+  .forgot-row { display:flex; justify-content:space-between; align-items:center; margin-top:-2px; }
+  .forgot-btn, .master-btn { font-size: 11.5px; background:none; border:none; cursor:pointer; padding:0; }
+  .forgot-btn { color:#e8532f; font-weight:600; }
+  .master-btn { color:#555; font-weight:600; display:flex; align-items:center; gap:4px; }
+
+  .login-btn {
+    margin-top: 4px;
+    padding: 13px;
+    border:none;
+    border-radius: 10px;
+    background: linear-gradient(135deg,#ff7a45,#e8532f);
+    color:#fff;
+    font-size: 14.5px;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow: 0 10px 20px rgba(232,83,47,0.25);
+  }
+  .login-btn:hover { filter:brightness(1.05); }
+  .login-btn:disabled { opacity:0.7; cursor:default; }
+
+  .signup-line { text-align:center; font-size: 12.5px; color:#777; margin-top: 4px; }
+  .signup-line a, .signup-line span { color:#e8532f; text-decoration:none; font-weight:600; cursor:pointer; }
+
+  @media (max-width: 720px) {
+    .card-face { flex-direction:column; position: relative; }
+    .flip-card { min-height: 0; }
+    .card-face.back { display:none; }
+    .flip-card.flipped .card-face.front { display:none; }
+    .flip-card.flipped .card-face.back { display:flex; }
+    .left { min-height: 150px; }
+    .right { padding: 26px 22px; }
+  }
+
+  /* ===== Modals & Toast (from backend) ===== */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px; }
+  .modal-overlay.active { opacity: 1; pointer-events: auto; }
+  .premium-modal { width: 100%; max-width: 400px; background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 25px 60px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s ease; position: relative; }
+  .modal-overlay.active .premium-modal { transform: scale(1); }
+  .modal-close { position: absolute; top: 18px; right: 18px; font-size: 16px; color: #999; cursor: pointer; border: none; background: none; }
+  .modal-header { text-align: center; margin-bottom: 18px; }
+  .modal-header i { font-size: 32px; color: #e8532f; margin-bottom: 10px; }
+  .modal-header h3 { font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+  .modal-header p { font-size: 12px; color: #888; }
+  .modal-footer-btns { display: flex; gap: 10px; margin-top: 14px; }
+  .cancel-btn { width: 40%; padding: 12px; background: #f3f3f3; border: none; border-radius: 10px; color: #333; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .access-denied-box { display:none; text-align:center; padding:14px; background: rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); border-radius:12px; margin-top:12px; }
+  .access-denied-box i { font-size:24px; color:#ef4444; margin-bottom:6px; display:block; }
+  .access-denied-box h4 { font-size:14px; font-weight:700; color:#ef4444; margin-bottom:4px; }
+  .access-denied-box p { font-size:11.5px; color:#888; }
+
+  .universal-toast { position: fixed; bottom: -100px; right: 20px; background: #fff; border-radius: 14px; padding: 14px 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; z-index: 10000; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; max-width: 360px; width: calc(100% - 40px); }
+  .universal-toast.active { bottom: 30px; opacity: 1; }
+  .universal-toast.toast-success { border-left: 5px solid #10b981; }
+  .universal-toast.toast-error { border-left: 5px solid #ef4444; }
+  .toast-icon { font-size: 18px; }
+  .toast-success .toast-icon { color: #10b981; }
+  .toast-error .toast-icon { color: #ef4444; }
+  .toast-content h4 { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; }
+  .toast-content p { font-size: 11.5px; color: #888; font-weight: 500; }
+
+  /* ===== Footer / policy links (kept compact, right at the bottom) ===== */
+  .policy-footer { width: 100%; max-width: 960px; margin-top: 26px; }
+  .policy-footer summary { list-style:none; cursor:pointer; text-align:center; font-size: 11.5px; font-weight: 700; color: #777; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 0; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .policy-footer summary::-webkit-details-marker { display:none; }
+  .policy-links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; margin-top: 10px; }
+  .policy-link-card { display: flex; align-items: center; gap: 9px; padding: 11px 13px; background: #fff; border: 1px solid #eee; border-radius: 12px; text-decoration: none; color: #333; transition: all 0.2s ease; }
+  .policy-link-card:hover { border-color:#e8532f; box-shadow: 0 4px 14px rgba(232,83,47,0.12); transform: translateY(-1px); }
+  .policy-icon { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .policy-icon.blue { background: rgba(2,132,199,0.12); color:#0284c7; }
+  .policy-icon.green { background: rgba(16,185,129,0.12); color:#10b981; }
+  .policy-icon.orange { background: rgba(245,158,11,0.12); color:#f59e0b; }
+  .policy-icon.purple { background: rgba(79,70,229,0.12); color:#4f46e5; }
+  .policy-text strong { display:block; font-size:11.5px; font-weight:700; color:#222; }
+  .policy-text span { font-size:9.5px; color:#999; font-weight:500; }
+  .policy-footer-note { text-align:center; margin-top:12px; font-size:10.5px; color:#999; }
+  .pricing-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+  .pricing-card { background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; text-align:center; }
+  .pricing-card .plan-name { font-size:11px; font-weight:700; color:#222; margin-bottom:3px; }
+  .pricing-card .plan-price { font-size:17px; font-weight:800; color:#e8532f; }
+  .pricing-card .plan-price span { font-size:10px; font-weight:600; color:#999; }
+  .pricing-card .plan-desc { font-size:9.5px; color:#999; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<div class="scene">
+<div class="flip-card" id="flipCard">
+
+  <!-- FRONT FACE: LOGIN -->
+  <div class="card-face front">
+    <div class="left">
+      <div class="left-top">
+        <span>Academic Portal</span>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button type="button" class="upload-btn" onclick="triggerUpload(event)" title="Upload photo"><i class="fa-solid fa-camera"></i></button>
+          <span class="signup" onclick="flipCard(true)">Sign Up</span>
+          <button class="join-btn" onclick="flipCard(true)" type="button">Join Us</button>
+        </div>
+      </div>
+
+      <div class="placeholder-img" id="photoSlideFront"></div>
+
+      <div class="left-bottom">
+        <div class="author">
+          <div class="avatar">S</div>
+          <div>
+            <div class="author-name">StudyBuddyZone</div>
+            <div class="author-role">DBATU FY B.Tech Portal</div>
+          </div>
+        </div>
+        <div class="gallery-arrows">
+          <button type="button" onclick="prevSlide()" title="Previous photo"><i class="fa-solid fa-chevron-left"></i></button>
+          <button type="button" onclick="nextSlide()" title="Next photo"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="brand-row">
+        <div class="brand">studybuddypremiumpro</div>
+      </div>
+
+      <h1 id="loginTitle">Welcome Back</h1>
+      <p class="subtitle" id="loginSubtitle">Login via Email or PRN Number</p>
+
+      <form id="loginForm" onsubmit="handleLoginSubmit(event); return false;">
+        <div class="form-group">
+          <label>Email Address or PRN Number</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user-check"></i>
+            <input type="text" id="loginIdentity" placeholder="Enter email or 16-digit PRN" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="loginPassword" placeholder="Enter password" minlength="6" required>
+          </div>
+        </div>
+
+        <div class="forgot-row">
+          <button type="button" class="master-btn" onclick="openMasterModal()"><i class="fa-solid fa-shield-halved"></i> Master Login</button>
+          <button type="button" class="forgot-btn" onclick="openResetModal()">Forgot password?</button>
+        </div>
+
+        <button type="submit" id="loginSubmitBtn" class="login-btn">Login</button>
+        <p class="signup-line">Don't have an account? <span onclick="flipCard(true)">Sign up</span></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- BACK FACE: SIGN UP -->
+  <div class="card-face back">
+    <div class="left">
+      <div class="left-top">
+        <span>Academic Portal</span>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button type="button" class="upload-btn" onclick="triggerUpload(event)" title="Upload photo"><i class="fa-solid fa-camera"></i></button>
+          <span class="signup" onclick="flipCard(false)">Login</span>
+          <button class="join-btn" onclick="flipCard(false)" type="button">Login</button>
+        </div>
+      </div>
+
+      <div class="placeholder-img" id="photoSlideBack"></div>
+
+      <div class="left-bottom">
+        <div class="author">
+          <div class="avatar">S</div>
+          <div>
+            <div class="author-name">StudyBuddyZone</div>
+            <div class="author-role">DBATU FY B.Tech Portal</div>
+          </div>
+        </div>
+        <div class="gallery-arrows">
+          <button type="button" onclick="prevSlide()" title="Previous photo"><i class="fa-solid fa-chevron-left"></i></button>
+          <button type="button" onclick="nextSlide()" title="Next photo"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="brand-row">
+        <div class="brand">studybuddypremiumpro</div>
+      </div>
+
+      <h1>Create Account</h1>
+      <p class="subtitle">Join studybuddypremiumpro Academic Portal</p>
+
+      <form id="signupForm" onsubmit="handleSignupSubmit(event); return false;">
+        <div class="form-group">
+          <label>Full Name</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="signupName" placeholder="Enter full name" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-phone"></i>
+            <input type="tel" id="signupMobile" placeholder="Enter 10-digit mobile number" maxlength="10" pattern="\d{10}" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>PRN Number (Exactly 16 Digits)</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-id-card"></i>
+            <input type="text" id="signupPRN" placeholder="Enter 16-digit PRN" maxlength="16" minlength="16" pattern="\d{16}" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" id="signupEmail" placeholder="Enter your email" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Academic Year</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <select id="signupYear" class="form-select" required>
+              <option value="" disabled selected>Select Current Year</option>
+              <option value="1">First Year (FY)</option>
+              <option value="2">Second Year (SY)</option>
+              <option value="3">Third Year (TY)</option>
+              <option value="4">Final Year (B.Tech)</option>
+            </select>
+          </div>
+          <small class="form-notice"><i class="fa-solid fa-circle-info"></i> यह चयन केवल सही फ़ाइल (FY/SY/TY/Final) ओपन करने के लिए आवश्यक है।</small>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="signupPassword" placeholder="Enter password" minlength="6" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-circle-check"></i>
+            <input type="password" id="signupConfirmPassword" placeholder="Retype password" minlength="6" required>
+          </div>
+        </div>
+
+        <button type="submit" id="signupSubmitBtn" class="login-btn">Create Account</button>
+        <p class="signup-line">Already have an account? <span onclick="flipCard(false)">Login</span></p>
+      </form>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Footer stays compact and right at the bottom of the page -->
+<details class="policy-footer">
+  <summary><i class="fa-solid fa-shield-halved"></i> Legal &amp; Support</summary>
+  <div class="policy-links-grid">
+    <a href="privacy-policy.html" class="policy-link-card">
+      <div class="policy-icon blue"><i class="fa-solid fa-shield-halved"></i></div>
+      <div class="policy-text"><strong>Privacy Policy</strong><span>Data &amp; security</span></div>
+    </a>
+    <a href="refund-policy.html" class="policy-link-card">
+      <div class="policy-icon green"><i class="fa-solid fa-rotate-left"></i></div>
+      <div class="policy-text"><strong>Refund Policy</strong><span>Returns &amp; refunds</span></div>
+    </a>
+    <a href="cancellation-policy.html" class="policy-link-card">
+      <div class="policy-icon orange"><i class="fa-solid fa-ban"></i></div>
+      <div class="policy-text"><strong>Cancellation</strong><span>Cancel anytime</span></div>
+    </a>
+    <a href="contact.html" class="policy-link-card">
+      <div class="policy-icon purple"><i class="fa-solid fa-envelope"></i></div>
+      <div class="policy-text"><strong>Contact Us</strong><span>Get support</span></div>
+    </a>
+    <a href="terms-conditions.html" class="policy-link-card">
+      <div class="policy-icon blue"><i class="fa-solid fa-file-contract"></i></div>
+      <div class="policy-text"><strong>Terms &amp; Conditions</strong><span>Usage terms</span></div>
+    </a>
+  </div>
+
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-name">MCQ Test Pack</div>
+      <div class="plan-price">₹99</div>
+      <div class="plan-desc">One-time · Subject-wise MCQ tests</div>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-name">Premium Full Access</div>
+      <div class="plan-price">₹199</div>
+      <div class="plan-desc">One-time · Full FY notes + AGNI AI assistant</div>
+    </div>
+  </div>
+
+  <div class="policy-footer-note"><i class="fa-solid fa-lock"></i> Payments secured by PhonePe &nbsp;·&nbsp; © 2026 Govind Lahu Ade (StudyBuddyZone)</div>
+</details>
+
+<!-- Forgot Password Modal -->
+<div id="forgotPasswordModal" class="modal-overlay">
+  <div class="premium-modal">
+    <button class="modal-close" onclick="closeResetModal()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-header">
+      <i class="fa-solid fa-key"></i>
+      <h3>Reset Password</h3>
+      <p>Enter your registered email address below, and we will send you a secure link to reset your password.</p>
+    </div>
+    <div class="form-group" style="text-align:left;">
+      <label>Registered Email</label>
+      <div class="input-wrapper">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" id="modalResetEmail" placeholder="name@example.com">
+      </div>
+    </div>
+    <div class="modal-footer-btns">
+      <button type="button" class="cancel-btn" onclick="closeResetModal()">Cancel</button>
+      <button type="button" id="modalSubmitBtn" class="login-btn" style="width:60%; margin-top:0;" onclick="handleModalResetSubmit()">Send Link</button>
+    </div>
+  </div>
+</div>
+
+<!-- Master Login Modal -->
+<div id="masterLoginModal" class="modal-overlay">
+  <div class="premium-modal">
+    <button class="modal-close" onclick="closeMasterModal()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-header">
+      <i class="fa-solid fa-shield-halved"></i>
+      <h3>Master Login</h3>
+      <p>यह panel केवल Master role के users के लिए है।</p>
+    </div>
+    <div class="form-group" style="text-align:left;">
+      <label>Email Address or PRN</label>
+      <div class="input-wrapper">
+        <i class="fa-solid fa-user-shield"></i>
+        <input type="text" id="masterIdentity" placeholder="Enter email or 16-digit PRN">
+      </div>
+    </div>
+    <div class="form-group" style="text-align:left;">
+      <label>Password</label>
+      <div class="input-wrapper">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" id="masterPassword" placeholder="Enter password">
+      </div>
+    </div>
+    <div id="masterAccessDenied" class="access-denied-box">
+      <i class="fa-solid fa-ban"></i>
+      <h4>Access Denied</h4>
+      <p>आपका role Master नहीं है। इस panel को access करने की permission नहीं है।</p>
+    </div>
+    <div class="modal-footer-btns">
+      <button type="button" class="cancel-btn" onclick="closeMasterModal()">Cancel</button>
+      <button type="button" id="masterSubmitBtn" class="login-btn" style="width:60%; margin-top:0;" onclick="handleMasterLogin()">Enter Portal</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="galleryUploadInput" accept="image/*" style="display:none" onchange="handleGalleryUpload(event)">
+
+<div id="premiumToast" class="universal-toast">
+  <div class="toast-icon"><i id="toastIcon" class="fa-solid fa-circle-check"></i></div>
+  <div class="toast-content">
+    <h4 id="toastTitle">Notification</h4>
+    <p id="toastMessage">Action successful!</p>
+  </div>
+</div>
+
+<script>
+  // ===== Card flip =====
+  function flipCard(toSignup) {
+    document.getElementById('flipCard').classList.toggle('flipped', !!toSignup);
+    // Resize halfway through the flip (~450ms of the 900ms transition), exactly when the
+    // outgoing face has rotated out of view — so neither face visibly jumps while showing.
+    setTimeout(() => adjustCardHeight(toSignup), 450);
+  }
+
+  // Desktop-only: grow the card just enough to fit the Sign Up form so nothing gets cut off.
+  // Login side is left completely untouched (height reverts to the original 640px default).
+  function adjustCardHeight(toSignup) {
+    const flipCardEl = document.getElementById('flipCard');
+    if (window.innerWidth <= 720) {
+      flipCardEl.style.height = ''; // mobile already stacks naturally, no JS sizing needed
+      return;
+    }
+    if (toSignup) {
+      const backRight = document.querySelector('.card-face.back .right');
+      if (backRight) {
+        const needed = backRight.scrollHeight; // full content height of the signup form
+        flipCardEl.style.height = Math.max(640, needed) + 'px';
+      }
+    } else {
+      flipCardEl.style.height = ''; // back to default — login view is never resized
+    }
+  }
+  window.addEventListener('resize', () => {
+    adjustCardHeight(document.getElementById('flipCard').classList.contains('flipped'));
+  });
+
+  // ===== Left-panel photo gallery (localStorage ONLY — no Firebase, no backend involved) =====
+  const GALLERY_KEY = 'sonora_login_gallery_photos'; // browser localStorage key
+  const GALLERY_MAX = 5; // user can keep at least 5 photos in rotation
+
+  // 5 default animated slides shown until the user uploads their own photos
+  const DEFAULT_SLIDES = [
+    'linear-gradient(155deg, #0e0f14 0%, #0e0f14 32%, #e8532f 34%, #f4c9a8 46%, #d9dfd8 52%, #4f7d82 58%, #0e0f14 60%, #0e0f14 100%)',
+    'linear-gradient(155deg, #0e0f14 0%, #0e0f14 30%, #4f7d82 34%, #a8d4d9 46%, #d9dfd8 52%, #e8532f 58%, #0e0f14 62%, #0e0f14 100%)',
+    'linear-gradient(160deg, #0e0f14 0%, #0e0f14 28%, #8a5cff 34%, #c9a8f4 46%, #d9dfd8 52%, #5ce8c9 58%, #0e0f14 62%, #0e0f14 100%)',
+    'linear-gradient(150deg, #0e0f14 0%, #0e0f14 32%, #f2b705 34%, #f4dfa8 46%, #d9dfd8 52%, #e8532f 58%, #0e0f14 60%, #0e0f14 100%)',
+    'linear-gradient(158deg, #0e0f14 0%, #0e0f14 30%, #2fb8e8 34%, #a8e0f4 46%, #d9dfd8 52%, #4f7d82 58%, #0e0f14 62%, #0e0f14 100%)'
+  ];
+
+  let galleryPhotos = [];
+  let currentSlide = 0;
+  let autoRotateTimer = null;
+
+  function loadGallery() {
+    let stored = null;
+    try { stored = JSON.parse(localStorage.getItem(GALLERY_KEY)); } catch (e) { stored = null; }
+    if (stored && Array.isArray(stored) && stored.length > 0) {
+      galleryPhotos = stored.map(v => ({ type: 'upload', value: v }));
+    } else {
+      galleryPhotos = DEFAULT_SLIDES.map(v => ({ type: 'default', value: v }));
+    }
+    currentSlide = 0;
+    renderSlide();
+  }
+
+  function renderSlide() {
+    const slide = galleryPhotos[currentSlide];
+    const frontEl = document.getElementById('photoSlideFront');
+    const backEl = document.getElementById('photoSlideBack');
+    [frontEl, backEl].forEach(el => {
+      if (!el) return;
+      if (slide.type === 'upload') {
+        el.style.background = "#0e0f14 url('" + slide.value + "') center/cover no-repeat";
+      } else {
+        el.style.background = slide.value;
+      }
+    });
+  }
+
+  function advanceSlide(step) {
+    currentSlide = (currentSlide + step + galleryPhotos.length) % galleryPhotos.length;
+    renderSlide();
+  }
+  function nextSlide() { advanceSlide(1); resetAutoRotate(); }
+  function prevSlide() { advanceSlide(-1); resetAutoRotate(); }
+  function autoAdvance() { advanceSlide(1); }
+  function resetAutoRotate() {
+    clearInterval(autoRotateTimer);
+    autoRotateTimer = setInterval(autoAdvance, 4000);
+  }
+
+  function triggerUpload(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('galleryUploadInput').click();
+  }
+
+  function handleGalleryUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      launchToast("Invalid File", "Please select an image file!", true);
+      event.target.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const dataUrl = e.target.result;
+      let stored = [];
+      try { stored = JSON.parse(localStorage.getItem(GALLERY_KEY)) || []; } catch (err) { stored = []; }
+      stored.push(dataUrl);
+      // keep only the most recent GALLERY_MAX photos, purely in the browser's localStorage
+      if (stored.length > GALLERY_MAX) stored = stored.slice(stored.length - GALLERY_MAX);
+      try {
+        localStorage.setItem(GALLERY_KEY, JSON.stringify(stored));
+      } catch (err) {
+        launchToast("Storage Full", "Could not save photo locally (storage limit reached).", true);
+        event.target.value = '';
+        return;
+      }
+      galleryPhotos = stored.map(v => ({ type: 'upload', value: v }));
+      currentSlide = galleryPhotos.length - 1;
+      renderSlide();
+      launchToast("Photo Added", "Saved to this browser only (" + galleryPhotos.length + "/" + GALLERY_MAX + ").", false);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  loadGallery();
+  resetAutoRotate();
+
+  // ===== Firebase Configuration (studybuddypremiumpro SDK) =====
+  const firebaseConfig = {
+    apiKey: "AIzaSyCZhDPaVY7jv_hXtHdpVqUcGe1hwAxvZmc",
+    authDomain: "students-e5183.firebaseapp.com",
+    databaseURL: "https://students-e5183-default-rtdb.firebaseio.com",
+    projectId: "students-e5183",
+    storageBucket: "students-e5183.firebasestorage.app",
+    messagingSenderId: "473442117683",
+    appId: "1:473442117683:web:f39adc0665317aa95e9b46",
+    measurementId: "G-DT4XQLZJW3"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const rtdb = firebase.database();
+
+  db.settings({ cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED });
+  db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+  rtdb.ref('.info/connected').on('value', () => {});
+
+  const BACKEND_URL = 'https://studybuddypro-psi.vercel.app/api/backend';
+
+  function launchToast(title, message, isError = false) {
+    const toast = document.getElementById('premiumToast');
+    const icon = document.getElementById('toastIcon');
+    document.getElementById('toastTitle').innerText = title;
+    document.getElementById('toastMessage').innerText = message;
+    toast.className = isError ? "universal-toast toast-error active" : "universal-toast toast-success active";
+    icon.className = isError ? "fa-solid fa-triangle-exclamation" : "fa-solid fa-circle-check";
+    setTimeout(() => toast.classList.remove('active'), 2500);
+  }
+
+  // ===== Login =====
+  function handleLoginSubmit(e) {
+    const btn = document.getElementById('loginSubmitBtn');
+    const inputVal = document.getElementById('loginIdentity').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!inputVal.includes('@')) {
+      if (inputVal.length !== 16 || !/^\d+$/.test(inputVal)) {
+        launchToast("Validation Error", "PRN must be exactly 16 digits to Login!", true);
+        return;
+      }
+    }
+
+    btn.disabled = true;
+    btn.innerText = 'Verifying...';
+
+    if (inputVal.includes('@')) {
+      executeFirebaseLogin(inputVal, password, btn);
+    } else {
+      fetch(BACKEND_URL + '?action=verify-prn', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prn: inputVal, mode: 'login' })
+      })
+      .then(r => r.json())
+      .then((result) => {
+        if (result && result.found && result.email) {
+          executeFirebaseLogin(result.email, password, btn);
+        } else {
+          launchToast("Not Found", "No account found with this PRN!", true);
+          btn.disabled = false; btn.innerText = 'Login';
+        }
+      })
+      .catch(err => { launchToast("Error", err.message, true); btn.disabled = false; btn.innerText = 'Login'; });
+    }
+  }
+
+  function executeFirebaseLogin(email, password, btn) {
+    auth.signInWithEmailAndPassword(email, password).then((userCredential) => {
+      afterAuthSuccess(userCredential.user);
+    }).catch(err => { launchToast("Auth Failed", err.message, true); btn.disabled = false; btn.innerText = 'Login'; });
+  }
+
+  function afterAuthSuccess(user) {
+    fetch(BACKEND_URL + '?action=verify-prn', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: user.uid, mode: 'login' })
+    })
+    .then(r => r.json())
+    .then((result) => {
+      if (result && result.found) {
+        launchToast("Login Successful", generateYearAlertMessage(result.year, "Login"));
+        setTimeout(() => redirectUser(result.year), 1200);
+      } else {
+        launchToast("Login Successful", "Successful Login on FY");
+        setTimeout(() => redirectUser('1'), 1200);
+      }
+    })
+    .catch(() => {
+      launchToast("Login Successful", "Successful Login on FY");
+      setTimeout(() => redirectUser('1'), 1200);
+    });
+  }
+
+  // ===== Signup =====
+  function handleSignupSubmit(e) {
+    const btn = document.getElementById('signupSubmitBtn');
+    const name = document.getElementById('signupName').value.trim();
+    const mobile = document.getElementById('signupMobile').value.trim();
+    const prn = document.getElementById('signupPRN').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const year = document.getElementById('signupYear').value;
+    const password = document.getElementById('signupPassword').value;
+    const confirmPassword = document.getElementById('signupConfirmPassword').value;
+    const role = "student";
+
+    if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
+      launchToast("Validation Error", "Mobile number must be exactly 10 digits!", true);
+      return;
+    }
+    if (prn.length !== 16 || !/^\d+$/.test(prn)) {
+      launchToast("Validation Error", "PRN must be exactly 16 digits!", true);
+      return;
+    }
+    if (password !== confirmPassword) {
+      launchToast("Validation Error", "Passwords do not match!", true);
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerText = 'Creating Account...';
+
+    auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const uid = userCredential.user.uid;
+      const coreUserData = { uid, name, mobile, prn, email, role, year, createdAt: Date.now() };
+
+      db.collection("users").doc(uid).set(coreUserData).then(() => {
+        fetch(BACKEND_URL + '?action=register-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid, name, mobile, prn, email, year, confirmPassword })
+        })
+        .then(r => r.json())
+        .then((result) => {
+          if (!result || !result.success) {
+            launchToast("Signup Failed", (result && result.error) || "Database write failed", true);
+            btn.disabled = false; btn.innerText = 'Create Account';
+            return;
+          }
+          launchToast("Success", generateYearAlertMessage(year, "Signup"));
+          setTimeout(() => redirectUser(year), 1200);
+        })
+        .catch(err => { launchToast("Signup Failed", err.message, true); btn.disabled = false; btn.innerText = 'Create Account'; });
+      });
+    }).catch(err => { launchToast("Signup Failed", err.message, true); btn.disabled = false; btn.innerText = 'Create Account'; });
+  }
+
+  function generateYearAlertMessage(year, type) {
+    const targetYear = year ? year.toString().trim() : '1';
+    const prefix = (type === "Login") ? "Successful Login on " : "Successful Signup on ";
+    if (targetYear === '1') return prefix + "FY";
+    if (targetYear === '2') return prefix + "SY";
+    if (targetYear === '3') return prefix + "TY";
+    if (targetYear === '4') return prefix + "Final Year";
+    return prefix + "FY";
+  }
+
+  function redirectUser(year) {
+    const targetYear = year ? year.toString().trim() : '1';
+    if (targetYear === '1') window.location.href = "fy.html";
+    else if (targetYear === '2') window.location.href = "second-year.html";
+    else if (targetYear === '3') window.location.href = "third-year.html";
+    else if (targetYear === '4') window.location.href = "fourth-year.html";
+    else window.location.href = "fy.html";
+  }
+
+  // ===== Forgot password modal =====
+  function openResetModal() {
+    const currentInput = document.getElementById('loginIdentity').value.trim();
+    document.getElementById('modalResetEmail').value = currentInput.includes('@') ? currentInput : '';
+    document.getElementById('forgotPasswordModal').classList.add('active');
+  }
+  function closeResetModal() { document.getElementById('forgotPasswordModal').classList.remove('active'); }
+
+  function handleModalResetSubmit() {
+    const emailInput = document.getElementById('modalResetEmail').value.trim();
+    const mBtn = document.getElementById('modalSubmitBtn');
+    if (!emailInput || !emailInput.includes('@')) {
+      launchToast("Invalid Email", "Please enter a valid Email Address!", true);
+      return;
+    }
+    mBtn.innerText = "Sending..."; mBtn.disabled = true;
+    auth.sendPasswordResetEmail(emailInput).then(() => {
+      launchToast("Link Sent", "Password reset link sent to your Inbox/Spam folder.", false);
+      closeResetModal();
+      mBtn.innerText = "Send Link"; mBtn.disabled = false;
+    }).catch(err => {
+      launchToast("Reset Failed", err.message, true);
+      mBtn.innerText = "Send Link"; mBtn.disabled = false;
+    });
+  }
+
+  // ===== Master login modal =====
+  function openMasterModal() {
+    document.getElementById('masterIdentity').value = '';
+    document.getElementById('masterPassword').value = '';
+    document.getElementById('masterAccessDenied').style.display = 'none';
+    document.getElementById('masterSubmitBtn').innerText = 'Enter Portal';
+    document.getElementById('masterSubmitBtn').disabled = false;
+    document.getElementById('masterLoginModal').classList.add('active');
+  }
+  function closeMasterModal() { document.getElementById('masterLoginModal').classList.remove('active'); }
+
+  function handleMasterLogin() {
+    const identity = document.getElementById('masterIdentity').value.trim();
+    const password = document.getElementById('masterPassword').value;
+    const btn = document.getElementById('masterSubmitBtn');
+    const deniedBox = document.getElementById('masterAccessDenied');
+
+    if (!identity || !password) {
+      launchToast("Validation Error", "Please enter your credentials!", true);
+      return;
+    }
+
+    deniedBox.style.display = 'none';
+    btn.innerText = 'Verifying...'; btn.disabled = true;
+
+    const doMasterLogin = (email) => {
+      auth.signInWithEmailAndPassword(email, password).then((userCredential) => {
+        const user = userCredential.user;
+        fetch(BACKEND_URL + '?action=verify-prn', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: user.uid, mode: 'login' })
+        })
+        .then(r => r.json())
+        .then((result) => checkRole(result && result.found ? result.role : null))
+        .catch(() => checkRole(null));
+
+        function checkRole(role) {
+          if (role === 'master') {
+            launchToast("Master Access Granted", "Welcome to Master Portal!", false);
+            closeMasterModal();
+            setTimeout(() => { window.location.href = "master.html?adminUid=" + encodeURIComponent(user.uid); }, 800);
+          } else {
+            deniedBox.style.display = 'block';
+            btn.innerText = 'Enter Portal'; btn.disabled = false;
+            auth.signOut();
+          }
+        }
+      }).catch(err => { launchToast("Auth Failed", err.message, true); btn.innerText = 'Enter Portal'; btn.disabled = false; });
+    };
+
+    if (identity.includes('@')) {
+      doMasterLogin(identity);
+    } else {
+      if (identity.length !== 16 || !/^\d+$/.test(identity)) {
+        launchToast("Validation Error", "PRN must be exactly 16 digits!", true);
+        btn.innerText = 'Enter Portal'; btn.disabled = false;
+        return;
+      }
+      fetch(BACKEND_URL + '?action=verify-prn', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prn: identity, mode: 'login' })
+      })
+      .then(r => r.json())
+      .then((result) => {
+        if (result && result.found && result.email) {
+          doMasterLogin(result.email);
+        } else {
+          launchToast("Not Found", "No account found with this PRN!", true);
+          btn.innerText = 'Enter Portal'; btn.disabled = false;
+        }
+      })
+      .catch(err => { launchToast("Error", err.message, true); btn.innerText = 'Enter Portal'; btn.disabled = false; });
+    }
+  }
+</script>
+
+</body>
+</html>
