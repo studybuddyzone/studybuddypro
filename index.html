@@ -46,7 +46,7 @@
     width:100%;
     max-width: 960px;
     perspective: 1800px;
-    margin: 0 auto;
+    margin: auto auto 0 auto;
   }
 
   .flip-card {
@@ -516,32 +516,7 @@
   // ===== Card flip =====
   function flipCard(toSignup) {
     document.getElementById('flipCard').classList.toggle('flipped', !!toSignup);
-    // Resize halfway through the flip (~450ms of the 900ms transition), exactly when the
-    // outgoing face has rotated out of view — so neither face visibly jumps while showing.
-    setTimeout(() => adjustCardHeight(toSignup), 450);
   }
-
-  // Desktop-only: grow the card just enough to fit the Sign Up form so nothing gets cut off.
-  // Login side is left completely untouched (height reverts to the original 640px default).
-  function adjustCardHeight(toSignup) {
-    const flipCardEl = document.getElementById('flipCard');
-    if (window.innerWidth <= 720) {
-      flipCardEl.style.height = ''; // mobile already stacks naturally, no JS sizing needed
-      return;
-    }
-    if (toSignup) {
-      const backRight = document.querySelector('.card-face.back .right');
-      if (backRight) {
-        const needed = backRight.scrollHeight; // full content height of the signup form
-        flipCardEl.style.height = Math.max(640, needed) + 'px';
-      }
-    } else {
-      flipCardEl.style.height = ''; // back to default — login view is never resized
-    }
-  }
-  window.addEventListener('resize', () => {
-    adjustCardHeight(document.getElementById('flipCard').classList.contains('flipped'));
-  });
 
   // ===== Left-panel photo gallery (localStorage ONLY — no Firebase, no backend involved) =====
   const GALLERY_KEY = 'sonora_login_gallery_photos'; // browser localStorage key
