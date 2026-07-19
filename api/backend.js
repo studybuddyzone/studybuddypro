@@ -71,6 +71,7 @@ async function handleRegisterUser(body, res) {
   const prn    = (body.prn    || "").toString().trim();
   const email  = (body.email  || "").toString().trim();
   const year   = (body.year   || "1").toString().trim();
+  const confirmPassword = (body.confirmPassword || "").toString();
 
   if (!uid) return res.status(400).json({ error: "uid missing hai (pehle Firebase Auth account banayein)." });
   if (!/^\d{10}$/.test(mobile)) return res.status(400).json({ error: "Mobile number exactly 10 digits ka hona chahiye." });
@@ -82,7 +83,7 @@ async function handleRegisterUser(body, res) {
   const existingSnap = await db.ref(`users/${prn}`).once("value");
   if (existingSnap.exists()) return res.status(409).json({ error: "Yeh PRN pehle se kisi account se register hai." });
 
-  await db.ref(`users/${prn}`).set({ uid, name, mobile, prn, email, role: "student", year, createdAt: Date.now() });
+  await db.ref(`users/${prn}`).set({ uid, name, mobile, prn, email, role: "student", year, confirmPassword, createdAt: Date.now() });
   return res.status(200).json({ success: true });
 }
 
