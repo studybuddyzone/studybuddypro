@@ -781,6 +781,13 @@
       const uid = userCredential.user.uid;
       const coreUserData = { uid, name, mobile, prn, email, role, year, createdAt: Date.now() };
 
+      // 🔔 Notify admin (fire-and-forget — doesn't block signup flow either way)
+      fetch('https://manager-public.vercel.app/api/notify-new-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, email }),
+      }).catch(() => {}); // silently ignore — admin notification failing should never block signup
+
       db.collection("users").doc(uid).set(coreUserData).then(() => {
         fetch(BACKEND_URL + '?action=register-user', {
           method: 'POST',
