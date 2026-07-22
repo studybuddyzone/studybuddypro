@@ -9,7 +9,6 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     
     <style>
@@ -316,6 +315,24 @@
         .profile-data-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
         .profile-data-value { font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
 
+        /* ---- Profile Photo Upload ---- */
+        .profile-photo-wrap { position: relative; width: 96px; height: 96px; margin: 0 auto 10px auto; }
+        .profile-photo-avatar {
+            width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+            background: var(--hover-bg); border: 3px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px; color: var(--primary);
+        }
+        .profile-photo-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .profile-photo-edit-btn {
+            position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; border-radius: 50%;
+            background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; border: 3px solid var(--sidebar-bg); cursor: pointer;
+        }
+        .profile-photo-edit-btn:hover { filter: brightness(1.1); }
+        .profile-photo-hint { font-size: 10.5px; color: var(--text-muted); text-align: center; margin: 0 0 16px 0; line-height: 1.5; }
+        .profile-photo-uploading { opacity: 0.5; pointer-events: none; }
+
         .secure-input-wrapper { position: relative; display: flex; align-items: center; width: 100%; margin: 15px 0; }
         .secure-input-wrapper i { position: absolute; left: 16px; color: var(--text-muted); font-size: 15px; }
         .secure-password-field { width: 100%; padding: 13px 16px 13px 45px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 14px; color: var(--text-main); font-size: 14px; outline: none; }
@@ -424,7 +441,9 @@
             background: linear-gradient(135deg, var(--primary), var(--accent));
             display: flex; align-items: center; justify-content: center; color: #fff;
             font-size: 15px; font-weight: 800; border: 1px solid var(--border);
+            overflow: hidden;
         }
+        .header-avatar-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         /* ---- Progress / Plan Card ---- */
         .zone-progress-card {
@@ -438,7 +457,9 @@
             width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
             background: var(--card-bg); border: 2px solid #ffb74d;
             display: flex; align-items: center; justify-content: center; font-size: 20px; color: #f59e0b;
+            overflow: hidden;
         }
+        .zone-progress-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .zone-progress-mid { flex-grow: 1; min-width: 0; }
         .zone-progress-mid h4 { font-size: 14.5px; font-weight: 800; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .zone-progress-bar-track { width: 100%; height: 7px; background: rgba(0,0,0,0.08); border-radius: 10px; overflow: hidden; }
@@ -941,6 +962,16 @@
                 <h3>User Dashboard Profile</h3>
                 <p>Practical Zone Synced Identity Information Node</p>
             </div>
+
+            <div class="profile-photo-wrap">
+                <div class="profile-photo-avatar" id="profilePhotoAvatar"><i class="fa-solid fa-user"></i></div>
+                <div class="profile-photo-edit-btn" onclick="triggerPhotoUpload()" title="Change photo">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+                <input type="file" id="profilePhotoInput" accept="image/png, image/jpeg, image/webp" style="display:none" onchange="handleProfilePhotoSelect(event)">
+            </div>
+            <p class="profile-photo-hint">Tap the camera icon to update your photo.<br>Square photo recommended, 500×500px, JPG/PNG, max 3MB.</p>
+
             <div class="profile-data-stack">
                 <div class="profile-data-item"><span class="profile-data-label">Full Name</span><span id="profName" class="profile-data-value">Loading...</span></div>
                 <div class="profile-data-item"><span class="profile-data-label">Email ID</span><span id="profEmail" class="profile-data-value">Loading...</span></div>
@@ -1094,7 +1125,7 @@
 
         <!-- ===== PROGRESS / PLAN CARD ===== -->
         <div class="zone-progress-card" onclick="window.location.href='up-premium.html'">
-            <div class="zone-progress-avatar"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div class="zone-progress-avatar" id="progressAvatarDisplay"><i class="fa-solid fa-graduation-cap"></i></div>
             <div class="zone-progress-mid">
                 <h4 id="progressCardName">StudyBuddyZone</h4>
                 <div class="zone-progress-bar-track"><div class="zone-progress-bar-fill" id="progressCardFill"></div></div>
@@ -1516,7 +1547,6 @@
 
         const auth = firebase.auth();
         const rtdb = firebase.database();
-        const db = firebase.firestore();
 
         // 🔧 MAINTENANCE MODE — Realtime Firebase Listener
         rtdb.ref('site_config/maintenance/fy').on('value', (snap) => {
@@ -1545,6 +1575,7 @@
         let currentUserRole = "blank"; 
         let currentUserEmail = "";
         let currentUserName = "Student User";
+        let currentUserPhotoURL = null;
         let masterWelcomeSoundPlayed = false;
         let expiryCheckInterval = null;
 
@@ -1673,6 +1704,7 @@
                         document.getElementById('profName').innerText = currentUserName;
                         document.getElementById('profEmail').innerText = userData.email || user.email || "N/A";
                         document.getElementById('profMobile').innerText = userData.mobile || "Not Linked";
+                        applyUserPhotoEverywhere(userData.photoURL || userData.photo_url || null);
                         applyAccessLocks();
                         fetchPremiumSubscriptionDetails(user.uid, currentUserRole);
                     } else {
@@ -1695,6 +1727,7 @@
                 rolePlaceholder.style.background = "#64748b";
                 fallbackProfileDetails("Guest Mode Active");
                 document.getElementById('soloIdentityHook').innerText = "Guest Terminal (Sign In Required)";
+                applyUserPhotoEverywhere(null);
                 applyAccessLocks();
             }
         });
@@ -1857,32 +1890,37 @@
             const scoreValue = parseInt(document.getElementById('testScoreInputField').value);
             if (isNaN(scoreValue) || scoreValue < 0) { showPremiumNotification("Invalid Input", "Please enter a valid positive score structure.", true); return; }
             const btn = document.getElementById('submitScoreBtn');
-            btn.innerText = "Syncing Core Firestore Ledger..."; btn.disabled = true;
-            const userRecordRef = db.collection('solo').doc(currentUserUid);
-            db.runTransaction((transaction) => {
-                return transaction.get(userRecordRef).then((doc) => {
-                    if (!doc.exists) {
-                        transaction.set(userRecordRef, { uid: currentUserUid, name: currentUserName, email: currentUserEmail, highscore: scoreValue, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                        return "created";
-                    }
-                    const existingHighScore = doc.data().highscore || 0;
-                    if (scoreValue > existingHighScore) {
-                        transaction.update(userRecordRef, { highscore: scoreValue, name: currentUserName, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                        return "updated";
-                    } else { return "not_beaten"; }
-                });
+            btn.innerText = "Syncing via Secure Backend..."; btn.disabled = true;
+
+            // SECURITY NOTE: this no longer writes to Firestore directly from the client.
+            // It calls the same /api/backend endpoint used elsewhere (action=verify-prn),
+            // so the actual write happens server-side via the Firebase Admin SDK — the client
+            // only ever sends the attempted score and never touches the database directly.
+            // Backend TODO: implement action=submit-solo-score — verify the uid via Admin Auth,
+            // then run the same "only update if higher" transaction server-side on
+            // collection('solo').doc(uid), and respond { success, status: 'created'|'updated'|'not_beaten' }.
+            fetch('https://studybuddypro-psi.vercel.app/api/backend?action=submit-solo-score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: currentUserUid, name: currentUserName, email: currentUserEmail, score: scoreValue })
             })
-            .then((status) => {
+            .then(r => r.json())
+            .then((result) => {
                 btn.innerText = "Push Simulated Score"; btn.disabled = false;
+                const status = result && result.status;
                 if (status === "created" || status === "updated") {
                     showPremiumNotification("Cloud Synced", `Highscore updated successfully to ${scoreValue}!`, false);
-                    syncSoloLeaderboard();
-                } else { showPremiumNotification("Record Safe", `Score ${scoreValue} didn't beat your personal best.`, false); }
+                    if (typeof window.syncSoloLeaderboard === 'function') { window.syncSoloLeaderboard(); }
+                } else if (status === "not_beaten") {
+                    showPremiumNotification("Record Safe", `Score ${scoreValue} didn't beat your personal best.`, false);
+                } else {
+                    showPremiumNotification("Sync Error", "Backend didn't accept the score. Please try again.", true);
+                }
             })
             .catch((error) => {
-                console.error("Firestore Error:", error);
+                console.error("Backend Sync Error:", error);
                 btn.innerText = "Push Simulated Score"; btn.disabled = false;
-                showPremiumNotification("Sync Error", "Transaction tracking system failed.", true);
+                showPremiumNotification("Sync Error", "Couldn't reach the secure backend endpoint.", true);
             });
         };
     </script>
@@ -2066,7 +2104,7 @@
             const nameEl = document.getElementById('progressCardName');
             const avatarBtn = document.getElementById('headerAvatarBtn');
             if (nameEl && currentUserName) nameEl.innerText = currentUserName;
-            if (avatarBtn && currentUserName) avatarBtn.innerText = currentUserName.trim().charAt(0).toUpperCase() || 'S';
+            if (avatarBtn && currentUserName && !currentUserPhotoURL) avatarBtn.innerText = currentUserName.trim().charAt(0).toUpperCase() || 'S';
             const fillEl = document.getElementById('progressCardFill');
             if (fillEl) {
                 const progressByRole = { student: '20%', silver: '45%', gold: '70%', diamond: '100%', master: '100%', superadmin: '100%', admin: '100%', moderator: '100%' };
@@ -2074,6 +2112,119 @@
             }
         }
         setInterval(refreshDashboardPersonalization, 1000);
+
+        /* ===================================================== */
+        /* ===== PROFILE PHOTO UPLOAD (routed via backend) ====== */
+        /* ===================================================== */
+
+        const BACKEND_BASE_URL = 'https://studybuddypro-psi.vercel.app/api/backend';
+        const PHOTO_TARGET_SIZE = 500;   // px, square — matches recommendation shown to the user
+        const PHOTO_JPEG_QUALITY = 0.85;
+        const PHOTO_MAX_ORIGINAL_MB = 8; // reject absurdly large originals before we even try to process them
+
+        function applyUserPhotoEverywhere(photoURL) {
+            currentUserPhotoURL = photoURL || null;
+            const headerAvatar = document.getElementById('headerAvatarBtn');
+            const progressAvatar = document.getElementById('progressAvatarDisplay');
+            const modalAvatar = document.getElementById('profilePhotoAvatar');
+            const initial = (currentUserName || 'S').trim().charAt(0).toUpperCase() || 'S';
+
+            if (currentUserPhotoURL) {
+                if (headerAvatar) headerAvatar.innerHTML = `<img src="${currentUserPhotoURL}" alt="Profile photo">`;
+                if (progressAvatar) progressAvatar.innerHTML = `<img src="${currentUserPhotoURL}" alt="Profile photo">`;
+                if (modalAvatar) modalAvatar.innerHTML = `<img src="${currentUserPhotoURL}" alt="Profile photo">`;
+            } else {
+                if (headerAvatar) headerAvatar.innerText = initial;
+                if (progressAvatar) progressAvatar.innerHTML = `<i class="fa-solid fa-graduation-cap"></i>`;
+                if (modalAvatar) modalAvatar.innerHTML = `<i class="fa-solid fa-user"></i>`;
+            }
+        }
+
+        function triggerPhotoUpload() {
+            if (!currentUserUid) {
+                showPremiumNotification("Sign In Required", "Please sign in first to update your profile photo.", true);
+                return;
+            }
+            document.getElementById('profilePhotoInput').click();
+        }
+
+        function handleProfilePhotoSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = ""; // allow re-selecting the same file next time
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showPremiumNotification("Invalid File", "Please select a valid image file (JPG, PNG or WEBP).", true);
+                return;
+            }
+            if (file.size > PHOTO_MAX_ORIGINAL_MB * 1024 * 1024) {
+                showPremiumNotification("File Too Large", `Please choose an image under ${PHOTO_MAX_ORIGINAL_MB}MB. It will be auto-resized to ${PHOTO_TARGET_SIZE}×${PHOTO_TARGET_SIZE}px anyway.`, true);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Center-crop to a square, then downscale to PHOTO_TARGET_SIZE — keeps every
+                    // user's avatar a consistent, predictable size no matter what they upload.
+                    const side = Math.min(img.width, img.height);
+                    const sx = (img.width - side) / 2;
+                    const sy = (img.height - side) / 2;
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = PHOTO_TARGET_SIZE;
+                    canvas.height = PHOTO_TARGET_SIZE;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, sx, sy, side, side, 0, 0, PHOTO_TARGET_SIZE, PHOTO_TARGET_SIZE);
+
+                    const finalBase64 = canvas.toDataURL('image/jpeg', PHOTO_JPEG_QUALITY);
+
+                    // Optimistic preview while the backend upload is in flight
+                    const modalAvatar = document.getElementById('profilePhotoAvatar');
+                    if (modalAvatar) modalAvatar.innerHTML = `<img src="${finalBase64}" alt="Preview">`;
+
+                    uploadProfilePhotoToBackend(finalBase64);
+                };
+                img.onerror = () => showPremiumNotification("Image Error", "Couldn't read this image. Please try a different file.", true);
+                img.src = e.target.result;
+            };
+            reader.onerror = () => showPremiumNotification("File Error", "Couldn't read the selected file.", true);
+            reader.readAsDataURL(file);
+        }
+
+        function uploadProfilePhotoToBackend(imageBase64) {
+            const wrap = document.querySelector('.profile-photo-wrap');
+            if (wrap) wrap.classList.add('profile-photo-uploading');
+            showPremiumNotification("Uploading...", "Syncing your new profile photo to the server.", false);
+
+            // NOTE FOR BACKEND: this calls the SAME /api/backend endpoint already used for
+            // action=verify-prn. Add an action=upload-photo handler there using the Firebase
+            // Admin SDK: decode the base64 JPEG, upload it to Firebase Storage
+            // (bucket: students-e5183.firebasestorage.app) under e.g. profile_photos/{uid}.jpg,
+            // then write the resulting download URL to the user's record (RTDB `users/{uid}`
+            // and/or Firestore) as `photoURL`. Never let the client write photoURL directly —
+            // the client only ever sends the image bytes and receives back the final URL.
+            fetch(`${BACKEND_BASE_URL}?action=upload-photo`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: currentUserUid, image: imageBase64 })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (wrap) wrap.classList.remove('profile-photo-uploading');
+                if (result && result.success && result.photoURL) {
+                    applyUserPhotoEverywhere(result.photoURL);
+                    showPremiumNotification("Photo Updated", "Your profile photo has been updated successfully!", false);
+                } else {
+                    showPremiumNotification("Upload Failed", "Server couldn't save your photo. Please try again.", true);
+                }
+            })
+            .catch(() => {
+                if (wrap) wrap.classList.remove('profile-photo-uploading');
+                showPremiumNotification("Connection Error", "Couldn't reach the server to upload your photo.", true);
+            });
+        }
     </script>
 </body>
 </html>
