@@ -333,6 +333,72 @@
         .profile-photo-hint { font-size: 10.5px; color: var(--text-muted); text-align: center; margin: 0 0 16px 0; line-height: 1.5; }
         .profile-photo-uploading { opacity: 0.5; pointer-events: none; }
 
+        /* ---- Mandatory Photo Gate (blocks entire site until photo is set) ---- */
+        .mandatory-photo-overlay {
+            display: none; position: fixed; inset: 0; z-index: 99999;
+            background: rgba(10,13,20,0.72); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center; padding: 24px;
+        }
+        .mandatory-photo-overlay.active { display: flex; }
+        .mandatory-photo-box {
+            background: var(--card-bg); border-radius: 22px; padding: 30px 26px;
+            max-width: 360px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+        }
+        .mandatory-photo-box h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
+        .mandatory-photo-box p { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+        .mandatory-photo-wrap { position: relative; width: 110px; height: 110px; margin: 0 auto 18px auto; }
+        .mandatory-photo-avatar {
+            width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+            background: var(--hover-bg); border: 3px dashed #ffa726;
+            display: flex; align-items: center; justify-content: center; font-size: 38px; color: #ffa726;
+            cursor: pointer;
+        }
+        .mandatory-photo-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .mandatory-photo-edit-btn {
+            position: absolute; bottom: 2px; right: 2px; width: 32px; height: 32px; border-radius: 50%;
+            background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 13px; border: 3px solid var(--card-bg); cursor: pointer;
+        }
+        .mandatory-photo-cta {
+            width: 100%; padding: 12px; border-radius: 12px; border: none; cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+            font-weight: 800; font-size: 13.5px;
+        }
+
+        /* ---- Initial Auth-Check Loader (closes the race-condition window before we
+             know whether the mandatory photo gate needs to show) ---- */
+        #authGateLoader {
+            position: fixed; inset: 0; z-index: 999999;
+            background: linear-gradient(160deg, var(--sidebar-bg), var(--bg-color, var(--sidebar-bg)));
+            display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 18px;
+            opacity: 1; transition: opacity 0.35s ease;
+        }
+        #authGateLoader.agl-fade-out { opacity: 0; pointer-events: none; }
+        #authGateLoader .agl-logo-ring {
+            width: 64px; height: 64px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            font-size: 26px; color: #fff; position: relative;
+            animation: aglPulse 1.6s ease-in-out infinite;
+        }
+        #authGateLoader .agl-logo-ring::before {
+            content: ''; position: absolute; inset: -8px; border-radius: 50%;
+            border: 2.5px solid var(--primary); opacity: 0.4;
+            animation: aglRingExpand 1.6s ease-out infinite;
+        }
+        #authGateLoader .agl-brand { font-size: 15px; font-weight: 800; letter-spacing: 0.3px; }
+        #authGateLoader .agl-brand span { color: var(--primary); }
+        #authGateLoader .agl-status { font-size: 11.5px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        #authGateLoader .agl-dots span { animation: aglDotFade 1.4s ease-in-out infinite; }
+        #authGateLoader .agl-dots span:nth-child(2) { animation-delay: 0.2s; }
+        #authGateLoader .agl-dots span:nth-child(3) { animation-delay: 0.4s; }
+        #authGateLoader .agl-bar-track { width: 130px; height: 3px; border-radius: 3px; background: var(--border); overflow: hidden; }
+        #authGateLoader .agl-bar-fill { height: 100%; width: 40%; border-radius: 3px; background: linear-gradient(90deg, var(--primary), var(--accent)); animation: aglBarSlide 1.2s ease-in-out infinite; }
+        @keyframes aglPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        @keyframes aglRingExpand { 0% { transform: scale(0.9); opacity: 0.5; } 100% { transform: scale(1.35); opacity: 0; } }
+        @keyframes aglDotFade { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+        @keyframes aglBarSlide { 0% { transform: translateX(-100%); } 100% { transform: translateX(340%); } }
+
         .secure-input-wrapper { position: relative; display: flex; align-items: center; width: 100%; margin: 15px 0; }
         .secure-input-wrapper i { position: absolute; left: 16px; color: var(--text-muted); font-size: 15px; }
         .secure-password-field { width: 100%; padding: 13px 16px 13px 45px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 14px; color: var(--text-main); font-size: 14px; outline: none; }
@@ -825,6 +891,28 @@
   <script src="devtools-guard.js"></script>
 </head>
 <body class="has-bottom-nav">
+
+    <!-- ===== AUTH-CHECK LOADER (prevents any interaction before we know if the photo gate applies) ===== -->
+    <div id="authGateLoader">
+        <div class="agl-logo-ring"><i class="fa-solid fa-graduation-cap"></i></div>
+        <div class="agl-brand">Study<span>Buddy</span>Zone</div>
+        <div class="agl-bar-track"><div class="agl-bar-fill"></div></div>
+        <div class="agl-status">Syncing your account<span class="agl-dots"><span>.</span><span>.</span><span>.</span></span></div>
+    </div>
+
+    <!-- ===== MANDATORY PROFILE PHOTO GATE ===== -->
+    <div class="mandatory-photo-overlay" id="mandatoryPhotoOverlay">
+        <div class="mandatory-photo-box">
+            <h3>Profile Photo ज़रूरी है</h3>
+            <p>आगे बढ़ने से पहले अपनी profile photo लगाएं। यह सिर्फ एक बार पूछा जाता है।</p>
+            <div class="mandatory-photo-wrap">
+                <div class="mandatory-photo-avatar" id="mandatoryPhotoAvatar" onclick="triggerMandatoryPhotoUpload()"><i class="fa-solid fa-camera"></i></div>
+                <div class="mandatory-photo-edit-btn" onclick="triggerMandatoryPhotoUpload()"><i class="fa-solid fa-plus"></i></div>
+                <input type="file" id="mandatoryPhotoInput" accept="image/png, image/jpeg, image/webp" style="display:none" onchange="handleMandatoryPhotoSelect(event)">
+            </div>
+            <button class="mandatory-photo-cta" onclick="triggerMandatoryPhotoUpload()">Photo Upload करें</button>
+        </div>
+    </div>
 
     <!-- 🔧 UNDER MAINTENANCE OVERLAY -->
     <div id="maintenanceOverlay">
@@ -1705,18 +1793,26 @@
                         document.getElementById('profEmail').innerText = userData.email || user.email || "N/A";
                         document.getElementById('profMobile').innerText = userData.mobile || "Not Linked";
                         applyUserPhotoEverywhere(userData.photoURL || userData.photo_url || null);
+                        enforceMandatoryPhotoUpload(userData.photoURL || userData.photo_url || null);
                         applyAccessLocks();
                         fetchPremiumSubscriptionDetails(user.uid, currentUserRole);
+                        hideAuthGateLoader();
                     } else {
                         namePlaceholder.innerText = user.email.split('@')[0];
                         rolePlaceholder.innerText = "STUDENT";
                         rolePlaceholder.style.background = "#64748b";
                         fallbackProfileDetails(user.email);
                         currentUserRole = "student";
+                        applyUserPhotoEverywhere(null);
+                        enforceMandatoryPhotoUpload(null);
                         applyAccessLocks();
                         showDashPremiumFields("student");
+                        hideAuthGateLoader();
                     }
-                }, (error) => { console.error("Realtime sync issue:", error); });
+                }, (error) => {
+                    console.error("Realtime sync issue:", error);
+                    hideAuthGateLoader();
+                });
 
             } else {
                 currentUserUid = null; currentUserRole = "blank"; currentUserEmail = "";
@@ -1728,7 +1824,9 @@
                 fallbackProfileDetails("Guest Mode Active");
                 document.getElementById('soloIdentityHook').innerText = "Guest Terminal (Sign In Required)";
                 applyUserPhotoEverywhere(null);
+                hideMandatoryPhotoOverlay();
                 applyAccessLocks();
+                hideAuthGateLoader();
             }
         });
 
@@ -2148,11 +2246,7 @@
             document.getElementById('profilePhotoInput').click();
         }
 
-        function handleProfilePhotoSelect(event) {
-            const file = event.target.files && event.target.files[0];
-            event.target.value = ""; // allow re-selecting the same file next time
-            if (!file) return;
-
+        function resizeImageFileToBase64(file, onDone) {
             if (!file.type.startsWith('image/')) {
                 showPremiumNotification("Invalid File", "Please select a valid image file (JPG, PNG or WEBP).", true);
                 return;
@@ -2161,7 +2255,6 @@
                 showPremiumNotification("File Too Large", `Please choose an image under ${PHOTO_MAX_ORIGINAL_MB}MB. It will be auto-resized to ${PHOTO_TARGET_SIZE}×${PHOTO_TARGET_SIZE}px anyway.`, true);
                 return;
             }
-
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
@@ -2178,13 +2271,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, sx, sy, side, side, 0, 0, PHOTO_TARGET_SIZE, PHOTO_TARGET_SIZE);
 
-                    const finalBase64 = canvas.toDataURL('image/jpeg', PHOTO_JPEG_QUALITY);
-
-                    // Optimistic preview while the backend upload is in flight
-                    const modalAvatar = document.getElementById('profilePhotoAvatar');
-                    if (modalAvatar) modalAvatar.innerHTML = `<img src="${finalBase64}" alt="Preview">`;
-
-                    uploadProfilePhotoToBackend(finalBase64);
+                    onDone(canvas.toDataURL('image/jpeg', PHOTO_JPEG_QUALITY));
                 };
                 img.onerror = () => showPremiumNotification("Image Error", "Couldn't read this image. Please try a different file.", true);
                 img.src = e.target.result;
@@ -2193,18 +2280,42 @@
             reader.readAsDataURL(file);
         }
 
-        function uploadProfilePhotoToBackend(imageBase64) {
-            const wrap = document.querySelector('.profile-photo-wrap');
+        function handleProfilePhotoSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = ""; // allow re-selecting the same file next time
+            if (!file) return;
+            resizeImageFileToBase64(file, (finalBase64) => {
+                const modalAvatar = document.getElementById('profilePhotoAvatar');
+                if (modalAvatar) modalAvatar.innerHTML = `<img src="${finalBase64}" alt="Preview">`;
+                uploadProfilePhotoToBackend(finalBase64, { wrapSelector: '.profile-photo-wrap' });
+            });
+        }
+
+        function handleMandatoryPhotoSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = "";
+            if (!file) return;
+            resizeImageFileToBase64(file, (finalBase64) => {
+                const mAvatar = document.getElementById('mandatoryPhotoAvatar');
+                if (mAvatar) mAvatar.innerHTML = `<img src="${finalBase64}" alt="Preview">`;
+                uploadProfilePhotoToBackend(finalBase64, {
+                    wrapSelector: '.mandatory-photo-wrap',
+                    onSuccess: () => hideMandatoryPhotoOverlay()
+                });
+            });
+        }
+
+        function uploadProfilePhotoToBackend(imageBase64, options) {
+            options = options || {};
+            const wrap = options.wrapSelector ? document.querySelector(options.wrapSelector) : null;
             if (wrap) wrap.classList.add('profile-photo-uploading');
             showPremiumNotification("Uploading...", "Syncing your new profile photo to the server.", false);
 
             // NOTE FOR BACKEND: this calls the SAME /api/backend endpoint already used for
-            // action=verify-prn. Add an action=upload-photo handler there using the Firebase
-            // Admin SDK: decode the base64 JPEG, upload it to Firebase Storage
-            // (bucket: students-e5183.firebasestorage.app) under e.g. profile_photos/{uid}.jpg,
-            // then write the resulting download URL to the user's record (RTDB `users/{uid}`
-            // and/or Firestore) as `photoURL`. Never let the client write photoURL directly —
-            // the client only ever sends the image bytes and receives back the final URL.
+            // action=verify-prn. action=upload-photo (already implemented) uploads the image
+            // to Cloudinary via the Admin-SDK-backed serverless function, then writes only the
+            // resulting secure_url to RTDB users/{prn}/photoURL — the client never touches
+            // Cloudinary or the database directly.
             fetch(`${BACKEND_BASE_URL}?action=upload-photo`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2216,6 +2327,7 @@
                 if (result && result.success && result.photoURL) {
                     applyUserPhotoEverywhere(result.photoURL);
                     showPremiumNotification("Photo Updated", "Your profile photo has been updated successfully!", false);
+                    if (typeof options.onSuccess === 'function') options.onSuccess();
                 } else {
                     showPremiumNotification("Upload Failed", "Server couldn't save your photo. Please try again.", true);
                 }
@@ -2224,6 +2336,46 @@
                 if (wrap) wrap.classList.remove('profile-photo-uploading');
                 showPremiumNotification("Connection Error", "Couldn't reach the server to upload your photo.", true);
             });
+        }
+
+        /* ===================================================== */
+        /* ===== MANDATORY PHOTO GATE (first login, one-time) === */
+        /* ===================================================== */
+
+        function showMandatoryPhotoOverlay() {
+            const overlay = document.getElementById('mandatoryPhotoOverlay');
+            if (overlay) overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideMandatoryPhotoOverlay() {
+            const overlay = document.getElementById('mandatoryPhotoOverlay');
+            if (overlay) overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function hideAuthGateLoader() {
+            const loader = document.getElementById('authGateLoader');
+            if (!loader || loader.classList.contains('agl-fade-out')) return;
+            loader.classList.add('agl-fade-out');
+            setTimeout(() => loader.remove(), 350);
+        }
+        // Safety net: never let a network hiccup trap the user on a blank spinner forever.
+        setTimeout(hideAuthGateLoader, 8000);
+
+        // Called every time user data loads. Shows the mandatory gate ONLY if the
+        // user is signed in and has no photoURL yet. Once they upload one, this
+        // simply never fires the overlay again (since photoURL will exist from then on).
+        function enforceMandatoryPhotoUpload(photoURL) {
+            if (currentUserUid && !photoURL) {
+                showMandatoryPhotoOverlay();
+            } else {
+                hideMandatoryPhotoOverlay();
+            }
+        }
+
+        function triggerMandatoryPhotoUpload() {
+            document.getElementById('mandatoryPhotoInput').click();
         }
     </script>
 </body>
