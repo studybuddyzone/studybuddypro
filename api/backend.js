@@ -1,4 +1,12 @@
 const { admin, getRoleByPRN, initError } = require("../lib/helpers");
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true
+});
 
 // ── Har action ka apna handler function ──────────────────────────────────────
 
@@ -161,6 +169,54 @@ async function handleSubmitScore(body, res) {
     await db.collection("solo_mcq").add({ prn, name, score: scoreDelta, lastTestedTimestamp: admin.firestore.FieldValue.serverTimestamp() });
   }
   return res.status(200).json({ success: true });
+}
+
+async function handleUploadPhoto(body, res) {
+  const uid = (body.uid || "").toString().trim();
+  const imageBase64 = (body.image || "").toString();
+
+  if (!uid) return res.status(400).json({ error: "uid zaroori hai." });
+  if (!imageBase64.startsWith("data:image/")) {
+    return res.status(400).json({ error: "Valid base64 image data URL zaroori hai." });
+  }
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    return res.status(500).json({ error: "Cloudinary env vars set nahi hain (CLOUDINARY_CLOUD_NAME / API_KEY / API_SECRET)." });
+  }
+
+  // uid se PRN dhoondo (jaisa resolveAdminIdentity karta hai) — RTDB me users PRN-keyed hain
+  const db = admin.database();
+  const snap = await db.ref("users").orderByChild("uid").equalTo(uid).once("value");
+  const val = snap.val();
+  if (!val) return res.status(404).json({ error: "User record not found." });
+  const prn = Object.keys(val)[0];
+
+  // Server-side safety cap — client already 500x500 JPEG me resize karke bhejta hai,
+  // yeh sirf ek defense-in-depth check hai (base64 me raw bytes ka ~1.37x hota hai)
+  const approxBytes = Math.floor(imageBase64.length * 0.75);
+  if (approxBytes > 3 * 1024 * 1024) {
+    return res.status(400).json({ error: "Image too large (max ~3MB)." });
+  }
+
+  // Cloudinary par upload — data URI seedha diya ja sakta hai, koi buffer/stream handling nahi chahiye
+  let uploadResult;
+  try {
+    uploadResult = await cloudinary.uploader.upload(imageBase64, {
+      folder: "profile_photos",
+      public_id: prn,           // same PRN => purani photo overwrite ho jaati hai, storage saaf rehta hai
+      overwrite: true,
+      resource_type: "image",
+      transformation: [{ width: 500, height: 500, crop: "fill", gravity: "face" }]
+    });
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    return res.status(502).json({ error: "Cloudinary upload failed." });
+  }
+
+  const photoURL = uploadResult.secure_url;
+
+  // Sirf final URL hi Firebase (RTDB) me save hota hai — actual image bytes Cloudinary par rehte hain
+  await db.ref(`users/${prn}`).update({ photoURL, photoUpdatedAt: Date.now() });
+  return res.status(200).json({ success: true, photoURL });
 }
 
 async function handleSubmitProfileRequest(body, res) {
@@ -471,6 +527,7 @@ module.exports = async (req, res) => {
       case "reset-scores":                return await handleResetScores(body, res);
       case "wipe-database":               return await handleWipeDatabase(body, res);
       case "submit-score":                return await handleSubmitScore(body, res);
+      case "upload-photo":                return await handleUploadPhoto(body, res);
       case "submit-profile-request":      return await handleSubmitProfileRequest(body, res);
       case "manage-rooms":                return await handleManageRooms(body, res);
       case "master-create-account":       return await handleMasterCreateAccount(body, res);
