@@ -219,6 +219,69 @@ async function handleUploadPhoto(body, res) {
   return res.status(200).json({ success: true, photoURL });
 }
 
+// ── S ID (public username-jaisi unique ID) ──────────────────────────────────
+// Rules: sirf lowercase a-z, 0-9, "_" aur "." allowed. 3-20 characters.
+// Instagram jaisa hi: shuru/end me "." nahi, aur do "." lagatar nahi.
+function isValidSid(sid) {
+  if (typeof sid !== "string") return false;
+  if (sid.length < 3 || sid.length > 20) return false;
+  if (!/^[a-z0-9._]+$/.test(sid)) return false;
+  if (sid.includes("..")) return false;
+  if (sid.startsWith(".") || sid.endsWith(".")) return false;
+  return true;
+}
+
+async function handleCheckSid(body, res) {
+  const sid = (body.sid || "").toString().trim().toLowerCase();
+  if (!isValidSid(sid)) return res.status(200).json({ valid: false, available: false, error: "Invalid S ID format." });
+
+  const snap = await admin.database().ref(`sids/${sid}`).once("value");
+  return res.status(200).json({ valid: true, available: !snap.exists() });
+}
+
+async function handleCreateSid(body, res) {
+  const uid = (body.uid || "").toString().trim();
+  const sid = (body.sid || "").toString().trim().toLowerCase();
+
+  if (!uid) return res.status(400).json({ error: "uid zaroori hai." });
+  if (!isValidSid(sid)) {
+    return res.status(400).json({ error: "S ID sirf lowercase letters, numbers, '_' aur '.' se 3-20 characters ka ho sakta hai." });
+  }
+
+  // uid se PRN dhoondo — RTDB me users PRN-keyed hain
+  const db = admin.database();
+  const snap = await db.ref("users").orderByChild("uid").equalTo(uid).once("value");
+  const val = snap.val();
+  if (!val) return res.status(404).json({ error: "User record not found." });
+  const prn = Object.keys(val)[0];
+  const userData = val[prn] || {};
+
+  if (userData.sid) return res.status(409).json({ error: "Aapka S ID pehle se set ho chuka hai." });
+
+  const name = userData.name || "Student";
+  const role = (userData.role || "student").toLowerCase();
+
+  // Atomic claim — transaction ensures do users kabhi ek hi SID ek saath na le paayein
+  const sidRef = db.ref(`sids/${sid}`);
+  const txResult = await sidRef.transaction((current) => {
+    if (current !== null) return; // abort: already taken
+    return { uid, prn, name, role, createdAt: Date.now() };
+  });
+
+  if (!txResult.committed) {
+    return res.status(409).json({ error: "Yeh S ID pehle se liya ja chuka hai. Doosra try karein." });
+  }
+
+  await db.ref(`users/${prn}`).update({ sid });
+
+  // Firestore mirror (future search/queries ke liye)
+  await admin.firestore().collection("sids").doc(sid).set({
+    uid, prn, name, role, createdAt: admin.firestore.FieldValue.serverTimestamp()
+  });
+
+  return res.status(200).json({ success: true, sid });
+}
+
 async function handleSubmitProfileRequest(body, res) {
   const prn = (body.prn || "").toString().trim();
   if (!/^\d{16}$/.test(prn)) return res.status(400).json({ error: "PRN exactly 16 digits ka hona chahiye." });
@@ -528,6 +591,8 @@ module.exports = async (req, res) => {
       case "wipe-database":               return await handleWipeDatabase(body, res);
       case "submit-score":                return await handleSubmitScore(body, res);
       case "upload-photo":                return await handleUploadPhoto(body, res);
+      case "check-sid":                   return await handleCheckSid(body, res);
+      case "create-sid":                  return await handleCreateSid(body, res);
       case "submit-profile-request":      return await handleSubmitProfileRequest(body, res);
       case "manage-rooms":                return await handleManageRooms(body, res);
       case "master-create-account":       return await handleMasterCreateAccount(body, res);
