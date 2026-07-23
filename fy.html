@@ -2825,6 +2825,7 @@
         galleryAdd: () => `${BACKEND_URL}/api/gallery/add`,
         galleryGet: (uid) => `${BACKEND_URL}/api/gallery/${uid}`,
         messages: (otherUid) => `${BACKEND_URL}/api/messages/${otherUid}`,
+        userProfile: (uid) => `${BACKEND_URL}/api/users/${uid}`,
         sync: () => `${BACKEND_URL}/api/users/sync`
     };
 
@@ -2918,8 +2919,8 @@
     }
 
     function handleIncomingMessage(msg) {
-        // Expected shape: { senderId, receiverId, text, createdAt }
-        if (currentChatUser && msg.senderId === currentChatUser.uid) {
+        // Backend emits snake_case fields: { room_id, sender_id, receiver_id, text, timestamp }
+        if (currentChatUser && msg.sender_id === currentChatUser.uid) {
             appendChatBubble(msg.text, false);
         }
         // Refresh chat list preview if visible
@@ -3057,7 +3058,7 @@
         const endpoint = currentlyFollowing ? SM_ENDPOINTS.unfollow() : SM_ENDPOINTS.follow();
         btn.disabled = true;
         try {
-            await authedFetch(endpoint, { method: 'POST', body: JSON.stringify({ targetUid }) });
+            await authedFetch(endpoint, { method: 'POST', body: JSON.stringify({ targetUserId: targetUid }) });
             if (currentlyFollowing) {
                 myFollowingSet.delete(targetUid);
                 btn.className = 'sm-btn sm-btn-follow';
@@ -3125,23 +3126,39 @@
     }
 
     // ---------- Chats ----------
+    async function fetchUserProfile(uid) {
+        try {
+            const res = await authedFetch(SM_ENDPOINTS.userProfile(uid));
+            const data = await safeJson(res);
+            const u = data.user || data;
+            return {
+                uid,
+                name: u.name || 'Student',
+                username: u.username || '',
+                photoURL: u.photo_url || u.photoURL || ''
+            };
+        } catch (e) {
+            return { uid, name: 'Student', username: '', photoURL: '' };
+        }
+    }
+
     async function loadChatList() {
         const listEl = document.getElementById('smChatList');
         if (!myProfile.uid) { listEl.innerHTML = '<div class="sm-empty">Sign in to view chats.</div>'; return; }
+        listEl.innerHTML = '<div class="sm-empty">Loading chats...</div>';
         try {
             const res = await authedFetch(SM_ENDPOINTS.following(myProfile.uid));
             const data = await safeJson(res);
-            const following = Array.isArray(data) ? data : (data.following || data.data || []);
-            if (!following.length) {
+            // Backend returns { following: [uid, uid, ...] } — plain UID strings, not objects
+            const followingIds = Array.isArray(data) ? data : (data.following || data.data || []);
+            if (!followingIds.length) {
                 listEl.innerHTML = '<div class="sm-empty">Follow people to start chatting.</div>';
                 return;
             }
+            // Resolve each UID to a display profile (name/username/photo)
+            const profiles = await Promise.all(followingIds.map(id => fetchUserProfile(typeof id === 'string' ? id : (id.uid || id.id))));
             listEl.innerHTML = '';
-            following.forEach(u => {
-                const uid = u.uid || u.id || u;
-                const name = u.name || u.displayName || 'Student';
-                const username = u.username || '';
-                const photoURL = u.photoURL || u.photo_url || '';
+            profiles.forEach(({ uid, name, username, photoURL }) => {
                 const row = document.createElement('div');
                 row.className = 'sm-chat-row';
                 row.innerHTML = `
@@ -3177,7 +3194,7 @@
             if (!msgs.length) {
                 box.innerHTML = '<div class="sm-empty">Say hi 👋</div>';
             } else {
-                msgs.forEach(m => appendChatBubble(m.text, (m.senderId === myProfile.uid)));
+                msgs.forEach(m => appendChatBubble(m.text, (m.sender_id === myProfile.uid)));
             }
             box.scrollTop = box.scrollHeight;
         } catch (e) {
@@ -3226,6 +3243,17 @@
         if (paneId === 'smPaneProfile') loadStats();
     }
 
+    async function pingBackend() {
+        // Quick reachability check against the root route so we can tell the
+        // user "server unreachable" apart from "still logging in" issues.
+        try {
+            const res = await fetch(`${BACKEND_URL}/`, { method: 'GET' });
+            return res.ok;
+        } catch (e) {
+            return false;
+        }
+    }
+
     async function open() {
         const user = getFirebaseUser();
         if (!user) {
@@ -3233,11 +3261,22 @@
             return;
         }
         document.getElementById('smOverlay').classList.add('active');
-        if (!myProfile.uid) {
-            showColdStart('Connecting to Social Mode...');
-            await syncProfile();
+        showColdStart('Connecting to Social Mode... (this can take up to 15-50s on first load)');
+        coldStartShown = true;
+
+        const reachable = await pingBackend();
+        if (!reachable) {
             hideColdStart();
+            setConnStatus(false);
+            document.getElementById('smSearchResults').innerHTML =
+                '<div class="sm-empty">Server unreachable. It may still be waking up (Render free tier) — wait a few seconds and pull to try again, or check that the backend is deployed and running.</div>';
+            return;
         }
+
+        if (!myProfile.uid) {
+            await syncProfile();
+        }
+        hideColdStart();
         connectSocket();
     }
 
