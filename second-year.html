@@ -752,7 +752,8 @@
                 <div class="mandatory-photo-edit-btn" onclick="triggerMandatoryPhotoUpload()"><i class="fa-solid fa-plus"></i></div>
                 <input type="file" id="mandatoryPhotoInput" accept="image/png, image/jpeg, image/webp" style="display:none" onchange="handleMandatoryPhotoSelect(event)">
             </div>
-            <button class="mandatory-photo-cta" onclick="triggerMandatoryPhotoUpload()">Photo Upload करें</button>
+            <button class="mandatory-photo-cta" id="mandatoryPhotoPickBtn" onclick="triggerMandatoryPhotoUpload()">Photo Upload करें</button>
+            <button class="mandatory-photo-cta" id="mandatoryPhotoSubmitBtn" onclick="submitMandatoryPhoto()" style="display:none;margin-top:10px;">Submit Photo</button>
         </div>
     </div>
 
@@ -1666,18 +1667,44 @@
             });
         }
 
+        let pendingMandatoryPhotoBase64 = null;
+
         function handleMandatoryPhotoSelect(event) {
             const file = event.target.files && event.target.files[0];
             event.target.value = "";
             if (!file) return;
             resizeImageFileToBase64(file, (finalBase64) => {
+                pendingMandatoryPhotoBase64 = finalBase64;
                 const mAvatar = document.getElementById('mandatoryPhotoAvatar');
                 if (mAvatar) mAvatar.innerHTML = `<img src="${finalBase64}" alt="Preview">`;
-                uploadProfilePhotoToBackend(finalBase64, {
-                    wrapSelector: '.mandatory-photo-wrap',
-                    onSuccess: () => hideMandatoryPhotoOverlay()
-                });
+                // Show the explicit Submit button only after a photo has been chosen
+                const pickBtn = document.getElementById('mandatoryPhotoPickBtn');
+                const submitBtn = document.getElementById('mandatoryPhotoSubmitBtn');
+                if (pickBtn) pickBtn.innerText = 'Change Photo';
+                if (submitBtn) submitBtn.style.display = '';
             });
+        }
+
+        function submitMandatoryPhoto() {
+            if (!pendingMandatoryPhotoBase64) {
+                showPremiumNotification("Select a Photo", "Pehle ek photo chuno, phir Submit karo.", true);
+                return;
+            }
+            const submitBtn = document.getElementById('mandatoryPhotoSubmitBtn');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = 'Uploading...'; }
+
+            uploadProfilePhotoToBackend(pendingMandatoryPhotoBase64, {
+                wrapSelector: '.mandatory-photo-wrap',
+                onSuccess: () => {
+                    pendingMandatoryPhotoBase64 = null;
+                    hideMandatoryPhotoOverlay();
+                }
+            });
+
+            // Re-enable the button afterwards regardless of outcome so the user can retry on failure
+            setTimeout(() => {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'Submit Photo'; }
+            }, 4000);
         }
 
         function uploadProfilePhotoToBackend(imageBase64, options) {
