@@ -1954,6 +1954,13 @@
     /* Profile / stats */
     .sm-profile-header { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; }
     .sm-profile-avatar { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; background: var(--input-bg,#f3f4f6); }
+    .sm-avatar-wrap { position: relative; width: 76px; height: 76px; flex-shrink: 0; }
+    .sm-avatar-edit-btn {
+        position: absolute; bottom: -2px; right: -2px; width: 26px; height: 26px; border-radius: 50%;
+        background: var(--primary,#5c6bc0); color: #fff; border: 2px solid var(--bg,#fff);
+        display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer;
+    }
+    .sm-avatar-uploading { opacity: 0.5; pointer-events: none; }
     .sm-stats { display: flex; gap: 22px; }
     .sm-stat { text-align: center; }
     .sm-stat b { display: block; font-size: 16px; color: var(--text-main,#111); }
@@ -2049,10 +2056,17 @@
         <!-- Profile -->
         <div id="smPaneProfile" class="sm-pane">
             <div class="sm-profile-header">
-                <img id="smMyAvatar" class="sm-profile-avatar" src="" alt="avatar">
+                <div class="sm-avatar-wrap">
+                    <img id="smMyAvatar" class="sm-profile-avatar" src="" alt="avatar">
+                    <button id="smAvatarEditBtn" class="sm-avatar-edit-btn" title="Change profile photo" onclick="document.getElementById('smAvatarFileInput').click()">
+                        <i class="fa-solid fa-camera"></i>
+                    </button>
+                    <input type="file" id="smAvatarFileInput" accept="image/*" style="display:none;" onchange="SocialMode.onAvatarFileChosen(event)">
+                </div>
                 <div>
                     <div style="font-weight:800;font-size:16px;" id="smMyName">—</div>
                     <div style="font-size:12px;color:var(--text-muted,#6b7280);" id="smMyUsername">—</div>
+                    <button class="sm-btn sm-btn-following" style="margin-top:8px;" onclick="document.getElementById('smAvatarFileInput').click()"><i class="fa-solid fa-camera" style="margin-right:6px;"></i>Change Photo</button>
                 </div>
             </div>
             <div class="sm-stats">
@@ -2398,6 +2412,40 @@
         evt.target.value = '';
     }
 
+    // ---------- Profile photo ----------
+    function onAvatarFileChosen(evt) {
+        const file = evt.target.files && evt.target.files[0];
+        if (!file) return;
+
+        const avatarImgs = [document.getElementById('smMyAvatar')];
+        avatarImgs.forEach(el => el && el.classList.add('sm-avatar-uploading'));
+
+        const reader = new FileReader();
+        reader.onload = async () => {
+            try {
+                const res = await authedFetch(SM_ENDPOINTS.sync(), {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name: myProfile.name,
+                        username: myProfile.username,
+                        photoURL: reader.result
+                    })
+                });
+                if (!res.ok) throw new Error('sync failed');
+
+                myProfile.photoURL = reader.result;
+                renderMyProfileHeader();
+            } catch (e) {
+                console.warn('SocialMode: avatar upload failed', e);
+                alert('Could not update profile photo. Please try again.');
+            } finally {
+                avatarImgs.forEach(el => el && el.classList.remove('sm-avatar-uploading'));
+            }
+        };
+        reader.readAsDataURL(file);
+        evt.target.value = '';
+    }
+
     // ---------- Chats ----------
     async function fetchUserProfile(uid) {
         try {
@@ -2572,7 +2620,7 @@
 
     window.SocialMode = {
         open, close, switchTab, onSearchInput, sendMessage, closeChat,
-        onGalleryFileChosen
+        onGalleryFileChosen, onAvatarFileChosen
     };
 })();
 </script>
