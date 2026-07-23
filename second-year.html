@@ -1471,6 +1471,10 @@
                 if (window.applyUserPhotoEverywhere) window.applyUserPhotoEverywhere(photoURL);
                 if (window.runMandatoryGates) window.runMandatoryGates(photoURL, sid);
                 if (window.hideAuthGateLoader) window.hideAuthGateLoader();
+                // Keep Social Mode's Firestore profile aligned with whatever photo is on file
+                if (photoURL && window.SocialMode && typeof window.SocialMode.syncPhotoFromHost === 'function') {
+                    window.SocialMode.syncPhotoFromHost(photoURL);
+                }
 
                 // ✅ फक्त admin / super admin / master role असेल तरच सगळ्या branches unlock होतील.
                 // gold / silver / diamond सारखे premium roles फक्त त्यांच्या स्वतःच्या unlocked branch पुरते मर्यादित राहतील.
@@ -1693,6 +1697,10 @@
                 if (result && result.success && result.photoURL) {
                     applyUserPhotoEverywhere(result.photoURL);
                     showPremiumNotification("Photo Updated", "Your profile photo has been updated successfully!", false);
+                    // Keep Social Mode's Firestore profile in sync with this same photo
+                    if (window.SocialMode && typeof window.SocialMode.syncPhotoFromHost === 'function') {
+                        window.SocialMode.syncPhotoFromHost(result.photoURL);
+                    }
                     if (typeof options.onSuccess === 'function') options.onSuccess();
                 } else {
                     showPremiumNotification("Upload Failed", "Server couldn't save your photo. Please try again.", true);
@@ -2413,6 +2421,23 @@
     }
 
     // ---------- Profile photo ----------
+    // Called by the host page (fy.html / second-year.html's own mandatory-photo-gate
+    // pipeline) whenever the user's real profile photo changes, so Social Mode's
+    // Firestore profile always shows the SAME picture as the rest of the site.
+    async function syncPhotoFromHost(photoURL) {
+        if (!photoURL) return;
+        try {
+            await authedFetch(SM_ENDPOINTS.sync(), {
+                method: 'POST',
+                body: JSON.stringify({ photoURL })
+            });
+        } catch (e) {
+            console.warn('SocialMode: external photo sync failed', e);
+        }
+        myProfile.photoURL = photoURL;
+        renderMyProfileHeader();
+    }
+
     function onAvatarFileChosen(evt) {
         const file = evt.target.files && evt.target.files[0];
         if (!file) return;
@@ -2420,19 +2445,28 @@
         const avatarImgs = [document.getElementById('smMyAvatar')];
         avatarImgs.forEach(el => el && el.classList.add('sm-avatar-uploading'));
 
+        // Preferred path: reuse the site's own resize + Cloudinary upload pipeline
+        // (same one used by the mandatory photo gate). This keeps exactly ONE stored
+        // copy of the photo and syncPhotoFromHost() above keeps Firestore in sync too.
+        if (typeof window.resizeImageFileToBase64 === 'function' && typeof window.uploadProfilePhotoToBackend === 'function') {
+            window.resizeImageFileToBase64(file, (finalBase64) => {
+                window.uploadProfilePhotoToBackend(finalBase64, { onSuccess: () => {} });
+                avatarImgs.forEach(el => el && el.classList.remove('sm-avatar-uploading'));
+            });
+            evt.target.value = '';
+            return;
+        }
+
+        // Fallback: direct-to-Firestore base64 upload, only used if the host page's
+        // photo pipeline isn't available for some reason.
         const reader = new FileReader();
         reader.onload = async () => {
             try {
                 const res = await authedFetch(SM_ENDPOINTS.sync(), {
                     method: 'POST',
-                    body: JSON.stringify({
-                        name: myProfile.name,
-                        username: myProfile.username,
-                        photoURL: reader.result
-                    })
+                    body: JSON.stringify({ photoURL: reader.result })
                 });
                 if (!res.ok) throw new Error('sync failed');
-
                 myProfile.photoURL = reader.result;
                 renderMyProfileHeader();
             } catch (e) {
@@ -2620,7 +2654,7 @@
 
     window.SocialMode = {
         open, close, switchTab, onSearchInput, sendMessage, closeChat,
-        onGalleryFileChosen, onAvatarFileChosen
+        onGalleryFileChosen, onAvatarFileChosen, syncPhotoFromHost
     };
 })();
 </script>
