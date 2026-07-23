@@ -488,6 +488,7 @@
         .profile-sheet-handle { width:40px; height:4px; border-radius:4px; background:var(--border); margin:0 auto 20px auto; }
         .profile-sheet-avatar { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,var(--primary),#7c4dff); display:flex; align-items:center; justify-content:center; font-size:30px; color:#fff; margin:0 auto 14px auto; box-shadow:0 6px 20px rgba(92,107,192,0.35); }
         .profile-sheet-name { font-size:20px; font-weight:800; color:var(--text-main); text-align:center; margin-bottom:4px; letter-spacing:-0.3px; }
+        .profile-sheet-sid { font-size:12.5px; font-weight:700; color:var(--primary); text-align:center; margin-bottom:4px; }
         .profile-sheet-email { font-size:12.5px; color:var(--text-muted); text-align:center; margin-bottom:14px; }
         .profile-sheet-badges { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
         .profile-sheet-badge { font-size:11px; font-weight:700; padding:4px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px; }
@@ -504,6 +505,80 @@
         .profile-action-btn:hover { transform:translateY(-1px); }
         .profile-btn-edit { background:linear-gradient(135deg,var(--primary),#7c4dff); color:#fff; border:none; box-shadow:0 4px 16px rgba(92,107,192,0.3); }
         .profile-btn-close { background:var(--hover-bg); color:var(--text-muted); border:1px solid var(--border); }
+
+        /* ---- Profile Photo (upload widget inside the profile sheet avatar) ---- */
+        .profile-sheet-avatar { position: relative; cursor: default; overflow: visible; }
+        .profile-sheet-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+        .profile-sheet-photo-edit-btn {
+            position: absolute; bottom: 0; right: calc(50% - 36px - 4px); width: 26px; height: 26px; border-radius: 50%;
+            background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 11px; border: 3px solid var(--card-bg); cursor: pointer;
+        }
+        .profile-sheet-avatar.profile-photo-uploading { opacity: 0.5; pointer-events: none; }
+
+        /* ---- Mandatory Photo Gate (blocks entire site until photo is set) ---- */
+        .mandatory-photo-overlay {
+            display: none; position: fixed; inset: 0; z-index: 99999;
+            background: rgba(10,13,20,0.72); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center; padding: 24px;
+        }
+        .mandatory-photo-overlay.active { display: flex; }
+        .mandatory-photo-box {
+            background: var(--card-bg); border-radius: 22px; padding: 30px 26px;
+            max-width: 360px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+        }
+        .mandatory-photo-box h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
+        .mandatory-photo-box p { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+        .mandatory-photo-wrap { position: relative; width: 110px; height: 110px; margin: 0 auto 18px auto; }
+        .mandatory-photo-avatar {
+            width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+            background: var(--hover-bg); border: 3px dashed #ffa726;
+            display: flex; align-items: center; justify-content: center; font-size: 38px; color: #ffa726;
+            cursor: pointer;
+        }
+        .mandatory-photo-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .mandatory-photo-edit-btn {
+            position: absolute; bottom: 2px; right: 2px; width: 32px; height: 32px; border-radius: 50%;
+            background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 13px; border: 3px solid var(--card-bg); cursor: pointer;
+        }
+        .mandatory-photo-cta {
+            width: 100%; padding: 12px; border-radius: 12px; border: none; cursor: pointer;
+            background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff;
+            font-weight: 800; font-size: 13.5px;
+        }
+        .mandatory-photo-cta:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ---- Mandatory S ID Gate (shown after photo, before dashboard unlocks) ---- */
+        .sid-input-row {
+            display: flex; align-items: center; gap: 6px; background: var(--hover-bg);
+            border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px;
+        }
+        .sid-at { font-weight: 800; color: var(--text-muted); font-size: 14px; }
+        .sid-input {
+            flex: 1; border: none; background: transparent; outline: none; font-size: 14px;
+            font-weight: 700; color: var(--text-main); min-width: 0;
+        }
+        .sid-status { font-size: 11.5px; min-height: 16px; margin-bottom: 12px; text-align: left; font-weight: 600; }
+        .sid-status-ok { color: #16a34a; }
+        .sid-status-error { color: #e11d48; }
+        .sid-suggest-btn {
+            width: 100%; padding: 11px; border-radius: 12px; border: 1.5px solid var(--border); cursor: pointer;
+            background: var(--hover-bg); color: var(--text-main); font-weight: 700; font-size: 12.5px; margin-bottom: 10px;
+        }
+
+        /* ---- Initial Auth-Check Loader (closes the race-condition window before we
+             know whether a mandatory gate needs to show) ---- */
+        #authGateLoader {
+            position: fixed; inset: 0; z-index: 999999;
+            background: var(--sidebar-bg);
+            display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 18px;
+            opacity: 1; transition: opacity 0.35s ease;
+        }
+        #authGateLoader.agl-fade-out { opacity: 0; pointer-events: none; }
+        .agl-brand { font-size: 20px; font-weight: 800; color: var(--text-main); }
+        .agl-brand span { color: var(--primary); }
+        .agl-status { font-size: 12.5px; color: var(--text-muted); }
 
         /* ══════════════════════════════════════
            TOP LOADING BAR (Firebase fetch indicator)
@@ -660,6 +735,40 @@
 
     <!-- ⏳ TOP LOADING BAR -->
     <div id="topLoadingBar" class="active"></div>
+
+    <div id="authGateLoader">
+        <div class="agl-brand">Study<span>Buddy</span>Zone</div>
+        <div class="agl-status">Syncing your account...</div>
+    </div>
+
+    <!-- ===== MANDATORY PROFILE PHOTO GATE ===== -->
+    <div class="mandatory-photo-overlay" id="mandatoryPhotoOverlay">
+        <div class="mandatory-photo-box">
+            <h3>Profile Photo ज़रूरी है</h3>
+            <p>आगे बढ़ने से पहले अपनी profile photo लगाएं। यह सिर्फ एक बार पूछा जाता है।</p>
+            <div class="mandatory-photo-wrap">
+                <div class="mandatory-photo-avatar" id="mandatoryPhotoAvatar" onclick="triggerMandatoryPhotoUpload()"><i class="fa-solid fa-camera"></i></div>
+                <div class="mandatory-photo-edit-btn" onclick="triggerMandatoryPhotoUpload()"><i class="fa-solid fa-plus"></i></div>
+                <input type="file" id="mandatoryPhotoInput" accept="image/png, image/jpeg, image/webp" style="display:none" onchange="handleMandatoryPhotoSelect(event)">
+            </div>
+            <button class="mandatory-photo-cta" onclick="triggerMandatoryPhotoUpload()">Photo Upload करें</button>
+        </div>
+    </div>
+
+    <!-- ===== MANDATORY S ID GATE ===== -->
+    <div class="mandatory-photo-overlay" id="mandatorySidOverlay">
+        <div class="mandatory-photo-box">
+            <h3>अपनी S ID बनाएं</h3>
+            <p>यह आपकी unique public ID है (Instagram username जैसी) — सिर्फ छोटे अक्षर, अंक, "_" और "." allowed। एक बार सेट होने के बाद यह fixed रहेगी।</p>
+            <div class="sid-input-row">
+                <span class="sid-at">@</span>
+                <input type="text" id="sidInput" class="sid-input" maxlength="20" placeholder="yourname123" oninput="handleSidInputChange()" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+            <div class="sid-status" id="sidStatusMsg"></div>
+            <button class="sid-suggest-btn" onclick="suggestSid()">Suggest ID</button>
+            <button class="mandatory-photo-cta" id="sidSubmitBtn" onclick="submitSid()" disabled>S ID Set करें</button>
+        </div>
+    </div>
 
     <!-- 🔧 MAINTENANCE OVERLAY -->
     <div id="maintenanceOverlay">
@@ -1054,8 +1163,13 @@
     <div class="profile-sheet-backdrop" id="profileSheetBackdrop" onclick="closeProfileSheet()"></div>
     <div class="profile-popup-sheet" id="profileSheet">
         <div class="profile-sheet-handle"></div>
-        <div class="profile-sheet-avatar"><i class="fa-solid fa-user"></i></div>
+        <div class="profile-sheet-avatar" id="profileSheetAvatar">
+            <i class="fa-solid fa-user"></i>
+            <div class="profile-sheet-photo-edit-btn" onclick="triggerPhotoUpload()" title="Change photo"><i class="fa-solid fa-camera"></i></div>
+        </div>
+        <input type="file" id="profilePhotoInput" accept="image/png, image/jpeg, image/webp" style="display:none" onchange="handleProfilePhotoSelect(event)">
         <div class="profile-sheet-name" id="profileSheetName">Loading...</div>
+        <div class="profile-sheet-sid" id="profileSheetSid">S ID: —</div>
         <div class="profile-sheet-email" id="profileSheetEmail">—</div>
         <div class="profile-sheet-badges">
             <span class="profile-sheet-badge badge-year">Second Year</span>
@@ -1322,14 +1436,21 @@
         // त्या PRN-keyed record च्या आत एक 'uid' field आहे जी Auth UID शी match होते.
         // म्हणून आधी uid वरून orderByChild('uid').equalTo(uid) करून योग्य PRN record शोधावी लागते.
         firebase.auth().onAuthStateChanged((user) => {
-            if (!user) { hideTopLoadingBar(); return; }
+            if (!user) {
+                hideTopLoadingBar();
+                if (window.hideAuthGateLoader) window.hideAuthGateLoader();
+                if (window.runMandatoryGates) window.runMandatoryGates(null, null);
+                return;
+            }
             const uid = user.uid;
+            window._userUid = uid;
             window._userEmail = user.email || '';
 
             // ✅ realtime (.on) — uid field match करणारा record शोधा (PRN की काहीही असो, uid नेहमी जुळेल)
             rtdb.ref('users').orderByChild('uid').equalTo(uid).on('value', (querySnap) => {
                 if (!querySnap.exists()) {
                     console.warn('[StudyBuddy] uid="' + uid + '" साठी users मध्ये कोणताही record सापडला नाही. Firebase Realtime Database मधल्या त्या student च्या record मध्ये "uid" field बरोबर save आहे का ते तपासा.');
+                    if (window.hideAuthGateLoader) window.hideAuthGateLoader();
                     return;
                 }
 
@@ -1339,6 +1460,15 @@
 
                 const name = data.name || data.displayName || (user.email ? user.email.split('@')[0] : 'Student');
                 const registeredBranch = data.branch || data.selectedBranch || data.branchCode || data.Branch || '';
+                const photoURL = data.photoURL || data.photo_url || null;
+                const sid = data.sid || null;
+
+                window._userName = name;
+                window._userPhotoURL = photoURL;
+                window._userSid = sid;
+                if (window.applyUserPhotoEverywhere) window.applyUserPhotoEverywhere(photoURL);
+                if (window.runMandatoryGates) window.runMandatoryGates(photoURL, sid);
+                if (window.hideAuthGateLoader) window.hideAuthGateLoader();
 
                 // ✅ फक्त admin / super admin / master role असेल तरच सगळ्या branches unlock होतील.
                 // gold / silver / diamond सारखे premium roles फक्त त्यांच्या स्वतःच्या unlocked branch पुरते मर्यादित राहतील.
@@ -1347,7 +1477,6 @@
                 const isAdmin = adminRoles.includes(roleStr);
                 const isPremium = isAdmin;
 
-                window._userName = name;
                 window._userBranch = registeredBranch;
                 window._userIsPremium = isPremium;
 
@@ -1419,6 +1548,7 @@
             };
             const branchLabel = branchDisplayNames[branch] || branch.toUpperCase() || '—';
             document.getElementById('profileSheetName').textContent = name;
+            document.getElementById('profileSheetSid').textContent = window._userSid ? ('@' + window._userSid) : 'S ID: Not Set';
             document.getElementById('profileSheetEmail').textContent = email || '—';
             document.getElementById('profileSheetBranchInfo').textContent = branchLabel;
             const branchBadge = document.getElementById('profileSheetBranch');
@@ -1457,6 +1587,289 @@
             if (isError) { toast.className = 'premium-toast toast-error active'; icon.className = 'fa-solid fa-triangle-exclamation'; }
             else { toast.className = 'premium-toast toast-success active'; icon.className = 'fa-solid fa-circle-check'; }
             setTimeout(() => { toast.classList.remove('active'); }, 2500);
+        }
+
+        /* ===================================================== */
+        /* ===== PROFILE PHOTO UPLOAD (routed via backend) ====== */
+        /* ===================================================== */
+
+        const BACKEND_BASE_URL = 'https://studybuddypro-psi.vercel.app/api/backend';
+        const PHOTO_TARGET_SIZE = 500;
+        const PHOTO_JPEG_QUALITY = 0.85;
+        const PHOTO_MAX_ORIGINAL_MB = 8;
+
+        function applyUserPhotoEverywhere(photoURL) {
+            const avatar = document.getElementById('profileSheetAvatar');
+            if (!avatar) return;
+            const editBtn = avatar.querySelector('.profile-sheet-photo-edit-btn');
+            if (photoURL) {
+                avatar.innerHTML = `<img src="${photoURL}" alt="Profile photo">`;
+            } else {
+                avatar.innerHTML = `<i class="fa-solid fa-user"></i>`;
+            }
+            if (editBtn) avatar.appendChild(editBtn);
+            else avatar.insertAdjacentHTML('beforeend', '<div class="profile-sheet-photo-edit-btn" onclick="triggerPhotoUpload()" title="Change photo"><i class="fa-solid fa-camera"></i></div>');
+        }
+        window.applyUserPhotoEverywhere = applyUserPhotoEverywhere;
+
+        function triggerPhotoUpload() {
+            if (!window._userUid) {
+                showPremiumNotification("Sign In Required", "Please sign in first to update your profile photo.", true);
+                return;
+            }
+            document.getElementById('profilePhotoInput').click();
+        }
+
+        function resizeImageFileToBase64(file, onDone) {
+            if (!file.type.startsWith('image/')) {
+                showPremiumNotification("Invalid File", "Please select a valid image file (JPG, PNG or WEBP).", true);
+                return;
+            }
+            if (file.size > PHOTO_MAX_ORIGINAL_MB * 1024 * 1024) {
+                showPremiumNotification("File Too Large", `Please choose an image under ${PHOTO_MAX_ORIGINAL_MB}MB. It will be auto-resized to ${PHOTO_TARGET_SIZE}×${PHOTO_TARGET_SIZE}px anyway.`, true);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const side = Math.min(img.width, img.height);
+                    const sx = (img.width - side) / 2;
+                    const sy = (img.height - side) / 2;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = PHOTO_TARGET_SIZE;
+                    canvas.height = PHOTO_TARGET_SIZE;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, sx, sy, side, side, 0, 0, PHOTO_TARGET_SIZE, PHOTO_TARGET_SIZE);
+                    onDone(canvas.toDataURL('image/jpeg', PHOTO_JPEG_QUALITY));
+                };
+                img.onerror = () => showPremiumNotification("Image Error", "Couldn't read this image. Please try a different file.", true);
+                img.src = e.target.result;
+            };
+            reader.onerror = () => showPremiumNotification("File Error", "Couldn't read the selected file.", true);
+            reader.readAsDataURL(file);
+        }
+
+        function handleProfilePhotoSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = "";
+            if (!file) return;
+            resizeImageFileToBase64(file, (finalBase64) => {
+                applyUserPhotoEverywhere(finalBase64);
+                uploadProfilePhotoToBackend(finalBase64, { wrapSelector: '#profileSheetAvatar' });
+            });
+        }
+
+        function handleMandatoryPhotoSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            event.target.value = "";
+            if (!file) return;
+            resizeImageFileToBase64(file, (finalBase64) => {
+                const mAvatar = document.getElementById('mandatoryPhotoAvatar');
+                if (mAvatar) mAvatar.innerHTML = `<img src="${finalBase64}" alt="Preview">`;
+                uploadProfilePhotoToBackend(finalBase64, {
+                    wrapSelector: '.mandatory-photo-wrap',
+                    onSuccess: () => hideMandatoryPhotoOverlay()
+                });
+            });
+        }
+
+        function uploadProfilePhotoToBackend(imageBase64, options) {
+            options = options || {};
+            const wrap = options.wrapSelector ? document.querySelector(options.wrapSelector) : null;
+            if (wrap) wrap.classList.add('profile-photo-uploading');
+            showPremiumNotification("Uploading...", "Syncing your new profile photo to the server.", false);
+
+            fetch(`${BACKEND_BASE_URL}?action=upload-photo`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: window._userUid, image: imageBase64 })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (wrap) wrap.classList.remove('profile-photo-uploading');
+                if (result && result.success && result.photoURL) {
+                    applyUserPhotoEverywhere(result.photoURL);
+                    showPremiumNotification("Photo Updated", "Your profile photo has been updated successfully!", false);
+                    if (typeof options.onSuccess === 'function') options.onSuccess();
+                } else {
+                    showPremiumNotification("Upload Failed", "Server couldn't save your photo. Please try again.", true);
+                }
+            })
+            .catch(() => {
+                if (wrap) wrap.classList.remove('profile-photo-uploading');
+                showPremiumNotification("Connection Error", "Couldn't reach the server to upload your photo.", true);
+            });
+        }
+
+        /* ===================================================== */
+        /* ===== MANDATORY GATES (photo, then S ID) ============= */
+        /* ===================================================== */
+
+        function showMandatoryPhotoOverlay() {
+            const overlay = document.getElementById('mandatoryPhotoOverlay');
+            if (overlay) overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function hideMandatoryPhotoOverlay() {
+            const overlay = document.getElementById('mandatoryPhotoOverlay');
+            if (overlay) overlay.classList.remove('active');
+            if (!document.querySelector('.mandatory-photo-overlay.active')) document.body.style.overflow = '';
+        }
+        function triggerMandatoryPhotoUpload() {
+            document.getElementById('mandatoryPhotoInput').click();
+        }
+
+        function showMandatorySidOverlay() {
+            const overlay = document.getElementById('mandatorySidOverlay');
+            if (overlay) overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function hideMandatorySidOverlay() {
+            const overlay = document.getElementById('mandatorySidOverlay');
+            if (overlay) overlay.classList.remove('active');
+            if (!document.querySelector('.mandatory-photo-overlay.active')) document.body.style.overflow = '';
+        }
+
+        function hideAuthGateLoader() {
+            const loader = document.getElementById('authGateLoader');
+            if (!loader || loader.classList.contains('agl-fade-out')) return;
+            loader.classList.add('agl-fade-out');
+            setTimeout(() => loader.remove(), 350);
+        }
+        window.hideAuthGateLoader = hideAuthGateLoader;
+        setTimeout(hideAuthGateLoader, 8000); // safety net
+
+        // Runs on every RTDB data update: photo gate first, then S ID gate.
+        function runMandatoryGates(photoURL, sid) {
+            if (!window._userUid) {
+                hideMandatoryPhotoOverlay();
+                hideMandatorySidOverlay();
+                return;
+            }
+            if (!photoURL) {
+                hideMandatorySidOverlay();
+                showMandatoryPhotoOverlay();
+            } else if (!sid) {
+                hideMandatoryPhotoOverlay();
+                showMandatorySidOverlay();
+                prefillSidSuggestionIfEmpty();
+            } else {
+                hideMandatoryPhotoOverlay();
+                hideMandatorySidOverlay();
+            }
+        }
+        window.runMandatoryGates = runMandatoryGates;
+
+        function sanitizeSidValue(v) {
+            return (v || '').toLowerCase().replace(/[^a-z0-9._]/g, '');
+        }
+
+        let sidCheckTimer = null;
+
+        function handleSidInputChange() {
+            const input = document.getElementById('sidInput');
+            const cleaned = sanitizeSidValue(input.value);
+            if (cleaned !== input.value) input.value = cleaned;
+
+            const statusEl = document.getElementById('sidStatusMsg');
+            const submitBtn = document.getElementById('sidSubmitBtn');
+            submitBtn.disabled = true;
+            clearTimeout(sidCheckTimer);
+
+            const val = input.value.trim();
+            if (val.length === 0) { statusEl.innerText = ''; statusEl.className = 'sid-status'; return; }
+            if (val.length < 3) {
+                statusEl.innerText = 'कम से कम 3 characters चाहिए।';
+                statusEl.className = 'sid-status sid-status-error';
+                return;
+            }
+            if (val.includes('..') || val.startsWith('.') || val.endsWith('.')) {
+                statusEl.innerText = '"." शुरू/अंत में या लगातार दो बार नहीं आ सकता।';
+                statusEl.className = 'sid-status sid-status-error';
+                return;
+            }
+
+            statusEl.innerText = 'Checking availability...';
+            statusEl.className = 'sid-status';
+            sidCheckTimer = setTimeout(() => checkSidAvailability(val), 500);
+        }
+
+        function checkSidAvailability(sid) {
+            const statusEl = document.getElementById('sidStatusMsg');
+            const submitBtn = document.getElementById('sidSubmitBtn');
+            fetch(`${BACKEND_BASE_URL}?action=check-sid`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sid })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (document.getElementById('sidInput').value.trim() !== sid) return;
+                if (result && result.valid && result.available) {
+                    statusEl.innerText = '✅ यह S ID उपलब्ध है!';
+                    statusEl.className = 'sid-status sid-status-ok';
+                    submitBtn.disabled = false;
+                } else if (result && result.valid && !result.available) {
+                    statusEl.innerText = '❌ यह S ID पहले से लिया जा चुका है।';
+                    statusEl.className = 'sid-status sid-status-error';
+                    submitBtn.disabled = true;
+                } else {
+                    statusEl.innerText = '❌ Invalid S ID format।';
+                    statusEl.className = 'sid-status sid-status-error';
+                    submitBtn.disabled = true;
+                }
+            })
+            .catch(() => {
+                statusEl.innerText = 'Connection error, दोबारा कोशिश करें।';
+                statusEl.className = 'sid-status sid-status-error';
+            });
+        }
+
+        function suggestSid() {
+            const base = sanitizeSidValue((window._userName || 'user').replace(/\s+/g, '.'));
+            const candidate = ((base || 'user').slice(0, 14) + '.' + Math.floor(1000 + Math.random() * 9000)).slice(0, 20);
+            const input = document.getElementById('sidInput');
+            input.value = candidate;
+            handleSidInputChange();
+        }
+
+        function prefillSidSuggestionIfEmpty() {
+            const input = document.getElementById('sidInput');
+            if (input && input.value.trim() === '') suggestSid();
+        }
+
+        function submitSid() {
+            const input = document.getElementById('sidInput');
+            const sid = input.value.trim();
+            const submitBtn = document.getElementById('sidSubmitBtn');
+            submitBtn.disabled = true; submitBtn.innerText = 'Setting...';
+
+            fetch(`${BACKEND_BASE_URL}?action=create-sid`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: window._userUid, sid })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (result && result.success) {
+                    window._userSid = result.sid;
+                    hideMandatorySidOverlay();
+                    showPremiumNotification('S ID Set', 'आपका S ID @' + result.sid + ' सफलतापूर्वक बन गया!', false);
+                    submitBtn.innerText = 'S ID Set करें';
+                } else {
+                    const statusEl = document.getElementById('sidStatusMsg');
+                    statusEl.innerText = (result && result.error) || 'S ID set नहीं हो पाया।';
+                    statusEl.className = 'sid-status sid-status-error';
+                    submitBtn.disabled = false; submitBtn.innerText = 'S ID Set करें';
+                }
+            })
+            .catch(() => {
+                const statusEl = document.getElementById('sidStatusMsg');
+                statusEl.innerText = 'Connection error, दोबारा कोशिश करें।';
+                statusEl.className = 'sid-status sid-status-error';
+                submitBtn.disabled = false; submitBtn.innerText = 'S ID Set करें';
+            });
         }
     </script>
 </body>

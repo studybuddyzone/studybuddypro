@@ -369,6 +369,25 @@
             font-weight: 800; font-size: 13.5px;
         }
 
+        /* ---- Mandatory S ID Gate (shown after photo, before dashboard unlocks) ---- */
+        .sid-input-row {
+            display: flex; align-items: center; gap: 6px; background: var(--hover-bg);
+            border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px;
+        }
+        .sid-at { font-weight: 800; color: var(--text-muted); font-size: 14px; }
+        .sid-input {
+            flex: 1; border: none; background: transparent; outline: none; font-size: 14px;
+            font-weight: 700; color: var(--text-main); min-width: 0;
+        }
+        .sid-status { font-size: 11.5px; min-height: 16px; margin-bottom: 12px; text-align: left; font-weight: 600; }
+        .sid-status-ok { color: #16a34a; }
+        .sid-status-error { color: #e11d48; }
+        .sid-suggest-btn {
+            width: 100%; padding: 11px; border-radius: 12px; border: 1.5px solid var(--border); cursor: pointer;
+            background: var(--hover-bg); color: var(--text-main); font-weight: 700; font-size: 12.5px; margin-bottom: 10px;
+        }
+        .mandatory-photo-cta:disabled { opacity: 0.5; cursor: not-allowed; }
+
         /* ---- Initial Auth-Check Loader (closes the race-condition window before we
              know whether the mandatory photo gate needs to show) ---- */
         #authGateLoader {
@@ -928,6 +947,21 @@
         </div>
     </div>
 
+    <!-- ===== MANDATORY S ID GATE ===== -->
+    <div class="mandatory-photo-overlay" id="mandatorySidOverlay">
+        <div class="mandatory-photo-box">
+            <h3>अपनी S ID बनाएं</h3>
+            <p>यह आपकी unique public ID है (Instagram username जैसी) — सिर्फ छोटे अक्षर, अंक, "_" और "." allowed। एक बार सेट होने के बाद यह fixed रहेगी।</p>
+            <div class="sid-input-row">
+                <span class="sid-at">@</span>
+                <input type="text" id="sidInput" class="sid-input" maxlength="20" placeholder="yourname123" oninput="handleSidInputChange()" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+            <div class="sid-status" id="sidStatusMsg"></div>
+            <button class="sid-suggest-btn" onclick="suggestSid()">Suggest ID</button>
+            <button class="mandatory-photo-cta" id="sidSubmitBtn" onclick="submitSid()" disabled>S ID Set करें</button>
+        </div>
+    </div>
+
     <!-- 🔧 UNDER MAINTENANCE OVERLAY -->
     <div id="maintenanceOverlay">
         <div class="maint-overlay-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
@@ -1078,6 +1112,7 @@
             <p class="profile-photo-hint">Tap the camera icon to update your photo.<br>Square photo recommended, 500×500px, JPG/PNG, max 3MB.</p>
 
             <div class="profile-data-stack">
+                <div class="profile-data-item"><span class="profile-data-label">S ID</span><span id="profSid" class="profile-data-value">Loading...</span></div>
                 <div class="profile-data-item"><span class="profile-data-label">Full Name</span><span id="profName" class="profile-data-value">Loading...</span></div>
                 <div class="profile-data-item"><span class="profile-data-label">Email ID</span><span id="profEmail" class="profile-data-value">Loading...</span></div>
                 <div class="profile-data-item"><span class="profile-data-label">Mobile Number</span><span id="profMobile" class="profile-data-value">Loading...</span></div>
@@ -1701,6 +1736,7 @@
         let currentUserRole = "blank"; 
         let currentUserEmail = "";
         let currentUserName = "Student User";
+        let currentUserSid = null;
         let currentUserPhotoURL = null;
         let masterWelcomeSoundPlayed = false;
         let expiryCheckInterval = null;
@@ -1830,8 +1866,10 @@
                         document.getElementById('profName').innerText = currentUserName;
                         document.getElementById('profEmail').innerText = userData.email || user.email || "N/A";
                         document.getElementById('profMobile').innerText = userData.mobile || "Not Linked";
+                        currentUserSid = userData.sid || null;
+                        document.getElementById('profSid').innerText = currentUserSid ? ("@" + currentUserSid) : "Not Set";
                         applyUserPhotoEverywhere(userData.photoURL || userData.photo_url || null);
-                        enforceMandatoryPhotoUpload(userData.photoURL || userData.photo_url || null);
+                        runMandatoryGates(userData.photoURL || userData.photo_url || null, currentUserSid);
                         applyAccessLocks();
                         fetchPremiumSubscriptionDetails(user.uid, currentUserRole);
                         hideAuthGateLoader();
@@ -1841,8 +1879,10 @@
                         rolePlaceholder.style.background = "#64748b";
                         fallbackProfileDetails(user.email);
                         currentUserRole = "student";
+                        currentUserSid = null;
+                        document.getElementById('profSid').innerText = "Not Set";
                         applyUserPhotoEverywhere(null);
-                        enforceMandatoryPhotoUpload(null);
+                        runMandatoryGates(null, null);
                         applyAccessLocks();
                         showDashPremiumFields("student");
                         hideAuthGateLoader();
@@ -1863,6 +1903,7 @@
                 document.getElementById('soloIdentityHook').innerText = "Guest Terminal (Sign In Required)";
                 applyUserPhotoEverywhere(null);
                 hideMandatoryPhotoOverlay();
+                hideMandatorySidOverlay();
                 applyAccessLocks();
                 hideAuthGateLoader();
             }
@@ -2401,19 +2442,161 @@
         // Safety net: never let a network hiccup trap the user on a blank spinner forever.
         setTimeout(hideAuthGateLoader, 8000);
 
-        // Called every time user data loads. Shows the mandatory gate ONLY if the
-        // user is signed in and has no photoURL yet. Once they upload one, this
-        // simply never fires the overlay again (since photoURL will exist from then on).
-        function enforceMandatoryPhotoUpload(photoURL) {
-            if (currentUserUid && !photoURL) {
+        // Called every time user data loads. Runs BOTH mandatory gates in sequence:
+        // 1) Photo gate first (existing behaviour) — blocks until a photoURL exists.
+        // 2) Once photo is set, S ID gate — blocks until a unique S ID is created.
+        // The RTDB listener re-fires after either write, so gates advance automatically.
+        function runMandatoryGates(photoURL, sid) {
+            if (!currentUserUid) {
+                hideMandatoryPhotoOverlay();
+                hideMandatorySidOverlay();
+                return;
+            }
+            if (!photoURL) {
+                hideMandatorySidOverlay();
                 showMandatoryPhotoOverlay();
+            } else if (!sid) {
+                hideMandatoryPhotoOverlay();
+                showMandatorySidOverlay();
+                prefillSidSuggestionIfEmpty();
             } else {
                 hideMandatoryPhotoOverlay();
+                hideMandatorySidOverlay();
             }
         }
 
         function triggerMandatoryPhotoUpload() {
             document.getElementById('mandatoryPhotoInput').click();
+        }
+
+        /* ===================================================== */
+        /* ===== MANDATORY S ID GATE (one-time, after photo) ==== */
+        /* ===================================================== */
+
+        function showMandatorySidOverlay() {
+            const overlay = document.getElementById('mandatorySidOverlay');
+            if (overlay) overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideMandatorySidOverlay() {
+            const overlay = document.getElementById('mandatorySidOverlay');
+            if (overlay) overlay.classList.remove('active');
+            if (!document.querySelector('.mandatory-photo-overlay.active')) document.body.style.overflow = '';
+        }
+
+        function sanitizeSidValue(v) {
+            return (v || '').toLowerCase().replace(/[^a-z0-9._]/g, '');
+        }
+
+        let sidCheckTimer = null;
+
+        function handleSidInputChange() {
+            const input = document.getElementById('sidInput');
+            const cleaned = sanitizeSidValue(input.value);
+            if (cleaned !== input.value) input.value = cleaned;
+
+            const statusEl = document.getElementById('sidStatusMsg');
+            const submitBtn = document.getElementById('sidSubmitBtn');
+            submitBtn.disabled = true;
+            clearTimeout(sidCheckTimer);
+
+            const val = input.value.trim();
+            if (val.length === 0) { statusEl.innerText = ''; statusEl.className = 'sid-status'; return; }
+            if (val.length < 3) {
+                statusEl.innerText = 'कम से कम 3 characters चाहिए।';
+                statusEl.className = 'sid-status sid-status-error';
+                return;
+            }
+            if (val.includes('..') || val.startsWith('.') || val.endsWith('.')) {
+                statusEl.innerText = '"." शुरू/अंत में या लगातार दो बार नहीं आ सकता।';
+                statusEl.className = 'sid-status sid-status-error';
+                return;
+            }
+
+            statusEl.innerText = 'Checking availability...';
+            statusEl.className = 'sid-status';
+            sidCheckTimer = setTimeout(() => checkSidAvailability(val), 500);
+        }
+
+        function checkSidAvailability(sid) {
+            const statusEl = document.getElementById('sidStatusMsg');
+            const submitBtn = document.getElementById('sidSubmitBtn');
+            fetch(`${BACKEND_BASE_URL}?action=check-sid`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sid })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                // Stale response guard: ignore if the input has moved on since this check started
+                if (document.getElementById('sidInput').value.trim() !== sid) return;
+                if (result && result.valid && result.available) {
+                    statusEl.innerText = '✅ यह S ID उपलब्ध है!';
+                    statusEl.className = 'sid-status sid-status-ok';
+                    submitBtn.disabled = false;
+                } else if (result && result.valid && !result.available) {
+                    statusEl.innerText = '❌ यह S ID पहले से लिया जा चुका है।';
+                    statusEl.className = 'sid-status sid-status-error';
+                    submitBtn.disabled = true;
+                } else {
+                    statusEl.innerText = '❌ Invalid S ID format।';
+                    statusEl.className = 'sid-status sid-status-error';
+                    submitBtn.disabled = true;
+                }
+            })
+            .catch(() => {
+                statusEl.innerText = 'Connection error, दोबारा कोशिश करें।';
+                statusEl.className = 'sid-status sid-status-error';
+            });
+        }
+
+        function suggestSid() {
+            const base = sanitizeSidValue((currentUserName || 'user').replace(/\s+/g, '.'));
+            const candidate = ((base || 'user').slice(0, 14) + '.' + Math.floor(1000 + Math.random() * 9000)).slice(0, 20);
+            const input = document.getElementById('sidInput');
+            input.value = candidate;
+            handleSidInputChange();
+        }
+
+        function prefillSidSuggestionIfEmpty() {
+            const input = document.getElementById('sidInput');
+            if (input && input.value.trim() === '') suggestSid();
+        }
+
+        function submitSid() {
+            const input = document.getElementById('sidInput');
+            const sid = input.value.trim();
+            const submitBtn = document.getElementById('sidSubmitBtn');
+            submitBtn.disabled = true; submitBtn.innerText = 'Setting...';
+
+            fetch(`${BACKEND_BASE_URL}?action=create-sid`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: currentUserUid, sid })
+            })
+            .then(r => r.json())
+            .then((result) => {
+                if (result && result.success) {
+                    currentUserSid = result.sid;
+                    const sidDisplay = document.getElementById('profSid');
+                    if (sidDisplay) sidDisplay.innerText = '@' + result.sid;
+                    hideMandatorySidOverlay();
+                    showPremiumNotification('S ID Set', 'आपका S ID @' + result.sid + ' सफलतापूर्वक बन गया!', false);
+                    submitBtn.innerText = 'S ID Set करें';
+                } else {
+                    const statusEl = document.getElementById('sidStatusMsg');
+                    statusEl.innerText = (result && result.error) || 'S ID set नहीं हो पाया।';
+                    statusEl.className = 'sid-status sid-status-error';
+                    submitBtn.disabled = false; submitBtn.innerText = 'S ID Set करें';
+                }
+            })
+            .catch(() => {
+                const statusEl = document.getElementById('sidStatusMsg');
+                statusEl.innerText = 'Connection error, दोबारा कोशिश करें।';
+                statusEl.className = 'sid-status sid-status-error';
+                submitBtn.disabled = false; submitBtn.innerText = 'S ID Set करें';
+            });
         }
     </script>
 </body>
