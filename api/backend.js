@@ -503,6 +503,54 @@ async function handleMasterGetSiteConfig(body, res) {
   });
 }
 
+// ── S ID (public @username) — format rules match the frontend's own sanitizer:
+// lowercase letters, digits, "_" and "." only; 3-20 chars; no leading/trailing/
+// consecutive dots. Stored at users/{prn}/sid, immutable once set.
+function isValidSidFormat(sid) {
+  if (typeof sid !== "string") return false;
+  if (sid.length < 3 || sid.length > 20) return false;
+  if (!/^[a-z0-9._]+$/.test(sid)) return false;
+  if (sid.startsWith(".") || sid.endsWith(".")) return false;
+  if (sid.includes("..")) return false;
+  return true;
+}
+
+async function handleCheckSid(body, res) {
+  const sid = (body.sid || "").toString().trim().toLowerCase();
+  if (!isValidSidFormat(sid)) {
+    return res.status(200).json({ valid: false, available: false, error: "Invalid S ID format." });
+  }
+  const db = admin.database();
+  const snap = await db.ref("users").orderByChild("sid").equalTo(sid).once("value");
+  return res.status(200).json({ valid: true, available: !snap.exists() });
+}
+
+async function handleCreateSid(body, res) {
+  const uid = (body.uid || "").toString().trim();
+  const sid = (body.sid || "").toString().trim().toLowerCase();
+  if (!uid) return res.status(400).json({ success: false, error: "uid missing hai." });
+  if (!isValidSidFormat(sid)) return res.status(400).json({ success: false, error: "Invalid S ID format." });
+
+  const db = admin.database();
+
+  // users node PRN-keyed hai; uid se pehle PRN dhoondo
+  const userSnap = await db.ref("users").orderByChild("uid").equalTo(uid).once("value");
+  const userVal = userSnap.val();
+  if (!userVal) return res.status(404).json({ success: false, error: "User record not found." });
+  const prn = Object.keys(userVal)[0];
+
+  // S ID ek baar set hone ke baad fixed rehti hai — dobara request aane par wahi purani wapas de do
+  const existingSid = (userVal[prn] || {}).sid;
+  if (existingSid) return res.status(200).json({ success: true, sid: existingSid });
+
+  // Race-condition-safe: write se theek pehle dobara uniqueness check
+  const dupSnap = await db.ref("users").orderByChild("sid").equalTo(sid).once("value");
+  if (dupSnap.exists()) return res.status(409).json({ success: false, error: "Yeh S ID abhi-abhi kisi aur ne le liya, dusra try karein." });
+
+  await db.ref(`users/${prn}/sid`).set(sid);
+  return res.status(200).json({ success: true, sid });
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -528,6 +576,8 @@ module.exports = async (req, res) => {
       case "wipe-database":               return await handleWipeDatabase(body, res);
       case "submit-score":                return await handleSubmitScore(body, res);
       case "upload-photo":                return await handleUploadPhoto(body, res);
+      case "check-sid":                   return await handleCheckSid(body, res);
+      case "create-sid":                  return await handleCreateSid(body, res);
       case "submit-profile-request":      return await handleSubmitProfileRequest(body, res);
       case "manage-rooms":                return await handleManageRooms(body, res);
       case "master-create-account":       return await handleMasterCreateAccount(body, res);
