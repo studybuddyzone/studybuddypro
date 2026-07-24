@@ -754,6 +754,7 @@
             </div>
             <button class="mandatory-photo-cta" id="mandatoryPhotoPickBtn" onclick="triggerMandatoryPhotoUpload()">Photo Upload करें</button>
             <button class="mandatory-photo-cta" id="mandatoryPhotoSubmitBtn" onclick="submitMandatoryPhoto()" style="display:none;margin-top:10px;">Submit Photo</button>
+            <div id="mandatoryPhotoStatus" style="margin-top:12px;font-size:12.5px;line-height:1.5;min-height:0;"></div>
         </div>
     </div>
 
@@ -1686,25 +1687,29 @@
         }
 
         function submitMandatoryPhoto() {
+            const statusEl = document.getElementById('mandatoryPhotoStatus');
+            if (statusEl) { statusEl.style.color = ''; statusEl.innerText = ''; }
+
             if (!pendingMandatoryPhotoBase64) {
-                showPremiumNotification("Select a Photo", "Pehle ek photo chuno, phir Submit karo.", true);
+                if (statusEl) { statusEl.style.color = '#ef4444'; statusEl.innerText = 'Pehle ek photo chuno, phir Submit karo.'; }
                 return;
             }
             const submitBtn = document.getElementById('mandatoryPhotoSubmitBtn');
             if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = 'Uploading...'; }
+            if (statusEl) { statusEl.style.color = ''; statusEl.innerText = 'Uploading photo, please wait...'; }
 
             uploadProfilePhotoToBackend(pendingMandatoryPhotoBase64, {
                 wrapSelector: '.mandatory-photo-wrap',
                 onSuccess: () => {
                     pendingMandatoryPhotoBase64 = null;
+                    if (statusEl) { statusEl.style.color = '#10b981'; statusEl.innerText = 'Photo saved! Closing...'; }
                     hideMandatoryPhotoOverlay();
+                },
+                onError: (message) => {
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'Submit Photo'; }
+                    if (statusEl) { statusEl.style.color = '#ef4444'; statusEl.innerText = 'Failed: ' + message; }
                 }
             });
-
-            // Re-enable the button afterwards regardless of outcome so the user can retry on failure
-            setTimeout(() => {
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'Submit Photo'; }
-            }, 4000);
         }
 
         function uploadProfilePhotoToBackend(imageBase64, options) {
@@ -1713,15 +1718,21 @@
             if (wrap) wrap.classList.add('profile-photo-uploading');
             showPremiumNotification("Uploading...", "Syncing your new profile photo to the server.", false);
 
-            fetch(`${BACKEND_BASE_URL}?action=upload-photo`, {
+            // Returns the underlying promise so callers (like the mandatory photo gate)
+            // can show their OWN inline success/error text — toasts can be visually hidden
+            // behind full-screen overlays, so don't rely on them alone for critical feedback.
+            return fetch(`${BACKEND_BASE_URL}?action=upload-photo`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ uid: window._userUid, image: imageBase64 })
             })
-            .then(r => r.json())
-            .then((result) => {
+            .then(async (r) => {
+                let result = null;
+                try { result = await r.json(); } catch (e) { /* non-JSON response */ }
+
                 if (wrap) wrap.classList.remove('profile-photo-uploading');
-                if (result && result.success && result.photoURL) {
+
+                if (r.ok && result && result.success && result.photoURL) {
                     applyUserPhotoEverywhere(result.photoURL);
                     showPremiumNotification("Photo Updated", "Your profile photo has been updated successfully!", false);
                     // Keep Social Mode's Firestore profile in sync with this same photo
@@ -1729,13 +1740,20 @@
                         window.SocialMode.syncPhotoFromHost(result.photoURL);
                     }
                     if (typeof options.onSuccess === 'function') options.onSuccess();
-                } else {
-                    showPremiumNotification("Upload Failed", "Server couldn't save your photo. Please try again.", true);
+                    return { ok: true };
                 }
+
+                const serverMsg = (result && (result.message || result.error)) || `Server error (HTTP ${r.status}).`;
+                showPremiumNotification("Upload Failed", "Server couldn't save your photo. Please try again.", true);
+                if (typeof options.onError === 'function') options.onError(serverMsg);
+                return { ok: false, message: serverMsg };
             })
-            .catch(() => {
+            .catch((err) => {
                 if (wrap) wrap.classList.remove('profile-photo-uploading');
                 showPremiumNotification("Connection Error", "Couldn't reach the server to upload your photo.", true);
+                const msg = "Connection error — couldn't reach the photo server. Check your internet and try again.";
+                if (typeof options.onError === 'function') options.onError(msg);
+                return { ok: false, message: msg };
             });
         }
 
